@@ -229,8 +229,8 @@ function export_data_gba() {
 
 	var default_tiles = new Object();
 	default_tiles.name = "Default Tiles";
-	default_tiles.gorder = -1;
-	default_tiles.gid = 0;
+	default_tiles.gorder = -1; /* Always ensure our default tiles are listed first */
+	default_tiles.gid = -1; /* Ensure we avoid interference with real textures */
 	default_tiles.textures = new Array( _default_tile_1, _default_tile_2 );	
 
 	/* Create a new array for our export */

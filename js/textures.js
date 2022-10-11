@@ -978,9 +978,11 @@ function sort_textures_by_order( gid ) {
 	
 	var sort_group = project.textures.find( obj => obj.gid == gid );
 
-	sort_group.textures.sort( function( a, b ) {
-		return ((a.order < b.order) ? -1 : ((a.order > b.order) ? 1 : 0));
-	} );
+	if( sort_group != undefined ) {
+	 	sort_group.textures.sort( function( a, b ) {
+			return ((a.order < b.order) ? -1 : ((a.order > b.order) ? 1 : 0));
+		} );
+	 }
 }
 
 function sort_texture_array_by_gorder( array ) {
