@@ -191,6 +191,7 @@ function export_data_gba() {
 	_sprite_colour_palette_output = _sprite_colour_palette_output.replace( /,/g, ", " );
 	_sprite_colour_palette_output = _sprite_colour_palette_output.replace( /((?:.*?\s){7}.*?)\s/g, "$1\n\t" )
 	
+	output += "const uint16_t _sprite_colour_palette_length = " + ( sprite_colour_palette_output.length ) + ";\n";
 	output += "const uint16_t _sprite_colour_palette[ " + ( sprite_colour_palette_output.length ) + " ] = {\n";
 	output += "\t" + _sprite_colour_palette_output + ",\n";
 	output += "};\n\n";
@@ -364,6 +365,7 @@ function export_data_gba() {
 	_texture_colour_palette_output = _texture_colour_palette_output.replace( /,/g, ", " );
 	_texture_colour_palette_output = _texture_colour_palette_output.replace( /((?:.*?\s){7}.*?)\s/g, "$1\n\t" )
 	
+	output += "const uint16_t _texture_colour_palette_length = " + ( texture_colour_palette_output.length ) + ";\n";
 	output += "const uint16_t _texture_colour_palette[ " + ( texture_colour_palette_output.length ) + " ] = {\n";
 	output += "\t" + _texture_colour_palette_output + ",\n";
 	output += "};\n\n";
