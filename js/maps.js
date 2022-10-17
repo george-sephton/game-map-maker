@@ -103,13 +103,13 @@ function load_map_editor() {
 
 	/* Add map rows */
 	var show_rows = controls_disabled ? map_resizing.new_height : selected_map.height;
-	for(i=0; i<show_rows; i++)
+	for( i = 0; i < show_rows; i++ )
 		$( "#map_editor_table" ).append( '<tr row_id="' + i + '" class="map_editor_table_row"></tr>' );
 
 	/* Add map cells for each row */
 	var show_cols = controls_disabled ? map_resizing.new_width : selected_map.width;
 	$( "#map_editor_table" ).children().each( function() {
-		for(i=0; i<show_cols; i++)
+		for( i = 0; i < show_cols; i++ )
 			$( '<td col_id="'+i+'" class="map_editor_table_cell"></td>' ).appendTo( $(this) );
 	} );
 
@@ -120,13 +120,6 @@ function load_map_editor() {
 		var tile_info = new Object();
 		tile_info.row = $( this ).parent().attr( "row_id" );
 		tile_info.col = $( this ).attr( "col_id" );
-
-		/* Clear all borders first */
-		$( this ).find( ".texture_table" ).css( "border-top", "0" );
-		$( this ).find( ".texture_table" ).css( "border-right", "0" );
-		$( this ).find( ".texture_table" ).css( "border-bottom", "0" );
-		$( this ).find( ".texture_table" ).css( "border-left", "0" );
-		$( this ).find( ".texture_table" ).css( "border", "0" );
 
 		/* Get the texture flip info */
 		if( ( tile_info.col >= selected_map.width ) || ( tile_info.row >= selected_map.height ) ) {
@@ -201,12 +194,15 @@ function load_map_editor() {
 				/* Add the texture table */
 				$( this ).html( '<table class="texture_table"></table>' );
 
+				const _texture_table = $( this ).find( ".texture_table" );
+
 				/* Add 8 rows */
 				for(i=0; i<8; i++)
-					$( this ).find( ".texture_table" ).append( '<tr row_id="' + i + '"></tr>' );
+					_texture_table.append( '<tr row_id="' + i + '"></tr>' );
 
 				/* Add 8 cells for each row */
 				$( this ).find( ".texture_table tr" ).each( function() {
+					
 					for(i=0; i<8; i++) {
 							
 						/* Draw texture */
@@ -234,61 +230,57 @@ function load_map_editor() {
 					}
 				} );
 
-				if( bg_texture ) {
-
-					/* Add a border so we know it's a blank tile */
-					$( this ).find( ".texture_table" ).css( "border", "1px solid #00f" );
-				} else {
+				if( !bg_texture ) {
 
 					if( selected_map.data[tile_info.row][tile_info.col].exit_tile ) {
 
 						/* Update CSS for exit tiles */
 						switch( selected_map.data[tile_info.row][tile_info.col].exit_map_dir.join() ) {
 							case "0,0":  /* Exit any direction */
-								$( this ).find( ".texture_table" ).css( "border", "3px solid #ff0" );
+								_texture_table.css( "border", "3px solid #ff0" );
 								break;
 							case "0,1": /* Exit when walking north */
-								$( this ).find( ".texture_table" ).css( "border-top", "3px solid #ff0" );
+								_texture_table.css( "border-top", "3px solid #ff0" );
 								break;
 							case "1,0": /* Exit when walking east */
-								$( this ).find( ".texture_table" ).css( "border-right", "3px solid #ff0" );
+								_texture_table.css( "border-right", "3px solid #ff0" );
 								break;
 							case "0,-1": /* Exit when walking south */
-								$( this ).find( ".texture_table" ).css( "border-bottom", "3px solid #ff0" );
+								_texture_table.css( "border-bottom", "3px solid #ff0" );
 								break;
 							case "-1,0": /* Exit when walking west */
-								$( this ).find( ".texture_table" ).css( "border-left", "3px solid #ff0" );
+								_texture_table.css( "border-left", "3px solid #ff0" );
 								break;
 						}
 					} else if( selected_map.data[tile_info.row][tile_info.col].interact_en ) {
 
 						/* Update CSS based on interact_en */
-						$( this ).find( ".texture_table" ).css( "border", "3px solid #0ff" );
+						_texture_table.css( "border", "3px solid #0ff" );
 
 					} else if( selected_map.data[tile_info.row][tile_info.col].npc_en ) {
 
 						/* Update CSS based on npc_en */
-						$( this ).find( ".texture_table" ).css( "border", "3px solid #f0f" );
+						_texture_table.css( "border", "3px solid #f0f" );
 
 					} else if( selected_map.data[tile_info.row][tile_info.col].top_layer ) {
 
 						/* Update CSS based on top_layer */
-						$( this ).find( ".texture_table" ).css( "border-top", "3px solid #0f0" );
-						$( this ).find( ".texture_table" ).css( "border-right", "3px solid #0f0" );
-						$( this ).find( ".texture_table" ).css( "border-bottom", "3px solid #0f0" );
-						$( this ).find( ".texture_table" ).css( "border-left", "3px solid #0f0" );
+						_texture_table.css( "border-top", "3px solid #0f0" );
+						_texture_table.css( "border-right", "3px solid #0f0" );
+						_texture_table.css( "border-bottom", "3px solid #0f0" );
+						_texture_table.css( "border-left", "3px solid #0f0" );
 
-						if( !selected_map.data[tile_info.row][tile_info.col].can_walk[0] ) $( this ).find( ".texture_table" ).css( "border-top", "3px solid #fc8805" );
-						if( !selected_map.data[tile_info.row][tile_info.col].can_walk[1] ) $( this ).find( ".texture_table" ).css( "border-right", "3px solid #fc8805" );
-						if( !selected_map.data[tile_info.row][tile_info.col].can_walk[2] ) $( this ).find( ".texture_table" ).css( "border-bottom", "3px solid #fc8805" );
-						if( !selected_map.data[tile_info.row][tile_info.col].can_walk[3] ) $( this ).find( ".texture_table" ).css( "border-left", "3px solid #fc8805" );
+						if( !selected_map.data[tile_info.row][tile_info.col].can_walk[0] ) _texture_table.css( "border-top", "3px solid #fc8805" );
+						if( !selected_map.data[tile_info.row][tile_info.col].can_walk[1] ) _texture_table.css( "border-right", "3px solid #fc8805" );
+						if( !selected_map.data[tile_info.row][tile_info.col].can_walk[2] ) _texture_table.css( "border-bottom", "3px solid #fc8805" );
+						if( !selected_map.data[tile_info.row][tile_info.col].can_walk[3] ) _texture_table.css( "border-left", "3px solid #fc8805" );
 					} else {
 
 						/* Update CSS based on can_walk */
-						if( !selected_map.data[tile_info.row][tile_info.col].can_walk[0] ) $( this ).find( ".texture_table" ).css( "border-top", "3px solid #f00" );
-						if( !selected_map.data[tile_info.row][tile_info.col].can_walk[1] ) $( this ).find( ".texture_table" ).css( "border-right", "3px solid #f00" );
-						if( !selected_map.data[tile_info.row][tile_info.col].can_walk[2] ) $( this ).find( ".texture_table" ).css( "border-bottom", "3px solid #f00" );
-						if( !selected_map.data[tile_info.row][tile_info.col].can_walk[3] ) $( this ).find( ".texture_table" ).css( "border-left", "3px solid #f00" );
+						if( !selected_map.data[tile_info.row][tile_info.col].can_walk[0] ) _texture_table.css( "border-top", "3px solid #f00" );
+						if( !selected_map.data[tile_info.row][tile_info.col].can_walk[1] ) _texture_table.css( "border-right", "3px solid #f00" );
+						if( !selected_map.data[tile_info.row][tile_info.col].can_walk[2] ) _texture_table.css( "border-bottom", "3px solid #f00" );
+						if( !selected_map.data[tile_info.row][tile_info.col].can_walk[3] ) _texture_table.css( "border-left", "3px solid #f00" );
 					}
 				}
 			}
@@ -812,7 +804,7 @@ function map_toolbar_event_listeners() {
 							/* Columns change */
 							var set_cols = parseInt( $( "#container #toolbar #map_size_settings #cols #map_cols" ).val() );
 
-							if( ( set_cols >= 3 ) && ( set_cols <= 40 ) ) {
+							if( ( set_cols >= 3 ) && ( set_cols <= 99 ) ) {
 								map_resizing.new_width = set_cols;
 								load_map_editor();
 							}
@@ -822,7 +814,7 @@ function map_toolbar_event_listeners() {
 							/* Rows change */
 							var set_rows = parseInt( $( "#container #toolbar #map_size_settings #rows #map_rows" ).val() );
 							
-							if( ( set_rows >= 3 ) && ( set_rows <= 40 ) ) {
+							if( ( set_rows >= 3 ) && ( set_rows <= 99 ) ) {
 								map_resizing.new_height = set_rows;
 								load_map_editor();
 							}
