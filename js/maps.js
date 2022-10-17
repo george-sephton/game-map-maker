@@ -147,45 +147,53 @@ function load_map_editor() {
 		var texture_obj = undefined;
 		var bg_texture = false;
 
-		/* Get the texture */
-		if( ( tile_info.texture_gid != -1 ) && ( tile_info.texture_id != -1 ) ) {
-			var group_obj = project.textures.find( obj => obj.gid == tile_info.texture_gid );
-			if( group_obj != undefined ) {
-				texture_obj = group_obj.textures.find( obj => obj.id == tile_info.texture_id );
+		/* Get the texture
+			- if the tile is empty, the texture gid and id is undefined
+			- when adding rows/columns during resizing, newly added tiles' texture gid and id is -1
+			- tiles with texture added, have texture gid and id set accordingly, regardless of resizing
+		*/
+		if( tile_info.texture_gid != -1 ) {
+
+			/* Not a resizing tile */
+			if( tile_info.texture_gid != undefined ) {
+
+				/* Normal tile, let's get the texture object */
+				var group_obj = project.textures.find( obj => obj.gid == tile_info.texture_gid );
+				
+				if( group_obj != undefined ) {
+
+					/* Set the texture object */
+					texture_obj = group_obj.textures.find( obj => obj.id == tile_info.texture_id );
+				} else {
+
+					/* Texture couldn't be found, show as empty */
+					texture_obj = undefined;
+				}
 			} else {
+
+				/* Empty tile */
 				texture_obj = undefined;
 			}
 		} else {
+
+			/* Resizing tile - show as grey */
 			texture_obj = -1;
 		}
-		
+
+		/* Show empty tile */
 		if( texture_obj == undefined ) {
-			
-			if( ( selected_map.bg_texture.gid == undefined ) && ( selected_map.bg_texture.id == undefined ) ) {
-				
-				/* Tile has no texture and map has no background texture, show nothing */
-				$( this ).css( "background", false );
-				$( this ).addClass( "trans_background" );
-			} else {
 
-				/* Tile has no texture but map has a background texture, show that instead */
-				$( this ).addClass( "remove_background" );
-				bg_texture = true;
-
-				group_obj = project.textures.find( obj => obj.gid == selected_map.bg_texture.gid );
-				texture_obj = group_obj.textures.find( obj => obj.id == selected_map.bg_texture.id );
-			}
+			/* Tile has no texture, show as transparent - saves a bit of resource */
+			$( this ).css( "background", false );
+			$( this ).addClass( "trans_background" );
 		}
-		
-		if( texture_obj != -1 ) {
+
+		if( ( texture_obj != undefined ) && ( texture_obj != -1 ) ) {
 
 			/* Whilst resizing, don't render the texture */
 			if( controls_disabled == true ) {
 
-				//map_resizing.new_width = selected_map.width;
-				//map_resizing.new_height = selected_map.height;
-
-				/* Show blue instead */
+				/* Tile is an normal tile whilst resizing - show as blue */
 				$( this ).css( "background", "#327da8" );
 				$( this ).removeClass( "trans_background" );
 			} else {
@@ -284,8 +292,14 @@ function load_map_editor() {
 					}
 				}
 			}
-		} else {
+		} else if( texture_obj == -1 ) {
 
+			/* Tile is part of soon to be added row/column whilst resizing - show as grey */
+			$( this ).css( "background", "#ccc" );
+			$( this ).removeClass( "trans_background" );
+		} else if( ( texture_obj == undefined ) && ( controls_disabled == true ) ) {
+
+			/* Tile is an empty tile whilst resizing - show as grey */
 			$( this ).css( "background", "#ccc" );
 			$( this ).removeClass( "trans_background" );
 		}
