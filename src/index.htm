@@ -5,6 +5,7 @@
 
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta http-equiv="Content-Security-Policy" content="script-src 'self' https://fonts.googleapis.com/">
 
 		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto" />
 		<link rel="stylesheet" href="js/colpick/colpick.css" type="text/css"/>
@@ -30,9 +31,6 @@
 	</head>
 	<body>
 		<div id="container">
-			<div id="test">
-				<input type="button" value="Test" id="test_open" />
-			</div>
 			<div id="sidebar">
 				<div id="texture_editor">
 				</div>
@@ -42,6 +40,7 @@
 				<div id="texture_list_toolbar">
 					<div id="toolbar_left">
 						<i class="bi-folder-plus" id="toolbar_new_group" func="new-group"></i>
+						<i class="bi-image-fill" id="toolbar_image_upload" func="upload-texture"></i>
 						<i class="bi-plus-square-fill" id="toolbar_new_texture" func="new"></i>
 						<i class="bi-arrow-left" id="toolbar_back" func="back"></i>
 					</div>

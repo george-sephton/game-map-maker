@@ -31,6 +31,7 @@ function load_texture_list() {
 
 		/* Set the icons */
 		$( "#texture_list_toolbar #toolbar_left #toolbar_new_group" ).css( "display", "block" );
+		$( "#texture_list_toolbar #toolbar_left #toolbar_image_upload" ).css( "display", "block" );
 		$( "#texture_list_toolbar #toolbar_left #toolbar_new_texture" ).css( "display", "none" );
 		$( "#texture_list_toolbar #toolbar_left #toolbar_back" ).css( "display", "none" );
 		$( "#texture_list_toolbar #toolbar_right" ).css( "display", "none" );
@@ -75,6 +76,7 @@ function load_texture_list() {
 
 		/* Set the icons */
 		$( "#texture_list_toolbar #toolbar_left #toolbar_new_group" ).css( "display", "none" );
+		$( "#texture_list_toolbar #toolbar_left #toolbar_image_upload" ).css( "display", "none" );
 		$( "#texture_list_toolbar #toolbar_left #toolbar_new_texture" ).css( "display", "block" );
 		$( "#texture_list_toolbar #toolbar_left #toolbar_back" ).css( "display", "block" );
 		$( "#texture_list_toolbar #toolbar_right" ).css( "display", "flex" );
@@ -476,6 +478,7 @@ function load_texture_editor() {
 function clear_texture_toolbar_event_listeners() {
 
 	$( "#container #sidebar #texture_list_toolbar i:not( .texture_picker )" ).unbind( "click" );
+	$( "#container #sidebar #texture_list_toolbar #toolbar_image_upload" ).unbind( "click" );
 }
 
 function texture_toolbar_event_listeners() {
@@ -484,7 +487,7 @@ function texture_toolbar_event_listeners() {
 	clear_texture_toolbar_event_listeners();
 
 	/* texture toolbar event listeners */
-	$( "#container #sidebar #texture_list_toolbar i:not( .texture_picker )" ).click(function() {
+	$( "#container #sidebar #texture_list_toolbar i:not( .texture_picker, #toolbar_image_upload )" ).click( function() {
 		
 		/* Ignore clicks if controls are disabled */
 		if( ( ( controls_disabled == false ) && ( drawing_functions == false ) ) || ( drawing_functions == 5 ) ) {
@@ -551,9 +554,7 @@ function texture_toolbar_event_listeners() {
 						/* Remove paint brush as selected tool */
 						$( "#texture_erase" ).removeClass( "selected_tool" );
 						$( "#texture_editor table tr td" ).removeClass( "map_editor_table_cell_draw" );
-					}
-					
-					
+					}	
 					break;
 				case "new": /* Create a new texture */
 				case "new-group": /* Create a new texture group */
@@ -854,6 +855,151 @@ function texture_toolbar_event_listeners() {
 			}
 		}
 	});
+
+	/* image upload event listener */
+	$( "#container #sidebar #texture_list_toolbar #toolbar_image_upload" ).click( async () => {
+		
+		var img_data = await window.electronAPI.loadImage();
+
+		if( img_data != undefined ) {
+			
+			var images_array = new Array();
+			var img_array = new Array();
+			var img_row = new Array();
+			var temp_object = new Object();
+
+			//width: 8, height: 8, depth: 8
+			if( ( ( img_data.width % 8 ) == 0 ) && ( ( img_data.height % 8 ) == 0 ) ) {
+
+				var _pixel = 0, _row = 0, _img_count = 0;
+				$.each( img_data.data , function( index, value ) {
+
+					/* Add each colour value to our temporary object */
+					if( ( index % 4 ) == 0 ) {
+						temp_object.R = value;
+					} else if( ( index % 4 ) == 1 ) {
+						temp_object.G = value;
+					} else if( ( index % 4 ) == 2 ) {
+						temp_object.B = value;
+					} else if( ( index % 4 ) == 3 ) {
+						temp_object.A = value;
+
+						/* After adding all channels, convert to hex */
+						var conv = ( temp_object.R << 16 ) | ( temp_object.G << 8 ) | ( temp_object.B );
+
+						if( ( conv == 0 ) && ( temp_object.A == 0 ) ) {
+							
+							/* Transparent pixel */
+							var hex = undefined;
+						} else {
+
+							/* Black/Grey pixel */
+							var hex = "#" + ( conv ).toString(16).padStart( 6, '0' );
+						}
+						
+						
+						/* Add to the row and clear the temporary object */
+						img_row.push( hex );
+						temp_object = new Object();
+
+						/* Increment the pixel count and once we hit 8 pixels, add to the row array and clear */
+						_pixel++;
+
+						if( _pixel >= 8 ) {
+
+							_pixel = 0;
+							img_array.push( img_row );
+							img_row = new Array();
+							
+							/* Increment the row count and once we hit 8 rows, add to the output array and clear */
+							_row++;
+
+							if( _row >= 8 ) {
+
+								_row = 0;
+
+								/* Before adding this to the final array, let's see if it doesn't already exist, or already exists flipped */
+								var img_flip_v = Array.from( { length: 8 }, () => Array.from( { length: 8 }, () => undefined ) );
+								var img_flip_h = Array.from( { length: 8 }, () => Array.from( { length: 8 }, () => undefined ) );
+								var img_flip_vh = Array.from( { length: 8 }, () => Array.from( { length: 8 }, () => undefined ) );
+
+								/* Create arrays for flipped vertically, horizontally and both */
+								for( var row_sel = 0; row_sel < 8; row_sel++ ) {
+
+									for( var col_sel = 0; col_sel < 8; col_sel++ ) {
+
+										var row_sel_v = 7 - row_sel;
+										var col_sel_h = 7 - col_sel;
+
+										img_flip_v[ col_sel ][ row_sel ] = img_array[ col_sel ][ row_sel_v ];
+										img_flip_h[ col_sel ][ row_sel ] = img_array[ col_sel_h ][ row_sel ];
+										img_flip_vh[ col_sel ][ row_sel ]= img_array[ col_sel_h ][ row_sel_v ];
+									}
+								}
+								
+								/* Check all the existing images in the array */
+								var check_img_array = JSON.stringify( img_array );
+								var check_img_flip_v = JSON.stringify( img_flip_v );
+								var check_img_flip_h = JSON.stringify( img_flip_h );
+								var check_img_flip_vh = JSON.stringify( img_flip_vh );
+
+								var duplicate = false;
+								$.each( images_array, function( index, value ) {
+
+									var check_array = JSON.stringify( value )
+									
+									if( ( check_array == check_img_array ) || ( check_array == check_img_flip_v ) || ( check_array == check_img_flip_h ) || ( check_array == check_img_flip_vh ) ) {
+
+										/* We've got ourselves a duplicate */
+										duplicate = true;
+										return;
+									}
+									
+								} );
+
+								/* If we didn't find a duplicate, even with transformations, add the image to the image array */
+								if( duplicate == false ) {
+
+									var _new_texture = new Object();
+									_new_texture.name = "New " + _img_count;
+									_new_texture.order = _img_count;
+									_new_texture.id = _img_count;
+
+									_new_texture.data = new Array();
+									$.extend( true, _new_texture.data, img_array ); /* Clone array */
+
+									images_array.push( _new_texture );
+									_img_count++;
+								}
+
+								/* Clear the image array */
+								img_array = new Array();
+							}
+						}
+					}
+				});
+
+				/* All textures added to a new group in the project */
+
+				var g_grass_bg = new Object();
+				g_grass_bg.name = "Grass Background";
+				g_grass_bg.gorder = 0;
+				g_grass_bg.gid = 0;
+				g_grass_bg.textures = new Array( grass_bg );
+
+
+
+				console.log( images_array );
+
+			} else {
+				/* Image dimensions wrong */
+				console.log( "Dimension Error" );
+			}
+
+		} else {
+			/* Error with file upload */
+		}
+	} );
 }
 
 function clear_texture_list_sortable() {

@@ -1,10 +1,10 @@
 // main.js
 
 // Modules to control application life and create native browser window
-const {app, BrowserWindow, ipcMain, dialog} = require('electron')
+const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const path = require('path')
 const fs = require('fs')
-var bmp = require("bmp-js")
+var PNG = require("pngjs").PNG;
 
 /*
 const dialog = require('electron').dialog;
@@ -18,7 +18,7 @@ async function loadImage() {
 	const { canceled, filePaths } = await dialog.showOpenDialog( {
 		properties: [ 'openFile' ],
 		filters: [
-		    { name: 'Images', extensions: [ 'bmp' ] },
+		    { name: 'Images', extensions: [ 'png' ] },
 		    { name: 'All Files', extensions: ['*'] }
 		  ],
 	} );
@@ -26,10 +26,11 @@ async function loadImage() {
 	if( filePaths[0] != undefined ) { 
 
 		try {
-			var bmpBuffer = fs.readFileSync( filePaths[0] );
-			var bmpData = bmp.decode(bmpBuffer);
-		
-			return bmpData;
+
+			var data = fs.readFileSync( filePaths[0] )
+			var png = PNG.sync.read(data);
+
+			return png;
 		} catch (e) {
 			/* Error with bitmap decoding */
 		}
@@ -41,6 +42,8 @@ const createWindow = ( _width, _height ) => {
 	mainWindow = new BrowserWindow({
 		width: _width,
 		height: _height,
+		show: false,
+		icon: path.join(__dirname, 'src/images/favicon.ico'),
 		webPreferences: {
 			preload: path.join(__dirname, 'src/preload.js')
 		}
@@ -52,6 +55,8 @@ const createWindow = ( _width, _height ) => {
 
 	mainWindow.once('ready-to-show', () => {
 		mainWindow.webContents.setZoomFactor(0.8);
+		mainWindow.maximize();
+		mainWindow.show();
 	});
 }
 
