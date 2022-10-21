@@ -1232,6 +1232,8 @@ function map_editor_event_listeners() {
 
 		} else if( drawing_functions == 1 ) { /* Paint */
 
+			$( this ).removeClass( "trans_background" );
+
 			/* Draw in the cell */
 			$( this ).html( '<table class="texture_table"></table>' );
 
