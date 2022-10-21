@@ -929,96 +929,166 @@ function texture_toolbar_event_listeners() {
 					}
 				});
 
-				/* Let's sort our images into an output array, removing any empty images and duplicates */
-				var output_images = new Array();
-				var img_empty = JSON.stringify( Array.from( { length: 8 }, () => Array.from( { length: 8 }, () => undefined ) ) );
+				/* Data uploaded, let's prompt the user for a new name */
+				$( "#container #sidebar #texture_list_toolbar_rename #texture_rename" ).val( "" );
 
-				$.each( images_array , function( index, _image ) {
+				/* Show the rename input */
+				$( "#container #sidebar #texture_list_toolbar" ).css( "display", "none" );
+				$( "#container #sidebar #texture_list_toolbar_rename" ).css( "display", "flex" );
 
-					/* Let's also see if an image doesn't already exist when flipped */
-					var img_flip_v = Array.from( { length: 8 }, () => Array.from( { length: 8 }, () => undefined ) );
-					var img_flip_h = Array.from( { length: 8 }, () => Array.from( { length: 8 }, () => undefined ) );
-					var img_flip_vh = Array.from( { length: 8 }, () => Array.from( { length: 8 }, () => undefined ) );
+				/* Focus on input, add placeholder text and add event listeners */
+				$( "#container #sidebar #texture_list_toolbar_rename #texture_rename" ).focus();
 
-					/* Create arrays for flipped vertically, horizontally and both */
-					for( var row_sel = 0; row_sel < 8; row_sel++ ) {
+				/* Set the placeholder if we're renaming the selected texture */
+				$( "#container #sidebar #texture_list_toolbar_rename #texture_rename" ).attr( "placeholder", "New group name" );
 
-						for( var col_sel = 0; col_sel < 8; col_sel++ ) {
-
-							var row_sel_v = 7 - row_sel;
-							var col_sel_h = 7 - col_sel;
-
-							img_flip_v[ col_sel ][ row_sel ]  = _image[ col_sel ][ row_sel_v ];
-							img_flip_h[ col_sel ][ row_sel ]  = _image[ col_sel_h ][ row_sel ];
-							img_flip_vh[ col_sel ][ row_sel ] = _image[ col_sel_h ][ row_sel_v ];
-						}
-					}
+				/* Add event listners to either save or discard change */
+				$( "#container #sidebar #texture_list_toolbar_rename #texture_rename" ).on( "keyup blur", function( e ) {
 					
-					/* Check all the existing images in the array */
-					var check_img_array = JSON.stringify( _image );
+					/* Save the change */
+					if( e.key == "Enter" ) {
 
-					if( check_img_array != img_empty ) {
-						
-						/* Tile isn't empty */
-						var check_img_flip_v = JSON.stringify( img_flip_v );
-						var check_img_flip_h = JSON.stringify( img_flip_h );
-						var check_img_flip_vh = JSON.stringify( img_flip_vh );
+						/* Get entered name */
+						var new_name = sanitise_input( $( "#container #sidebar #texture_list_toolbar_rename #texture_rename" ).val() );
 
-						/* Check every tile so far and see if we have a duplicate */
-						var duplicate = false;
-
-						$.each( output_images, function( index, value ) {
-
-							var check_array = JSON.stringify( value )
+						if( new_name.match( /^\d/ ) ) {
 							
-							if( ( check_array == check_img_array ) || ( check_array == check_img_flip_v ) || ( check_array == check_img_flip_h ) || ( check_array == check_img_flip_vh ) ) {
+							alert( "Texture name cannot start with a number" );
+						} else {
 
-								/* We've got ourselves a duplicate */
-								duplicate = true;
-								return;
+							/* Check if name already exists */
+							var check_name = new_name.toLowerCase().replace( / /g, "_" );
+							var check_array = project.textures.map( function( val ) {
+								return val.name.toLowerCase().replace( / /g, "_" );;
+							} );
+
+							if( check_array.indexOf( check_name ) !== -1 ) {
+								
+								alert( "Texture name already exits" );
+							} else {
+
+								/* Let's sort our images into an output array, removing any empty images and duplicates */
+								var output_images = new Array();
+								var img_empty = JSON.stringify( Array.from( { length: 8 }, () => Array.from( { length: 8 }, () => undefined ) ) );
+
+								$.each( images_array , function( index, _image ) {
+
+									/* Let's also see if an image doesn't already exist when flipped */
+									var img_flip_v = Array.from( { length: 8 }, () => Array.from( { length: 8 }, () => undefined ) );
+									var img_flip_h = Array.from( { length: 8 }, () => Array.from( { length: 8 }, () => undefined ) );
+									var img_flip_vh = Array.from( { length: 8 }, () => Array.from( { length: 8 }, () => undefined ) );
+
+									/* Create arrays for flipped vertically, horizontally and both */
+									for( var row_sel = 0; row_sel < 8; row_sel++ ) {
+
+										for( var col_sel = 0; col_sel < 8; col_sel++ ) {
+
+											var row_sel_v = 7 - row_sel;
+											var col_sel_h = 7 - col_sel;
+
+											img_flip_v[ col_sel ][ row_sel ]  = _image[ col_sel ][ row_sel_v ];
+											img_flip_h[ col_sel ][ row_sel ]  = _image[ col_sel_h ][ row_sel ];
+											img_flip_vh[ col_sel ][ row_sel ] = _image[ col_sel_h ][ row_sel_v ];
+										}
+									}
+									
+									/* Check all the existing images in the array */
+									var check_img_array = JSON.stringify( _image );
+
+									if( check_img_array != img_empty ) {
+										
+										/* Tile isn't empty */
+										var check_img_flip_v = JSON.stringify( img_flip_v );
+										var check_img_flip_h = JSON.stringify( img_flip_h );
+										var check_img_flip_vh = JSON.stringify( img_flip_vh );
+
+										/* Check every tile so far and see if we have a duplicate */
+										var duplicate = false;
+
+										$.each( output_images, function( index, value ) {
+
+											var check_array = JSON.stringify( value )
+											
+											if( ( check_array == check_img_array ) || ( check_array == check_img_flip_v ) || ( check_array == check_img_flip_h ) || ( check_array == check_img_flip_vh ) ) {
+
+												/* We've got ourselves a duplicate */
+												duplicate = true;
+												return;
+											}
+										} );
+
+										/* If we didn't find a duplicate, even with transformations, add the image to the image array */
+										if( duplicate == false ) {
+
+											output_images.push( _image );
+											
+										}
+									}
+								} );
+
+								/* Let's now format our imported images for the project */
+								var output = new Array();
+
+								$.each( output_images , function( index, _image ) {
+
+									var _new_texture = new Object();
+									_new_texture.name = new_name + " " + index;
+									_new_texture.order = index;
+									_new_texture.id = index;
+									_new_texture.data = new Array();
+
+									$.extend( true, _new_texture.data, _image ); /* Clone array */
+									output.push( _new_texture );
+								} );
+
+								/* All textures added to a new group in the project */
+								var _new_g_texture = new Object();
+								_new_g_texture.name = new_name;
+
+								/* Get new ID value */
+								sort_texture_groups_by_gid();
+								_new_g_texture.gid = ( project.textures.length != 0 ) ? ( project.textures[project.textures.length - 1].gid + 1 ) : 0;
+
+								/* Get new order value */
+								sort_texture_groups_by_gorder();
+								_new_g_texture.gorder = ( project.textures.length != 0 ) ? ( project.textures[project.textures.length - 1].gorder + 1 ) : 0;
+								/* Note we sort by order 2nd so the array goes back to the correct order */
+
+								_new_g_texture.textures = new Array();
+								$.extend( true, _new_g_texture.textures, output ); /* Clone array */
+
+								/* Add the new texture into the local array*/
+								project.textures.push( _new_g_texture );
+
+								/* Let's also update the selected group to be our new one */
+								selected_texture.group = _new_g_texture;
+												
+								/* Reload texture list */
+								load_texture_list();
+
+								/* Exit new texture creation */
+								$( "#container #sidebar #texture_list_toolbar" ).css( "display", "flex" );
+								$( "#container #sidebar #texture_list_toolbar_rename" ).css( "display", "none" );
+								
+								/* Unbind event listeners */
+								$( "#container #sidebar #texture_list_toolbar_rename #texture_rename" ).unbind( "keyup blur" );
+
+								/* Reload texture list */
+								load_texture_list();
 							}
-						} );
-
-						/* If we didn't find a duplicate, even with transformations, add the image to the image array */
-						if( duplicate == false ) {
-
-							output_images.push( _image );
-							
 						}
 					}
+
+					/* Discard change */
+					if( ( e.key == "Escape" ) || ( e.type == "blur" ) ) {
+						/* Exit new texture creation */
+						$( "#container #sidebar #texture_list_toolbar" ).css( "display", "flex" );
+						$( "#container #sidebar #texture_list_toolbar_rename" ).css( "display", "none" );
+						
+						/* Unbind event listeners */
+						$( "#container #sidebar #texture_list_toolbar_rename #texture_rename" ).unbind( "keyup blur" );
+					}
 				} );
-
-				/* Let's now format our imported images for the project */
-				var output = new Array();
-
-				$.each( output_images , function( index, _image ) {
-
-					var _new_texture = new Object();
-					_new_texture.name = "New " + index;
-					_new_texture.order = index;
-					_new_texture.id = index;
-					_new_texture.data = new Array();
-
-					$.extend( true, _new_texture.data, _image ); /* Clone array */
-					output.push( _new_texture );
-				} );
-
-				/* All textures added to a new group in the project */
-				var _new_g_texture = new Object();
-				_new_g_texture.name = "New Group";
-				_new_g_texture.gorder = 100;
-				_new_g_texture.gid = 100;
-				_new_g_texture.textures = new Array();
-				$.extend( true, _new_g_texture.textures, output ); /* Clone array */
-
-				/* Add the new texture into the local array*/
-				project.textures.push( _new_g_texture );
-
-				/* Let's also update the selected group to be our new one */
-				selected_texture.group = _new_g_texture;
-								
-				/* Reload texture list */
-				load_texture_list();
 
 			} else {
 				/* Image dimensions wrong */
