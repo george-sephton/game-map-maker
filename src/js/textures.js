@@ -859,7 +859,7 @@ function texture_toolbar_event_listeners() {
 	/* image upload event listener */
 	$( "#container #sidebar #texture_list_toolbar #toolbar_image_upload" ).click( async () => {
 		
-		var img_data = await window.electronAPI.loadImage();
+		var img_data = await window.electronAPI.texture_load_image();
 
 		/* Check if we returned actual data */
 		if( img_data != undefined ) {
@@ -1092,11 +1092,12 @@ function texture_toolbar_event_listeners() {
 
 			} else {
 				/* Image dimensions wrong */
-				console.log( "Dimension Error" );
+				alert( "Image width/height must be a multiple of 8" );
 			}
 
 		} else {
 			/* Error with file upload */
+			//alert( "Error uploading image" );
 		}
 	} );
 }

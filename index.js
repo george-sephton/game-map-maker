@@ -13,7 +13,7 @@ dialog.showOpenDialog({ properties: [ 'openFile', 'openDirectory', 'multiSelecti
 
 var mainWindow;
 
-async function loadImage() {
+async function texture_load_image() {
 	
 	const { canceled, filePaths } = await dialog.showOpenDialog( {
 		properties: [ 'openFile' ],
@@ -37,6 +37,12 @@ async function loadImage() {
 	}
 }
 
+async function load_projects() {
+	
+	var files = fs.readdirSync( path.join( __dirname, "projects/" ), { withFileTypes: true } );
+	return files;
+}
+
 const createWindow = ( _width, _height ) => {
 	// Create the browser window.
 	mainWindow = new BrowserWindow({
@@ -45,7 +51,7 @@ const createWindow = ( _width, _height ) => {
 		show: false,
 		icon: path.join(__dirname, 'src/images/favicon.ico'),
 		webPreferences: {
-			preload: path.join(__dirname, 'src/preload.js')
+			preload: path.join(__dirname, 'preload.js')
 		}
 	})
 
@@ -70,7 +76,8 @@ app.whenReady().then(() => {
 	const primaryDisplay = screen.getPrimaryDisplay()
 	const { width, height } = primaryDisplay.workAreaSize
 
-	ipcMain.handle('loadImage', loadImage)
+	ipcMain.handle('texture_load_image', texture_load_image)
+	ipcMain.handle('load_projects', load_projects)
 
 	createWindow( width, height )
 
