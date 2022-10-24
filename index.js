@@ -39,8 +39,72 @@ async function texture_load_image() {
 
 async function load_projects() {
 	
-	var files = fs.readdirSync( path.join( __dirname, "projects/" ), { withFileTypes: true } );
-	return files;
+	/* Load the projects directory */
+	var dir_list = fs.readdirSync( path.join( __dirname, "projects" ), { withFileTypes: true } );
+
+	/* Get more information on each of the listings */
+	var check_array = dir_list.map( function( val ) {
+
+		/* Try and get the statistics of the directory listing */
+		try {
+
+			var stat = fs.lstatSync( path.join( __dirname, "projects", val.name ) );
+			var isDir = stat.isDirectory();
+
+			/* See if we have a project.json file */
+			if( isDir )
+				var project_json = fs.existsSync( path.join( __dirname, "projects", val.name, "project.json" ) );
+			else
+				var project_json = false;
+
+			/* Let's now see if we have a valid project */
+			if( project_json ) {
+
+				/* Load our project.json file */
+				const data = fs.readFileSync( path.join( __dirname, "projects", val.name, "project.json" ), { encoding:'utf8', flag:'r' } );
+
+				if( ( data != false ) && ( data != undefined ) ) {
+
+					/* Try and parse project.json */
+					try {
+
+						var project_data = JSON.parse( data );
+
+						/* See if we have a project name */
+						if( ( project_data.name != false ) && ( project_data.name != undefined ) )
+							val.project = project_data.name;
+						else 
+							val.project = false;
+
+					} catch (e) {
+
+						/* Error parsing project.json */
+						val.project = false;
+					}
+				} else {
+
+					/* Error opening project.json */
+					val.project = false;
+				}
+			} else {
+
+				/* Not a directory */
+				val.project = false;
+			}
+
+			/* Return the project */
+			return val;
+
+		} catch (e) {
+			
+			/* lstatSync threw an error - possibly the file/directory didn't exist */
+			return false;
+		}
+
+	} );
+
+	/* Only return the projects */
+	return check_array.filter( obj => obj.project != false );
 }
 
 const createWindow = ( _width, _height ) => {
