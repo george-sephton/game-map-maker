@@ -156,6 +156,18 @@ function project_list_toolbar_event_listeners() {
 										empty_project.textures = new Array();
 										empty_project.sprites = new Array();
 										empty_project.maps = new Array();
+
+										if( await window.electronAPI.save_project( check_name, JSON.stringify( empty_project ) ) ) {
+
+											/* Project created successfully */
+											project = empty_project;
+
+											/* Open the project view */
+											load_project_view();
+										} else {
+
+											alert( "Error creating project" );
+										}
 									}
 								} );
 							}
