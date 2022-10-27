@@ -1,8 +1,9 @@
 /* Load in node modules */
-const { app, BrowserWindow, ipcMain, dialog } = require('electron')
-const path = require('path')
-const fs = require('fs')
-var PNG = require("pngjs").PNG;
+const { app, BrowserWindow, ipcMain, dialog, Menu, screen } = require( "electron" );
+const appConfig = require( "electron-settings" );
+const path = require( "path" );
+const fs = require( "fs" );
+const PNG = require( "pngjs" ).PNG;
 
 var mainWindow;
 
@@ -30,7 +31,7 @@ async function texture_load_image() {
 	}
 }
 
-async function load_projects() {
+function load_projects() {
 	
 	/* See if the projects director exists */
 	if( !fs.existsSync( path.join( __dirname, "projects" ) ) ) {
@@ -136,18 +137,129 @@ async function load_projects() {
 	return dir_list_extended.filter( obj => obj.project != false );
 }
 
-const createWindow = ( _width, _height ) => {
-	
+function load_project_data( e, project_name ) {
+
+	/* Load our project.json file */
+	try {
+		
+		const data = fs.readFileSync( path.join( __dirname, "projects", project_name, "project.json" ), { encoding:'utf8', flag:'r' } );
+
+		if( ( data != false ) && ( data != undefined ) ) {
+
+			/* Try and parse project.json */
+			try {
+
+				var project_data = JSON.parse( data );
+
+				/* See if we have a project name */
+				if( ( project_data.name != false ) && ( project_data.name != undefined ) )
+					return project_data;
+				else 
+					return false;
+
+			} catch( e ) {
+
+				/* Error parsing project.json */
+				val.project = false;
+			}
+		} else {
+
+			/* no data in project.json */
+			return false;
+		}
+	} catch( e ) {
+
+		/* Error reading project.json */
+		return false;
+	}
+}
+
+/* https://medium.com/@hql287/persisting-windows-state-in-electron-using-javascript-closure-17fc0821d37 */
+function windowStateKeeper( windowName ) {
+
+	let window, windowState;
+
+	function setBounds() {
+
+		const obj = appConfig.getSync();
+
+		if( appConfig.hasSync( `windowState.${windowName}` ) ) {
+			
+			windowState = appConfig.getSync( `windowState.${windowName}` );
+			return;
+		}
+
+		/* Get the work are size so we can create a window that's maximised */
+		const primaryDisplay = screen.getPrimaryDisplay();
+		var { width, height } = primaryDisplay.workAreaSize;
+
+		if( width > 1920 ) width = 1920;
+		if( height > 1080 ) height = 1080;
+
+		windowState = {
+			x: undefined,
+			y: undefined,
+			width: width,
+			height: height,
+		};
+	}
+
+	function saveState() {
+		
+		if( !windowState.isMaximized ) {
+			windowState = window.getBounds();
+		}
+		
+		windowState.isMaximized = window.isMaximized();
+		appConfig.setSync( `windowState.${windowName}`, windowState );
+	}
+
+	function track( win ) {
+
+		window = win;
+		
+		[ "resize", "move", "close" ].forEach( event => {
+
+			win.on( event, saveState );
+		} );
+	}
+
+	setBounds(); 
+
+	return( {
+		x: windowState.x,
+		y: windowState.y,
+		width: windowState.width,
+		height: windowState.height,
+		isMaximized: windowState.isMaximized,
+		track,
+	} );
+}
+
+const createWindow = () => {
+
+	const mainWindowStateKeeper = windowStateKeeper( "mainWindow" );
+
 	/* Create the browser window */
 	mainWindow = new BrowserWindow( {
-		width: _width,
-		height: _height,
+		x: mainWindowStateKeeper.x,
+		y: mainWindowStateKeeper.y,
+		width: mainWindowStateKeeper.width,
+		height: mainWindowStateKeeper.height,
+		minWidth: 800,
+		minHeight: 700,
+		fullscreenable: false,
+		menuBarVisible: false,
+		autoHideMenuBar: true,
 		show: false,
+		devTools: false,
 		icon: path.join( __dirname, 'src/images/favicon.ico' ),
 		webPreferences: {
 			preload: path.join( __dirname, 'preload.js' )
 		}
 	} );
+
+	mainWindowStateKeeper.track( mainWindow );
 
 	// and load the index.html of the app.
 	mainWindow.loadFile( "src/index.htm" );
@@ -155,24 +267,28 @@ const createWindow = ( _width, _height ) => {
 
 	mainWindow.once( "ready-to-show", () => {
 		mainWindow.webContents.setZoomFactor( 0.8 );
-		mainWindow.maximize();
+		//mainWindow.maximize();
 		mainWindow.show();
 	} );
+
+	/* Add the window menu */
+	const menuTemplate = [
+		{ label: 'File', submenu: [ { role: 'quit' } ] },
+		{ label: 'View', submenu: [ { role: 'resetzoom' }, { role: 'zoomin' }, { role: 'zoomout' } ] }
+	];
+
+    const menu = Menu.buildFromTemplate( menuTemplate );
+    //Menu.setApplicationMenu( menu );
 }
 
 app.whenReady().then( () => {
 
-	const { screen } = require( "electron" );
-
-	/* Get the work are size so we can create a window that's maximised */
-	const primaryDisplay = screen.getPrimaryDisplay();
-	const { width, height } = primaryDisplay.workAreaSize;
-
-	ipcMain.handle( 'texture_load_image', texture_load_image );
-	ipcMain.handle( 'load_projects', load_projects );
+	ipcMain.handle( "texture_load_image", texture_load_image );
+	ipcMain.handle( "load_projects", load_projects );
+	ipcMain.handle( "load_project_data", load_project_data );
 
 	/* Create the window */
-	createWindow( width, height );
+	createWindow();
 
 	app.on( "activate", () => {
 		

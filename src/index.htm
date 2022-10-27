@@ -21,7 +21,6 @@
 		<script type="text/javascript" src="js/ext/jquery-ui.js"></script>
 		<script type="text/javascript" src="js/colpick/colpick.js"></script>
 
-		<script type="text/javascript" src="js/demo_data.js"></script>
 		<script type="text/javascript" src="js/data_gba.js"></script>
 		<script type="text/javascript" src="js/data_ps.js"></script>
 		<script type="text/javascript" src="js/project.js"></script>
@@ -71,6 +70,7 @@
 				<div id="toolbar">
 					<div id="settings">
 						<div id="controls">
+							<i class="bi-arrow-left" id="close_project" func="close-project"></i>
 							<i class="bi-type project_functions" func="rename-project"></i>
 							<i class="bi-cloud-upload-fill project_functions" func="open"></i>
 							<i class="bi-cloud-download-fill project_functions " func="download"></i>
@@ -191,13 +191,26 @@
 					<div id="map_editor"></div>
 				</div>
 				<div id="project_view">
+					<div id="project_list_container">
+						<div id="project_list_heading">Projects</div>
+						<div id="project_list_toolbar">
+							<i class="bi-plus-square-fill project_functions" func="new-project"></i>
+						</div>
+						<div id="project_list_new_project_name">
+							<input type="text" id="new_project_name" placeholder="" />
+						</div>
+						<div id="project_list">
+							<ul>
+							</ul>
+						</div>
+					</div>
 					<div id="map_list_container">
 						<div id="map_list_heading">Maps</div>
 						<div id="map_list_toolbar">
 							<i class="bi-plus-square-fill project_functions" func="new-map"></i>
 						</div>
 						<div id="map_list_new_map_name">
-							<input type="text" id="new_map_name" placeholder="New map name" />
+							<input type="text" id="new_map_name" placeholder="" />
 						</div>
 						<div id="map_list">
 							<ul class="sortable">
@@ -217,7 +230,7 @@
 							<input type="button" id="sprite_new_group_cancel" value="Cancel" />
 						</div>
 						<div id="sprite_editor_toolbar_new_group_name">
-							<input type="text" id="texture_group_name" placeholder="New group name" />
+							<input type="text" id="texture_group_name" placeholder="" />
 						</div>
 						<div id="sprite_list">
 							<ul class="sortable">
@@ -244,7 +257,7 @@
 							</div>
 						</div>
 						<div id="sprite_editor_toolbar_rename">
-							<input type="text" id="texture_rename" placeholder="Rename" />
+							<input type="text" id="texture_rename" placeholder="" />
 						</div>
 						<div id="sprite_editor_toolbar_delete">
 							<input type="button" id="sprite_delete_y" value="Confirm" />

@@ -2,6 +2,196 @@
 <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css" />
 Causes issues with sortable lists if including a local version for some reason.
 */
+function load_project_list() {
+
+	/* Show project view elements */
+	$( "#container #sidebar" ).css( "display", "none" );
+	$( "#container #sidebar #texture_list_toolbar_rename" ).css( "display", "none" );
+	$( "#container #sidebar #texture_list_toolbar_delete" ).css( "display", "none" );
+
+	$( "#container #content" ).css( "max-width", "100%" );
+
+	$( "#container #content #toolbar" ).css( "display", "none" );
+	$( "#container #content #project_view" ).css( "display", "flex" );
+
+	$( "#container #content #project_view #project_list_container" ).css( "display", "flex" );
+	$( "#container #content #project_view #sprite_editor_container" ).css( "display", "none" );
+	$( "#container #content #project_view #sprite_list_container" ).css( "display", "none" );
+	$( "#container #content #project_view #map_list_container" ).css( "display", "none" );
+	$( "#container #content #project_upload" ).css( "display", "none" );
+
+	$( "#container #content #map_editor_container" ).css( "display", "none" );
+	$( "#container #content #map_editor_container #map_editor" ).css( "display", "none" );
+	$( "#container #content #map_editor_container #map_editor_loading" ).css( "display", "none" );
+
+	/* Show project icons */
+	$( ".project_functions" ).css( "display", "block" );
+	$( ".map_editing_functions" ).css( "display", "none" );
+
+	/* Clear project list */
+	$( "#project_list ul" ).html( "" );
+	$( "#project_list ul li" ).css( "color", "#000" );
+
+	/* Load map list */
+	$( async () => {
+
+		var projects = await window.electronAPI.load_projects();
+
+		if( projects.length != 0 ) {
+
+			/* Add all the maps to the list */
+			$.each( projects, function( key, value ) {
+				$( "#project_list ul" ).append( '<li class="" project_name="' + value.name + '">' + value.project + '</li>' );
+			} );
+
+			/* Add event listeners to the list */
+			project_list_event_listeners();	
+		}
+	} );
+
+	/* Toolbar event listeners */
+	project_list_toolbar_event_listeners();
+}
+
+function clear_project_list_event_listeners() {
+	
+	$( "#container #content #project_list ul li" ).unbind( "click" );
+	$( "#container #content #project_list" ).unbind( "click" ); /* For click out - not implemented */
+}
+
+function project_list_event_listeners() {
+
+	/* Remove existing event listeners */
+	clear_project_list_event_listeners();
+
+	/* Add onClick event listeners */
+	$( "#container #content #project_list ul li" ).on( "click" , function( e ) {
+		
+		/* Ignore clicks on the items in the project list when controls are disabled */
+		if( controls_disabled == false ) {
+			
+			/* Set the map */
+			var project_name = $( this ).attr( "project_name" );
+
+			/* Load the data */
+			$( async () => {
+
+				var data = await window.electronAPI.load_project_data( project_name );
+
+				/* Set the project and load up the project view */
+				if( data != false ) {
+
+					project = data;
+
+					/* Open the project view */
+					load_project_view();
+				}
+			} );
+		}
+	});
+}
+
+function clear_project_list_toolbar_event_listeners() {
+	
+	$( "#container #content #project_view #project_list_container #project_list_toolbar i" ).unbind( "click" );
+}
+
+function project_list_toolbar_event_listeners() {
+
+	/* Remove all event listeners */
+	clear_project_list_toolbar_event_listeners();
+
+	/* Project toolbar event listener */
+	$( "#container #content #project_view #project_list_container #project_list_toolbar i" ).on( "click", function() {
+
+		/* Check if functions are disabled */
+		if( controls_disabled == false ) {
+
+			var func = $( this ).attr( "func" );
+			
+			switch( func ) {
+				case "new-project":
+					
+					/* Disable controls - don't hide the name input */
+					disable_controls( false );
+
+					$( "#container #content #project_view #project_list_container #project_list_toolbar" ).css( "display", "none" );
+					$( "#container #content #project_view #project_list_container #project_list_new_project_name" ).css( "display", "flex" );
+
+					$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).val( "" );
+					$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).attr( "placeholder", "Enter new project name" );
+					$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).focus();
+
+					/* Add event listeners */
+					$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).on( "keyup blur", function( e ) {
+
+						/* Save the change */
+						if( e.key == "Enter" ) {
+
+							var project_name_value = sanitise_input( $( this ).val() );
+
+							if( project_name_value.match( /^\d/ ) ) {
+								
+								alert( "Project name cannot start with a number" );
+							} else {
+
+								/* Check if project already exists */
+								$( async () => {
+
+									var check_name = project_name_value.toLowerCase().replace( / /g, "_" );
+
+									var projects = await window.electronAPI.load_projects();
+									var check_array = projects.map( function( val ) {
+										return val.name.toLowerCase().replace( / /g, "_" );;
+									} );
+
+									if( check_array.indexOf( check_name ) !== -1 ) {
+
+										alert( "Project name already exits" );
+									} else {
+
+										/* Create new project and save to local directory */
+										var empty_project = new Object();
+										empty_project.name = project_name_value;
+										empty_project.textures = new Array();
+										empty_project.sprites = new Array();
+										empty_project.maps = new Array();
+									}
+								} );
+							}
+
+							/* Put things back the way they were */
+							$( "#container #content #project_view #project_list_container #project_list_toolbar" ).css( "display", "flex" );
+							$( "#container #content #project_view #project_list_container #project_list_new_project_name" ).css( "display", "none" );
+							$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).val( "" );
+
+							/* Re-enable controls */
+							enable_controls();
+
+							/* Remove event listeners */
+							$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).unbind( "keyup blur" );
+						}
+
+						/* Discard change */
+						if( ( e.key == "Escape" ) || ( e.type == "blur" ) ) {
+
+							/* Re-enable controls */
+							enable_controls();
+
+							/* Remove event listeners */
+							$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).unbind( "keyup blur" );
+							
+							/* Put things back the way they were */
+							$( "#container #content #project_view #project_list_container #project_list_toolbar" ).css( "display", "flex" );
+							$( "#container #content #project_view #project_list_container #project_list_new_project_name" ).css( "display", "none" );
+							$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).val( "" );
+						}
+					} );
+					break;
+			}
+		}
+	} );
+}
 
 function load_project_view() {
 
@@ -20,12 +210,15 @@ function load_project_view() {
 
 	$( "#container #toolbar #map_settings" ).css( "display", "none" );
 
+	$( "#container #content #toolbar" ).css( "display", "flex" );
 	$( "#container #content #toolbar #settings #controls" ).css( "display", "flex" );
 	$( "#container #content #toolbar #settings #map_confirm" ).css( "display", "none" );
 
 	$( "#container #content #toolbar #map_paint_preview" ).css( "display", "none" );
 	$( "#container #content #toolbar #map_paint_settings" ).css( "display", "none" );
 	$( "#container #content #toolbar #map_size_settings" ).css( "display", "none" );
+
+	$( "#container #content #project_view #project_list_container" ).css( "display", "none" );
 
 	$( "#container #content #project_view #sprite_editor_container #sprite_editor" ).css( "display", "none" );
 	$( "#container #content #project_view #sprite_editor_container #sprite_editor_empty" ).css( "display", "flex" );
@@ -129,7 +322,7 @@ function map_list_event_listeners() {
 	/* Add onClick event listeners */
 	$( "#container #content #map_list .sortable li" ).on( "click" , function( e ) {
 		
-		/* Ignore clicks on the items in the sprite list when controls are disabled */
+		/* Ignore clicks on the items in the map list when controls are disabled */
 		if( controls_disabled == false ) {
 			
 			/* Set the map */
@@ -165,6 +358,17 @@ function project_toolbar_event_listeners() {
 			var func = $( this ).attr( "func" );
 
 			switch( func ) {
+				case "close-project":
+					
+					/* Close the project view */
+					close_project_view();
+
+					/* Clear the selected project */
+					project = undefined;
+
+					/* Load the project list */
+					load_project_list();
+					break;
 				case "new-map":
 					
 					/* Reset toolbar for a clean start */
