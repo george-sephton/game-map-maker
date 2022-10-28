@@ -45,6 +45,39 @@ function sanitise_input( input_text ) {
 	return input_text.replace(/[^a-zA-Z0-9\ _]/g, '_');
 }
 
+var notify_timeout;
+function show_alert( text ) {
+
+	clearTimeout( notify_timeout );
+	$( "#container #notify_container" ).css( "display", "none" );
+
+	$( "#container #notify_container" ).css( "display", "flex" ).hide().fadeIn( 500 );
+
+	$( "#container #notify_container .error" ).css( "display", "none" );
+	$( "#container #notify_container .info" ).css( "display", "block" );
+	$( "#container #notify_container #notify_text" ).html( text );
+	
+	notify_timeout = setTimeout( function() {
+		$( "#container #notify_container" ).fadeOut( 500 );
+	}, 3000 );
+}
+
+function show_error( text ) {
+
+	clearTimeout( notify_timeout );
+	$( "#container #notify_container" ).css( "display", "none" );
+
+	$( "#container #notify_container" ).css( "display", "flex" ).hide().fadeIn( 500 );
+
+	$( "#container #notify_container .error" ).css( "display", "block" );
+	$( "#container #notify_container .info" ).css( "display", "none" );
+	$( "#container #notify_container #notify_text" ).html( text );
+	
+	notify_timeout = setTimeout( function() {
+		$( "#container #notify_container" ).fadeOut( 500 );
+	}, 3000 );
+}
+
 /* No project */
 var project = undefined;
 

@@ -132,7 +132,7 @@ function project_list_toolbar_event_listeners() {
 
 							if( project_name_value.match( /^\d/ ) ) {
 								
-								alert( "Project name cannot start with a number" );
+								show_alert( "Project name cannot start with a number" );
 							} else {
 
 								/* Check if project already exists */
@@ -147,7 +147,7 @@ function project_list_toolbar_event_listeners() {
 
 									if( check_array.indexOf( check_name ) !== -1 ) {
 
-										alert( "Project name already exits" );
+										show_alert( "Project name already exists." );
 									} else {
 
 										/* Create new project and save to local directory */
@@ -160,13 +160,14 @@ function project_list_toolbar_event_listeners() {
 										if( await window.electronAPI.save_project( check_name, JSON.stringify( empty_project ) ) ) {
 
 											/* Project created successfully */
-											project = empty_project;
+											show_alert( "Project created successfully." );
 
 											/* Open the project view */
+											project = empty_project;
 											load_project_view();
 										} else {
 
-											alert( "Error creating project" );
+											show_error( "Error creating project" );
 										}
 									}
 								} );
@@ -406,7 +407,7 @@ function project_toolbar_event_listeners() {
 
 							if( map_name_value.match( /^\d/ ) ) {
 								
-								alert( "Map name cannot start with a number" );
+								show_alert( "Map name cannot start with a number" );
 							} else {
 
 								/* Check if name already exists */
@@ -417,7 +418,7 @@ function project_toolbar_event_listeners() {
 
 								if( check_array.indexOf( check_name ) !== -1 ) {
 
-									alert( "Map name already exits" );
+									show_alert( "Map name already exists." );
 								} else {
 
 									if( map_name_value != "" ) {
@@ -503,6 +504,60 @@ function project_toolbar_event_listeners() {
 						}
 					} );
 					break;
+				case "trash-project":
+
+					/* Disable controls */
+					disable_controls();
+
+					/* Show the confirmation prompt */
+					$( "#container #toolbar #settings #map_confirm #map_confirm_prompt" ).html( "Are you sure you want to delete this project?" );
+
+					$( "#container #toolbar #settings #map_confirm input[type=button]" ).css( "display", "block" );
+					$( "#container #toolbar #settings #map_confirm #map_done" ).css( "display", "none" );
+
+					$( "#container #toolbar #settings #map_confirm" ).css( "display", "flex" );
+
+					/* Add event listeners */
+					$( "#container #toolbar #settings #map_confirm input[type=button]" ).on( "click" , function( e ) {
+						
+						if( $( this ).attr( "id" ) == "map_confirm_y" ) {
+
+							/* Delete the map */
+							$( async () => {
+
+								var project_name = project.name.toLowerCase().replace( / /g, "_" );
+
+								if( await window.electronAPI.delete_project( project_name ) ) {
+
+									/* Project deleted successfully */
+									show_alert( "Project deleted successfully." );
+								} else {
+
+									show_error( "Error deleting project." );
+								}
+								
+							} );
+
+							/* Re-enable controls */
+							enable_controls();
+
+							/* Load project view */
+							load_project_list();
+
+						} else if( $( this ).attr( "id" ) == "map_confirm_n" ) {
+							
+							/* Re-enable controls */
+							enable_controls();
+						}
+
+						/* Remove event listeners */
+						$( "#container #toolbar #settings #map_confirm input[type=button]" ).unbind( "click" );
+
+						/* Hide the confirmation prompt */
+						$( "#container #toolbar #settings #map_confirm #map_confirm_prompt" ).html( "" );
+						$( "#container #toolbar #settings #map_confirm" ).css( "display", "none" );
+					});
+					break;
 				case "rename-project":
 					
 					/* Reset toolbar for a clean start */
@@ -526,12 +581,56 @@ function project_toolbar_event_listeners() {
 
 							if( project_name_value.match( /^\d/ ) ) {
 								
-								alert( "Project name cannot start with a number" );
+								show_alert( "Project name cannot start with a number" );
 							} else {
 							
 								if( project_name_value != "" ) {
-									
-									project.name = project_name_value;
+
+									$( async () => {
+
+										var check_name = project_name_value.toLowerCase().replace( / /g, "_" );
+
+										var projects = await window.electronAPI.load_projects();
+										var check_array = projects.map( function( val ) {
+											return val.name.toLowerCase().replace( / /g, "_" );
+										} );
+
+										if( ( check_array.indexOf( check_name ) !== -1 ) && ( check_name != project.name.toLowerCase().replace( / /g, "_" ) ) ) {
+
+											show_alert( "Project name already exist." );
+										} else {
+
+											/* Rename project folder */
+											if( await window.electronAPI.rename_project( project.name.toLowerCase().replace( / /g, "_" ), project_name_value ) ) {
+
+												project.name = project_name_value;
+
+												/* Project renamed successfully */
+												show_alert( "Project renamed successfully." );
+
+												/* Reload the project */
+
+												var data = await window.electronAPI.load_project_data( project_name_value );
+
+												/* Set the project and load up the project view */
+												if( data != false ) {
+
+													project = data;
+
+													/* Open the project view */
+													load_project_view();
+													
+													return;
+												} else {
+
+													show_error( "Error reloading project." );
+												}
+											} else {
+
+												show_error( "Error renaming project." );
+											}											
+										}
+									} );
 								}
 							}
 
@@ -562,19 +661,12 @@ function project_toolbar_event_listeners() {
 						}
 					} );
 					break;
-				case "download":
+				case "save-project":
 
-					/* Hide any confirmation prompts */
-					$( "#container #sidebar #texture_list_toolbar_rename" ).css( "display", "none" );
-					$( "#container #sidebar #texture_list_toolbar_delete" ).css( "display", "none" );
 
-					var blob = new Blob( [ JSON.stringify( project ) ], { type: "text/json" } );
-					var file = document.createElement( "a" );
-					file.download = project.name.toLowerCase().replace( / /g, "_" ) + ".json";
-					file.href = window.URL.createObjectURL( blob );
-					file.click();
+
 					break;
-				case "open":
+				case "import-project":
 					/* Disable controls */
 					disable_controls();
 
@@ -641,7 +733,7 @@ function project_toolbar_event_listeners() {
 						$( "#container #toolbar #settings #map_confirm" ).css( "display", "none" );
 					});
 					break;
-				case "export":
+				case "export-project":
 					
 					/* Disable controls */
 					disable_controls();
@@ -660,6 +752,14 @@ function project_toolbar_event_listeners() {
 							export_data_gba();
 						} else if( $( this ).attr( "id" ) == "map_export_ps" ) {
 							export_data_ps();
+						} else if( $( this ).attr( "id" ) == "map_export_json" ) {
+
+							/* Convert project to JSON and download */
+							var blob = new Blob( [ JSON.stringify( project ) ], { type: "text/json" } );
+							var file = document.createElement( "a" );
+							file.download = project.name.toLowerCase().replace( / /g, "_" ) + ".json";
+							file.href = window.URL.createObjectURL( blob );
+							file.click();
 						}
 
 						/* Re-enable controls */
@@ -1094,7 +1194,7 @@ function sprite_toolbar_event_listeners() {
 
 								if( ( ( ( check_array.indexOf( check_name ) !== -1 ) && ( func != "rename" ) ) || ( ( check_array.indexOf( check_name ) !== -1 ) && ( func == "rename" ) && ( check_name != selected_sprite.group.name.toLowerCase().replace( / /g, "_" ) ) ) ) && ( selected_sprite.sprite == false ) ) {
 									
-									alert( "Sprite name already exits" );
+									alert( "Sprite name already exists." );
 								} else {
 
 									if( ( new_name != "" ) && ( new_name != undefined ) ) {

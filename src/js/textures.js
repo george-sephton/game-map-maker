@@ -610,7 +610,7 @@ function texture_toolbar_event_listeners() {
 
 								if( ( ( ( check_array.indexOf( check_name ) !== -1 ) && ( func != "rename" ) ) || ( ( check_array.indexOf( check_name ) !== -1 ) && ( func == "rename" ) && ( check_name != selected_texture.group.name.toLowerCase().replace( / /g, "_" ) ) ) ) && ( selected_texture.texture == false ) ) {
 									
-									alert( "Texture name already exits" );
+									alert( "Texture name already exists." );
 								} else {
 
 									if( ( func == "new" ) || ( func == "new-group" ) || ( func == "duplicate" ) ) {
@@ -964,7 +964,7 @@ function texture_toolbar_event_listeners() {
 
 							if( check_array.indexOf( check_name ) !== -1 ) {
 								
-								alert( "Texture name already exits" );
+								alert( "Texture name already exists." );
 							} else {
 
 								/* Let's sort our images into an output array, removing any empty images and duplicates */

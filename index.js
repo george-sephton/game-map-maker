@@ -117,9 +117,13 @@ const createWindow = () => {
 app.whenReady().then( () => {
 
 	ipcMain.handle( "texture_load_image", texture_load_image );
+	
 	ipcMain.handle( "load_projects", load_projects );
+
 	ipcMain.handle( "load_project_data", load_project_data );
 	ipcMain.handle( "save_project", save_project );
+	ipcMain.handle( "delete_project", delete_project );
+	ipcMain.handle( "rename_project", rename_project );
 
 	/* Create the window */
 	createWindow();
@@ -304,7 +308,7 @@ function load_project_data( e, project_name ) {
 	}
 }
 
-function save_project ( e, project_name, data ) {
+function save_project( e, project_name, data ) {
 	
 	/* See if the project directory exists */
 	if( !fs.existsSync( path.join( __dirname, "projects", project_name ) ) ) {
@@ -328,7 +332,76 @@ function save_project ( e, project_name, data ) {
 	} catch( e ) {
 
 		/* Error writing project.json */
-		console.log( e )
 		return false;
 	}
+}
+
+function delete_project( e, project_name ) {
+
+	/* Recursively delete the project directory */
+	try {
+
+		fs.rmSync( path.join( __dirname, "projects", project_name ), { recursive: true, force: true } );
+		return true;
+	} catch ( e ) {
+	
+		return false;
+	}
+}
+
+function rename_project( e, project_name, f_new_project_name ) {
+
+	/* Generate new directory name since f_new_project_name is the formatted name */
+	var new_dir_name = f_new_project_name.toLowerCase().replace( / /g, "_" );
+
+	/* First rename directory */
+	try {
+
+		fs.renameSync( path.join( __dirname, "projects", project_name ), path.join( __dirname, "projects", new_dir_name ) );
+
+	} catch( e ) {
+
+		return false;
+	}
+
+	/* Load our project.json file */
+	try {
+		
+		const data = fs.readFileSync( path.join( __dirname, "projects", new_dir_name, "project.json" ), { encoding: "utf8", flag: "r" } );
+
+		if( ( data != false ) && ( data != undefined ) ) {
+
+			/* Try and parse project.json */
+			try {
+
+				var project_data = JSON.parse( data );
+
+				/* See if we have a project name */
+				if( ( project_data.name == false ) || ( project_data.name == undefined ) )
+					return false;
+
+			} catch( e ) {
+
+				/* Error parsing project.json */
+				val.project = false;
+			}
+		} else {
+
+			/* no data in project.json */
+			return false;
+		}
+	} catch( e ) {
+
+		/* Error reading project.json */
+		return false;
+	}
+
+	/* Rename */
+	project_data.name = f_new_project_name;
+
+	/* Save project.json */
+	if( save_project( 0, new_dir_name, JSON.stringify( project_data ) ) )
+		return true;
+	else
+		return false;
 }

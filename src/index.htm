@@ -30,6 +30,13 @@
 	</head>
 	<body>
 		<div id="container">
+			<div id="notify_container">
+				<span id="notify">
+					<i class="bi-info-circle-fill info"></i>
+					<i class="bi-exclamation-triangle-fill error"></i>
+					<span id="notify_text"></span>
+				</span>
+			</div>
 			<div id="sidebar">
 				<div id="texture_editor">
 				</div>
@@ -72,9 +79,10 @@
 						<div id="controls">
 							<i class="bi-arrow-left project_functions" id="close_project" func="close-project"></i>
 							<i class="bi-type project_functions" func="rename-project"></i>
-							<i class="bi-cloud-upload-fill project_functions" func="open"></i>
-							<i class="bi-cloud-download-fill project_functions " func="download"></i>
-							<i class="bi-file-earmark-code-fill project_functions" func="export"></i>
+							<i class="bi-trash project_functions" func="trash-project"></i>
+							<div class="toolbar_separator project_functions"></div>
+							<i class="bi-save-fill project_functions " func="save-project"></i>
+							<i class="bi-file-earmark-code-fill project_functions" func="export-project"></i>
 							<i class="bi-arrow-left map_editing_functions" func="close-map"></i>
 							<i class="bi-type map_editing_functions" func="rename-map"></i>
 							<i class="bi-back map_editing_functions" func="duplicate-map"></i>
@@ -107,6 +115,7 @@
 							<label id="map_export_prompt"></label>
 							<input type="button" id="map_export_gba" value="GBA" />
 							<input type="button" id="map_export_ps" value="PicoSystem"  />
+							<input type="button" id="map_export_json" value="JSON"  />
 							<input type="button" id="map_export_cancel" value="Cancel"  />
 						</div>
 					</div>
@@ -194,7 +203,8 @@
 					<div id="project_list_container">
 						<div id="project_list_heading">Projects</div>
 						<div id="project_list_toolbar">
-							<i class="bi-plus-square-fill project_functions" func="new-project"></i>
+							<i class="bi-plus-square-fill" func="new-project"></i>
+							<i class="bi-cloud-upload-fill" func="import-project"></i>
 						</div>
 						<div id="project_list_new_project_name">
 							<input type="text" id="new_project_name" placeholder="" />
