@@ -167,7 +167,7 @@ function project_list_toolbar_event_listeners() {
 											load_project_view();
 										} else {
 
-											show_error( "Error creating project" );
+											show_error( "Error creating project." );
 										}
 									}
 								} );
@@ -198,6 +198,103 @@ function project_list_toolbar_event_listeners() {
 							$( "#container #content #project_view #project_list_container #project_list_toolbar" ).css( "display", "flex" );
 							$( "#container #content #project_view #project_list_container #project_list_new_project_name" ).css( "display", "none" );
 							$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).val( "" );
+						}
+					} );
+					break;
+				case "import-project":
+
+					$( async () => {
+						var data = await window.electronAPI.import_project();
+
+						if( data ) {
+
+							/* Disable controls - don't hide the name input */
+							disable_controls( false );
+
+							$( "#container #content #project_view #project_list_container #project_list_toolbar" ).css( "display", "none" );
+							$( "#container #content #project_view #project_list_container #project_list_new_project_name" ).css( "display", "flex" );
+
+							$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).val( "" );
+							$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).attr( "placeholder", "Enter imported project name" );
+							$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).focus();
+
+							/* Add event listeners */
+							$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).on( "keyup blur", function( e ) {
+
+								/* Save the change */
+								if( e.key == "Enter" ) {
+
+									var project_name_value = sanitise_input( $( this ).val() );
+
+									if( project_name_value.match( /^\d/ ) ) {
+										
+										show_alert( "Project name cannot start with a number" );
+									} else {
+
+										/* Check if project already exists */
+										$( async () => {
+
+											var check_name = project_name_value.toLowerCase().replace( / /g, "_" );
+
+											var projects = await window.electronAPI.load_projects();
+											var check_array = projects.map( function( val ) {
+												return val.name.toLowerCase().replace( / /g, "_" );;
+											} );
+
+											if( check_array.indexOf( check_name ) !== -1 ) {
+
+												show_alert( "Project name already exists." );
+											} else {
+
+												/* Change name of imported project and save to local directory */
+												data.name = project_name_value;
+
+												if( await window.electronAPI.save_project( check_name, JSON.stringify( data ) ) ) {
+
+													/* Project created successfully */
+													show_alert( "Project created successfully." );
+
+													/* Open the project view */
+													project = data;
+													load_project_view();
+												} else {
+
+													show_error( "Error creating project." );
+												}
+											}
+										} );
+									}
+
+									/* Put things back the way they were */
+									$( "#container #content #project_view #project_list_container #project_list_toolbar" ).css( "display", "flex" );
+									$( "#container #content #project_view #project_list_container #project_list_new_project_name" ).css( "display", "none" );
+									$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).val( "" );
+
+									/* Re-enable controls */
+									enable_controls();
+
+									/* Remove event listeners */
+									$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).unbind( "keyup blur" );
+								}
+
+								/* Discard change */
+								if( ( e.key == "Escape" ) || ( e.type == "blur" ) ) {
+
+									/* Re-enable controls */
+									enable_controls();
+
+									/* Remove event listeners */
+									$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).unbind( "keyup blur" );
+									
+									/* Put things back the way they were */
+									$( "#container #content #project_view #project_list_container #project_list_toolbar" ).css( "display", "flex" );
+									$( "#container #content #project_view #project_list_container #project_list_new_project_name" ).css( "display", "none" );
+									$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).val( "" );
+								}
+							} );							
+						} else {
+
+							show_error( "Error importing project." );
 						}
 					} );
 					break;
@@ -619,7 +716,7 @@ function project_toolbar_event_listeners() {
 
 													/* Open the project view */
 													load_project_view();
-													
+
 													return;
 												} else {
 
@@ -663,75 +760,18 @@ function project_toolbar_event_listeners() {
 					break;
 				case "save-project":
 
+					/* Check if project already exists */
+					$( async () => {
 
+						if( await window.electronAPI.save_project( project.name.toLowerCase().replace( / /g, "_" ), JSON.stringify( project ) ) ) {
 
-					break;
-				case "import-project":
-					/* Disable controls */
-					disable_controls();
+							/* Project created successfully */
+							show_alert( "Project saved successfully." );
+						} else {
 
-					/* Show the confirmation prompt */
-					$( "#container #toolbar #settings #map_confirm #map_confirm_prompt" ).html( "Would you like to close this project and open a new one?" );
-
-					$( "#container #toolbar #settings #map_confirm input[type=button]" ).css( "display", "block" );
-					$( "#container #toolbar #settings #map_confirm #map_done" ).css( "display", "none" );
-
-					$( "#container #toolbar #settings #map_confirm" ).css( "display", "flex" );
-
-					/* Add event listeners */
-					$( "#container #toolbar #settings #map_confirm input[type=button]" ).on( "click" , function( e ) {
-						
-						if( $( this ).attr( "id" ) == "map_confirm_y" ) {
-
-							$( "#container #content #toolbar #settings" ).css( "display", "none" );
-							$( "#container #content #toolbar #upload_settings" ).css( "display", "flex" );
-							$( "#container #content #project_upload" ).css( "display", "flex" );
-
-							$( "#container #content #project_view" ).css( "display", "none" );
-
-							/* Upload toolbar event listener */
-							$( "#container #toolbar #upload_settings #upload_confirm #map_done" ).on( "click", function() {
-
-								if( $( "#container #project_upload #upload_input" ).val() != "" ) {
-
-									/* Convert JSON to object and set as the active project */
-									try {
-										var uploaded_project = JSON.parse( $( "#container #project_upload #upload_input" ).val() );
-										project = uploaded_project;
-
-										/* Clear the input */
-										$( "#container #project_upload #upload_input" ).val( "" )
-
-										/* Remove event listener */
-										$( "#container #toolbar #upload_settings #upload_confirm #map_done" ).unbind( "click" );
-
-										/* Re-enable controls */
-										enable_controls();
-
-										/* Load project view */
-										load_project_view();
-									} 
-									catch( exc ) {
-										/* Clear the input */
-										$( "#container #project_upload #upload_input" ).val( "" )
-									}									
-								}
-
-							} );
-
-						} else if( $( this ).attr( "id" ) == "map_confirm_n" ) {
-							
-							/* Re-enable controls */
-							enable_controls();
+							show_error( "Error saving project." );
 						}
-
-						/* Remove event listeners */
-						$( "#container #toolbar #settings #map_confirm input[type=button]" ).unbind( "click" );
-
-						/* Hide the confirmation prompt */
-						$( "#container #toolbar #settings #map_confirm #map_confirm_prompt" ).html( "" );
-						$( "#container #toolbar #settings #map_confirm" ).css( "display", "none" );
-					});
+					} );
 					break;
 				case "export-project":
 					

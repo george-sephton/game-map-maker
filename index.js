@@ -124,6 +124,7 @@ app.whenReady().then( () => {
 	ipcMain.handle( "save_project", save_project );
 	ipcMain.handle( "delete_project", delete_project );
 	ipcMain.handle( "rename_project", rename_project );
+	ipcMain.handle( "import_project", import_project );
 
 	/* Create the window */
 	createWindow();
@@ -141,13 +142,13 @@ app.on( "window-all-closed", () => {
 	if( process.platform !== "darwin" ) app.quit();
 } );
 
-async function texture_load_image() {
+async function texture_load_image( e ) {
 	
 	const { canceled, filePaths } = await dialog.showOpenDialog( {
-		properties: [ 'openFile' ],
+		properties: [ "openFile" ],
 		filters: [
-		    { name: 'Images', extensions: [ 'png' ] },
-		    { name: 'All Files', extensions: ['*'] }
+		    { name: "Images", extensions: [ "png" ] },
+		    { name: "All Files", extensions: [ "*" ] }
 		  ],
 	} );
 
@@ -155,17 +156,21 @@ async function texture_load_image() {
 
 		try {
 
-			var data = fs.readFileSync( filePaths[0] )
-			var png = PNG.sync.read(data);
+			var data = fs.readFileSync( filePaths[0] );
+			var png = PNG.sync.read( data );
 
 			return png;
 		} catch( e ) {
+			
 			/* Error with bitmap decoding */
+			return false;
 		}
 	}
+
+	return false;
 }
 
-function load_projects() {
+function load_projects( e ) {
 	
 	/* See if the projects directory exists */
 	if( !fs.existsSync( path.join( __dirname, "projects" ) ) ) {
@@ -404,4 +409,30 @@ function rename_project( e, project_name, f_new_project_name ) {
 		return true;
 	else
 		return false;
+}
+
+async function import_project( e ) {
+
+	const { canceled, filePaths } = await dialog.showOpenDialog( {
+		properties: [ 'openFile' ],
+		filters: [
+		    { name: 'Projects', extensions: [ 'json' ] },
+		    { name: 'All Files', extensions: ['*'] }
+		  ],
+	} );
+
+	if( filePaths[0] != undefined ) { 
+
+		try {
+
+			var data = fs.readFileSync( filePaths[0] )
+
+			return JSON.parse( data );
+		} catch( e ) {
+			
+			return false;
+		}
+	}
+
+	return false;
 }
