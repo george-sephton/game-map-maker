@@ -1550,10 +1550,10 @@ function sprite_toolbar_event_listeners() {
 						$( "#sprite_erase" ).addClass( "selected_tool" );
 
 						/* Add hover functionality to map editor */
-						$( "#sprite_editor table tr td:not( .oob )" ).addClass( "map_editor_table_cell_draw" );
+						$( "#sprite_editor table tr td:not( .oob )" ).addClass( "map_editor_cell_draw" );
 
 						/* Add event listener for the erase tool */
-						$( "#sprite_editor .map_editor_table_cell_draw:not( .oob )" ).on( "mouseup" , function( e ) {
+						$( "#sprite_editor .map_editor_cell_draw:not( .oob )" ).on( "mouseup" , function( e ) {
 
 							/* Clear the pixel in the editor */
 							$( this ).css( "background", false );
@@ -1575,11 +1575,11 @@ function sprite_toolbar_event_listeners() {
 						enable_controls();
 
 						/* Remove event listener */
-						$( "#sprite_editor .map_editor_table_cell_draw:not( .oob )" ).unbind( "mouseup" );
+						$( "#sprite_editor .map_editor_cell_draw:not( .oob )" ).unbind( "mouseup" );
 
 						/* Remove paint brush as selected tool */
 						$( "#sprite_erase" ).removeClass( "selected_tool" );
-						$( "#sprite_editor table tr td:not( .oob )" ).removeClass( "map_editor_table_cell_draw" );
+						$( "#sprite_editor table tr td:not( .oob )" ).removeClass( "map_editor_cell_draw" );
 					}
 					break;
 			}
@@ -1769,7 +1769,7 @@ function load_sprite_editor_colour_pickers() {
 				$( "#sprite_paint" ).addClass( "selected_tool" );
 
 				/* Add hover functionality to map editor */
-				$( "#sprite_editor table tr td:not( .oob )" ).addClass( "map_editor_table_cell_draw" );
+				$( "#sprite_editor table tr td:not( .oob )" ).addClass( "map_editor_cell_draw" );
 
 				/* Add event listeners to the cells of the texture editor */
 				$( "#sprite_editor table tr td:not( .oob )" ).on( "mouseup", function( e ) {
@@ -1817,7 +1817,7 @@ function load_sprite_editor_colour_pickers() {
 
 					/* Remove paint brush as selected tool */
 					$( "#sprite_paint" ).removeClass( "selected_tool" );
-					$( "#sprite_editor table tr td:not( .oob )" ).removeClass( "map_editor_table_cell_draw" );
+					$( "#sprite_editor table tr td:not( .oob )" ).removeClass( "map_editor_cell_draw" );
 
 					/* Unbind event listeners */
 					$( "#sprite_paint" ).unbind( "mouseup" );
