@@ -116,10 +116,12 @@ const createWindow = () => {
 
 app.whenReady().then( () => {
 
-	ipcMain.handle( "texture_load_image", texture_load_image );
-	
-	ipcMain.handle( "load_projects", load_projects );
+	ipcMain.handle( "load_image_dialog", load_image_dialog );
+	ipcMain.handle( "save_file_dialog", save_file_dialog );
+	ipcMain.handle( "save_data", save_data );
 
+	ipcMain.handle( "load_projects", load_projects );
+	
 	ipcMain.handle( "load_project_data", load_project_data );
 	ipcMain.handle( "save_project", save_project );
 	ipcMain.handle( "delete_project", delete_project );
@@ -142,7 +144,7 @@ app.on( "window-all-closed", () => {
 	if( process.platform !== "darwin" ) app.quit();
 } );
 
-async function texture_load_image( e ) {
+async function load_image_dialog() {
 	
 	const { canceled, filePaths } = await dialog.showOpenDialog( {
 		properties: [ "openFile" ],
@@ -158,8 +160,6 @@ async function texture_load_image( e ) {
 
 			var data = fs.readFileSync( filePaths[0] );
 			var png = PNG.sync.read( data );
-
-			return png;
 		} catch( e ) {
 			
 			/* Error with bitmap decoding */
@@ -167,7 +167,30 @@ async function texture_load_image( e ) {
 		}
 	}
 
-	return false;
+	return { cancelled: canceled, data: png };
+}
+
+async function save_file_dialog( e, filter ) {
+
+	const { canceled, filePath } = await dialog.showSaveDialog( {
+		filters: [ filter ]
+	} );
+
+	return { cancelled: canceled, data: filePath };
+}
+
+function save_data( e, file_name, data ) {
+	
+	try {
+		
+		/* Write our JSON file */
+		fs.writeFileSync( file_name, data, { encoding: "utf8", flag: "w" } );
+		return true;
+	} catch( e ) {
+
+		/* Error writing project.json */
+		return false;
+	}
 }
 
 function load_projects( e ) {
@@ -413,6 +436,8 @@ function rename_project( e, project_name, f_new_project_name ) {
 
 async function import_project( e ) {
 
+	var data = undefined;
+
 	const { canceled, filePaths } = await dialog.showOpenDialog( {
 		properties: [ 'openFile' ],
 		filters: [
@@ -425,14 +450,13 @@ async function import_project( e ) {
 
 		try {
 
-			var data = fs.readFileSync( filePaths[0] )
+			data = JSON.parse( fs.readFileSync( filePaths[0] ) );
 
-			return JSON.parse( data );
 		} catch( e ) {
 			
 			return false;
 		}
 	}
 
-	return false;
+	return { cancelled: canceled, data: data };
 }

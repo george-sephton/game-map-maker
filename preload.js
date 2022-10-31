@@ -2,7 +2,9 @@ const { contextBridge, ipcRenderer } = require( "electron" );
 
 contextBridge.exposeInMainWorld( "electronAPI", {
 
-	texture_load_image: () => ipcRenderer.invoke( "texture_load_image" ),
+	load_image_dialog: () => ipcRenderer.invoke( "load_image_dialog" ),
+	save_file_dialog: ( filter ) => ipcRenderer.invoke( "save_file_dialog", filter ),
+	save_data: ( file_name, data ) => ipcRenderer.invoke( "save_data", file_name, data ),
 
 	load_projects: () => ipcRenderer.invoke( "load_projects" ),
 	

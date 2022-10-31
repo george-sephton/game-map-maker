@@ -232,14 +232,5 @@ function export_data_ps() {
 	output += "  };\n\n";
 	output += "}";
 
-	//console.log( output );
-
-	var blob = new Blob( [output], { type: "text/plain" } );
-	var file = document.createElement( "a" );
-	file.download = project.name.toLowerCase().replace( / /g, "_" ) + ".hpp";
-	file.href = window.URL.createObjectURL( blob );
-	file.click();
-
-	//console.log( h_output ); // Not used
-	console.log( project );
+	return output;
 }

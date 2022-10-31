@@ -204,97 +204,101 @@ function project_list_toolbar_event_listeners() {
 				case "import-project":
 
 					$( async () => {
+						
 						var data = await window.electronAPI.import_project();
 
-						if( data ) {
+						if( data.cancelled == false ) {
 
-							/* Disable controls - don't hide the name input */
-							disable_controls( false );
+							if( data.data ) {
 
-							$( "#container #content #project_view #project_list_container #project_list_toolbar" ).css( "display", "none" );
-							$( "#container #content #project_view #project_list_container #project_list_new_project_name" ).css( "display", "flex" );
+								/* Disable controls - don't hide the name input */
+								disable_controls( false );
 
-							$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).val( "" );
-							$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).attr( "placeholder", "Enter imported project name" );
-							$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).focus();
+								$( "#container #content #project_view #project_list_container #project_list_toolbar" ).css( "display", "none" );
+								$( "#container #content #project_view #project_list_container #project_list_new_project_name" ).css( "display", "flex" );
 
-							/* Add event listeners */
-							$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).on( "keyup blur", function( e ) {
+								$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).val( "" );
+								$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).attr( "placeholder", "Enter imported project name" );
+								$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).focus();
 
-								/* Save the change */
-								if( e.key == "Enter" ) {
+								/* Add event listeners */
+								$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).on( "keyup blur", function( e ) {
 
-									var project_name_value = sanitise_input( $( this ).val() );
+									/* Save the change */
+									if( e.key == "Enter" ) {
 
-									if( project_name_value.match( /^\d/ ) ) {
-										
-										show_alert( "Project name cannot start with a number" );
-									} else {
+										var project_name_value = sanitise_input( $( this ).val() );
 
-										/* Check if project already exists */
-										$( async () => {
+										if( project_name_value.match( /^\d/ ) ) {
+											
+											show_alert( "Project name cannot start with a number" );
+										} else {
 
-											var check_name = project_name_value.toLowerCase().replace( / /g, "_" );
+											/* Check if project already exists */
+											$( async () => {
 
-											var projects = await window.electronAPI.load_projects();
-											var check_array = projects.map( function( val ) {
-												return val.name.toLowerCase().replace( / /g, "_" );;
-											} );
+												var check_name = project_name_value.toLowerCase().replace( / /g, "_" );
 
-											if( check_array.indexOf( check_name ) !== -1 ) {
+												var projects = await window.electronAPI.load_projects();
+												var check_array = projects.map( function( val ) {
+													return val.name.toLowerCase().replace( / /g, "_" );;
+												} );
 
-												show_alert( "Project name already exists." );
-											} else {
+												if( check_array.indexOf( check_name ) !== -1 ) {
 
-												/* Change name of imported project and save to local directory */
-												data.name = project_name_value;
-
-												if( await window.electronAPI.save_project( check_name, JSON.stringify( data ) ) ) {
-
-													/* Project created successfully */
-													show_alert( "Project created successfully." );
-
-													/* Open the project view */
-													project = data;
-													load_project_view();
+													show_alert( "Project name already exists." );
 												} else {
 
-													show_error( "Error creating project." );
+													/* Change name of imported project and save to local directory */
+													data.data.name = project_name_value;
+
+													if( await window.electronAPI.save_project( check_name, JSON.stringify( data.data ) ) ) {
+
+														/* Project created successfully */
+														show_alert( "Project created successfully." );
+
+														/* Open the project view */
+														project = data.data;
+														load_project_view();
+													} else {
+
+														show_error( "Error creating project." );
+													}
 												}
-											}
-										} );
+											} );
+										}
+
+										/* Put things back the way they were */
+										$( "#container #content #project_view #project_list_container #project_list_toolbar" ).css( "display", "flex" );
+										$( "#container #content #project_view #project_list_container #project_list_new_project_name" ).css( "display", "none" );
+										$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).val( "" );
+
+										/* Re-enable controls */
+										enable_controls();
+
+										/* Remove event listeners */
+										$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).unbind( "keyup blur" );
 									}
 
-									/* Put things back the way they were */
-									$( "#container #content #project_view #project_list_container #project_list_toolbar" ).css( "display", "flex" );
-									$( "#container #content #project_view #project_list_container #project_list_new_project_name" ).css( "display", "none" );
-									$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).val( "" );
+									/* Discard change */
+									if( ( e.key == "Escape" ) || ( e.type == "blur" ) ) {
 
-									/* Re-enable controls */
-									enable_controls();
+										/* Re-enable controls */
+										enable_controls();
 
-									/* Remove event listeners */
-									$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).unbind( "keyup blur" );
-								}
+										/* Remove event listeners */
+										$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).unbind( "keyup blur" );
+										
+										/* Put things back the way they were */
+										$( "#container #content #project_view #project_list_container #project_list_toolbar" ).css( "display", "flex" );
+										$( "#container #content #project_view #project_list_container #project_list_new_project_name" ).css( "display", "none" );
+										$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).val( "" );
+									}
+								} );							
+							} else {
 
-								/* Discard change */
-								if( ( e.key == "Escape" ) || ( e.type == "blur" ) ) {
-
-									/* Re-enable controls */
-									enable_controls();
-
-									/* Remove event listeners */
-									$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).unbind( "keyup blur" );
-									
-									/* Put things back the way they were */
-									$( "#container #content #project_view #project_list_container #project_list_toolbar" ).css( "display", "flex" );
-									$( "#container #content #project_view #project_list_container #project_list_new_project_name" ).css( "display", "none" );
-									$( "#container #content #project_view #project_list_container #project_list_new_project_name #new_project_name" ).val( "" );
-								}
-							} );							
-						} else {
-
-							show_error( "Error importing project." );
+								show_error( "Error importing project." );
+							}
 						}
 					} );
 					break;
@@ -787,20 +791,54 @@ function project_toolbar_event_listeners() {
 					/* Add event listeners */
 					$( "#container #toolbar #settings #map_export input[type=button]" ).on( "click" , function( e ) {
 						
-						/* Which format are we exporting */
-						if( $( this ).attr( "id" ) == "map_export_gba" ) {
-							export_data_gba();
-						} else if( $( this ).attr( "id" ) == "map_export_ps" ) {
-							export_data_ps();
-						} else if( $( this ).attr( "id" ) == "map_export_json" ) {
+						$( async () => {
 
-							/* Convert project to JSON and download */
-							var blob = new Blob( [ JSON.stringify( project ) ], { type: "text/json" } );
-							var file = document.createElement( "a" );
-							file.download = project.name.toLowerCase().replace( / /g, "_" ) + ".json";
-							file.href = window.URL.createObjectURL( blob );
-							file.click();
-						}
+							/* Which format are we exporting */
+							if( $( this ).attr( "id" ) == "map_export_gba" ) {
+
+								var filter = { name: "GBA Header File", extensions: [ "h" ] };
+							} else if( $( this ).attr( "id" ) == "map_export_ps" ) {
+
+								var filter = { name: "PicoSystem Header File", extensions: [ "hpp" ] };
+							} else if( $( this ).attr( "id" ) == "map_export_json" ) {
+								
+								var filter = { name: "JSON", extensions: [ "json" ] };
+							}
+
+							var data = await window.electronAPI.save_file_dialog( filter );
+							
+							if( data.cancelled == false ) {
+
+								/* Check if we returned actual data */
+								if( data.data != undefined ) {
+
+									if( $( this ).attr( "id" ) == "map_export_gba" ) {
+
+										var export_data = export_data_gba();
+										var alert_msg = "Project exported for Game Boy Advance at ";
+									} else if( $( this ).attr( "id" ) == "map_export_ps" ) {
+
+										var export_data = export_data_ps();
+										var alert_msg = "Project exported for PicoSystem at ";
+									} else if( $( this ).attr( "id" ) == "map_export_json" ) {
+
+										var export_data =  JSON.stringify( project );
+										var alert_msg = "Project exported in JSON format at ";
+									}
+									
+									if( await window.electronAPI.save_data( data.data, export_data ) ) {
+
+										show_alert( alert_msg + data.data );
+									} else {
+
+										show_error( "Error exporting project." );
+									}
+								} else {
+
+									show_error( "Error exporting project." );
+								}
+							}
+						} );
 
 						/* Re-enable controls */
 						enable_controls();

@@ -859,245 +859,250 @@ function texture_toolbar_event_listeners() {
 	/* image upload event listener */
 	$( "#container #sidebar #texture_list_toolbar #toolbar_image_upload" ).click( async () => {
 		
-		var img_data = await window.electronAPI.texture_load_image();
+		var data = await window.electronAPI.load_image_dialog();
 
-		/* Check if we returned actual data */
-		if( img_data != undefined ) {
+		if( data.cancelled == false ) {
 
-			/* Is the image the correct size */
-			if( ( ( img_data.width % 8 ) == 0 ) && ( ( img_data.height % 8 ) == 0 ) ) {
-			
-				/* Create a blank 3D array to store all the textures */
-				var images_array = Array.from( { length: ( ( img_data.width * img_data.height ) / 64 ) }, () => Array.from( { length: 8 }, () => Array.from( { length: 8 }, () => undefined ) ) );
+			var img_data = data.data;
+
+			/* Check if we returned actual data */
+			if( img_data != undefined ) {
+
+				/* Is the image the correct size */
+				if( ( ( img_data.width % 8 ) == 0 ) && ( ( img_data.height % 8 ) == 0 ) ) {
 				
-				var _col = 0, _row = 0, _img_count = 0, _img_multiplier = 0, _i = 0;
-				var temp_object = new Object();
+					/* Create a blank 3D array to store all the textures */
+					var images_array = Array.from( { length: ( ( img_data.width * img_data.height ) / 64 ) }, () => Array.from( { length: 8 }, () => Array.from( { length: 8 }, () => undefined ) ) );
+					
+					var _col = 0, _row = 0, _img_count = 0, _img_multiplier = 0, _i = 0;
+					var temp_object = new Object();
 
-				/* Loop through each colour channel in the image, group them and then sort them all into our image array */
-				$.each( img_data.data , function( index, value ) {
+					/* Loop through each colour channel in the image, group them and then sort them all into our image array */
+					$.each( img_data.data , function( index, value ) {
 
-					/* Add each colour value to our temporary object */
-					if( ( index % 4 ) == 0 ) {
-						temp_object.R = value;
-					} else if( ( index % 4 ) == 1 ) {
-						temp_object.G = value;
-					} else if( ( index % 4 ) == 2 ) {
-						temp_object.B = value;
-					} else if( ( index % 4 ) == 3 ) {
-						temp_object.A = value;
+						/* Add each colour value to our temporary object */
+						if( ( index % 4 ) == 0 ) {
+							temp_object.R = value;
+						} else if( ( index % 4 ) == 1 ) {
+							temp_object.G = value;
+						} else if( ( index % 4 ) == 2 ) {
+							temp_object.B = value;
+						} else if( ( index % 4 ) == 3 ) {
+							temp_object.A = value;
 
-						/* After adding all channels, convert to hex */
-						var conv = ( temp_object.R << 16 ) | ( temp_object.G << 8 ) | ( temp_object.B );
+							/* After adding all channels, convert to hex */
+							var conv = ( temp_object.R << 16 ) | ( temp_object.G << 8 ) | ( temp_object.B );
 
-						/* Check to see if this is a transparent pixel or not */
-						if( ( conv == 0 ) && ( temp_object.A == 0 ) ) {
-							
-							/* Transparent pixel */
-							var hex = undefined;
-						} else {
+							/* Check to see if this is a transparent pixel or not */
+							if( ( conv == 0 ) && ( temp_object.A == 0 ) ) {
+								
+								/* Transparent pixel */
+								var hex = undefined;
+							} else {
 
-							/* Black/Grey pixel */
-							var hex = ( conv ).toString(16).padStart( 6, '0' );
-						}
+								/* Black/Grey pixel */
+								var hex = ( conv ).toString(16).padStart( 6, '0' );
+							}
 
-						/* Add pixel to image array */
-						images_array[ _img_count ][ _row ][ _col ] = hex;
+							/* Add pixel to image array */
+							images_array[ _img_count ][ _row ][ _col ] = hex;
 
-						/* Deal with our 3 indicies */
-						_row++;
-						if( _row >= 8 ) {
-							
-							/* Once we hit the bottom of 8 rows of pixels of an image, continue to the next image below */
-							_row = 0;
-							_img_count++;
+							/* Deal with our 3 indicies */
+							_row++;
+							if( _row >= 8 ) {
+								
+								/* Once we hit the bottom of 8 rows of pixels of an image, continue to the next image below */
+								_row = 0;
+								_img_count++;
 
-							if( ( _img_count % ( img_data.height / 8 ) ) == 0 ) {
+								if( ( _img_count % ( img_data.height / 8 ) ) == 0 ) {
 
-								/* Once we reach the bottom of the whole image, loop back to the top and increment our column counter */
-								_img_count = _img_multiplier;
-								_col++;
-
-								if( _col >= 8 ) {
-
-									/* Once the column counter gets to the end of 8 columns of pixels, reset all our counters, time to deal with the next column of images */
-									_col = 0;
-									_img_multiplier += ( img_data.height / 8 );
+									/* Once we reach the bottom of the whole image, loop back to the top and increment our column counter */
 									_img_count = _img_multiplier;
+									_col++;
+
+									if( _col >= 8 ) {
+
+										/* Once the column counter gets to the end of 8 columns of pixels, reset all our counters, time to deal with the next column of images */
+										_col = 0;
+										_img_multiplier += ( img_data.height / 8 );
+										_img_count = _img_multiplier;
+									}
 								}
 							}
 						}
-					}
-				});
+					});
 
-				/* Data uploaded, let's prompt the user for a new name */
-				$( "#container #sidebar #texture_list_toolbar_rename #texture_rename" ).val( "" );
+					/* Data uploaded, let's prompt the user for a new name */
+					$( "#container #sidebar #texture_list_toolbar_rename #texture_rename" ).val( "" );
 
-				/* Show the rename input */
-				$( "#container #sidebar #texture_list_toolbar" ).css( "display", "none" );
-				$( "#container #sidebar #texture_list_toolbar_rename" ).css( "display", "flex" );
+					/* Show the rename input */
+					$( "#container #sidebar #texture_list_toolbar" ).css( "display", "none" );
+					$( "#container #sidebar #texture_list_toolbar_rename" ).css( "display", "flex" );
 
-				/* Focus on input, add placeholder text and add event listeners */
-				$( "#container #sidebar #texture_list_toolbar_rename #texture_rename" ).focus();
+					/* Focus on input, add placeholder text and add event listeners */
+					$( "#container #sidebar #texture_list_toolbar_rename #texture_rename" ).focus();
 
-				/* Set the placeholder if we're renaming the selected texture */
-				$( "#container #sidebar #texture_list_toolbar_rename #texture_rename" ).attr( "placeholder", "New group name" );
+					/* Set the placeholder if we're renaming the selected texture */
+					$( "#container #sidebar #texture_list_toolbar_rename #texture_rename" ).attr( "placeholder", "New group name" );
 
-				/* Add event listners to either save or discard change */
-				$( "#container #sidebar #texture_list_toolbar_rename #texture_rename" ).on( "keyup blur", function( e ) {
-					
-					/* Save the change */
-					if( e.key == "Enter" ) {
+					/* Add event listners to either save or discard change */
+					$( "#container #sidebar #texture_list_toolbar_rename #texture_rename" ).on( "keyup blur", function( e ) {
+						
+						/* Save the change */
+						if( e.key == "Enter" ) {
 
-						/* Get entered name */
-						var new_name = sanitise_input( $( "#container #sidebar #texture_list_toolbar_rename #texture_rename" ).val() );
+							/* Get entered name */
+							var new_name = sanitise_input( $( "#container #sidebar #texture_list_toolbar_rename #texture_rename" ).val() );
 
-						if( new_name.match( /^\d/ ) ) {
-							
-							alert( "Texture name cannot start with a number" );
-						} else {
-
-							/* Check if name already exists */
-							var check_name = new_name.toLowerCase().replace( / /g, "_" );
-							var check_array = project.textures.map( function( val ) {
-								return val.name.toLowerCase().replace( / /g, "_" );;
-							} );
-
-							if( check_array.indexOf( check_name ) !== -1 ) {
+							if( new_name.match( /^\d/ ) ) {
 								
-								alert( "Texture name already exists." );
+								alert( "Texture name cannot start with a number" );
 							} else {
 
-								/* Let's sort our images into an output array, removing any empty images and duplicates */
-								var output_images = new Array();
-								var img_empty = JSON.stringify( Array.from( { length: 8 }, () => Array.from( { length: 8 }, () => undefined ) ) );
+								/* Check if name already exists */
+								var check_name = new_name.toLowerCase().replace( / /g, "_" );
+								var check_array = project.textures.map( function( val ) {
+									return val.name.toLowerCase().replace( / /g, "_" );;
+								} );
 
-								$.each( images_array , function( index, _image ) {
-
-									/* Let's also see if an image doesn't already exist when flipped */
-									var img_flip_v = Array.from( { length: 8 }, () => Array.from( { length: 8 }, () => undefined ) );
-									var img_flip_h = Array.from( { length: 8 }, () => Array.from( { length: 8 }, () => undefined ) );
-									var img_flip_vh = Array.from( { length: 8 }, () => Array.from( { length: 8 }, () => undefined ) );
-
-									/* Create arrays for flipped vertically, horizontally and both */
-									for( var row_sel = 0; row_sel < 8; row_sel++ ) {
-
-										for( var col_sel = 0; col_sel < 8; col_sel++ ) {
-
-											var row_sel_v = 7 - row_sel;
-											var col_sel_h = 7 - col_sel;
-
-											img_flip_v[ col_sel ][ row_sel ]  = _image[ col_sel ][ row_sel_v ];
-											img_flip_h[ col_sel ][ row_sel ]  = _image[ col_sel_h ][ row_sel ];
-											img_flip_vh[ col_sel ][ row_sel ] = _image[ col_sel_h ][ row_sel_v ];
-										}
-									}
+								if( check_array.indexOf( check_name ) !== -1 ) {
 									
-									/* Check all the existing images in the array */
-									var check_img_array = JSON.stringify( _image );
+									alert( "Texture name already exists." );
+								} else {
 
-									if( check_img_array != img_empty ) {
-										
-										/* Tile isn't empty */
-										var check_img_flip_v = JSON.stringify( img_flip_v );
-										var check_img_flip_h = JSON.stringify( img_flip_h );
-										var check_img_flip_vh = JSON.stringify( img_flip_vh );
+									/* Let's sort our images into an output array, removing any empty images and duplicates */
+									var output_images = new Array();
+									var img_empty = JSON.stringify( Array.from( { length: 8 }, () => Array.from( { length: 8 }, () => undefined ) ) );
 
-										/* Check every tile so far and see if we have a duplicate */
-										var duplicate = false;
+									$.each( images_array , function( index, _image ) {
 
-										$.each( output_images, function( index, value ) {
+										/* Let's also see if an image doesn't already exist when flipped */
+										var img_flip_v = Array.from( { length: 8 }, () => Array.from( { length: 8 }, () => undefined ) );
+										var img_flip_h = Array.from( { length: 8 }, () => Array.from( { length: 8 }, () => undefined ) );
+										var img_flip_vh = Array.from( { length: 8 }, () => Array.from( { length: 8 }, () => undefined ) );
 
-											var check_array = JSON.stringify( value )
-											
-											if( ( check_array == check_img_array ) || ( check_array == check_img_flip_v ) || ( check_array == check_img_flip_h ) || ( check_array == check_img_flip_vh ) ) {
+										/* Create arrays for flipped vertically, horizontally and both */
+										for( var row_sel = 0; row_sel < 8; row_sel++ ) {
 
-												/* We've got ourselves a duplicate */
-												duplicate = true;
-												return;
+											for( var col_sel = 0; col_sel < 8; col_sel++ ) {
+
+												var row_sel_v = 7 - row_sel;
+												var col_sel_h = 7 - col_sel;
+
+												img_flip_v[ col_sel ][ row_sel ]  = _image[ col_sel ][ row_sel_v ];
+												img_flip_h[ col_sel ][ row_sel ]  = _image[ col_sel_h ][ row_sel ];
+												img_flip_vh[ col_sel ][ row_sel ] = _image[ col_sel_h ][ row_sel_v ];
 											}
-										} );
-
-										/* If we didn't find a duplicate, even with transformations, add the image to the image array */
-										if( duplicate == false ) {
-
-											output_images.push( _image );
-											
 										}
-									}
-								} );
+										
+										/* Check all the existing images in the array */
+										var check_img_array = JSON.stringify( _image );
 
-								/* Let's now format our imported images for the project */
-								var output = new Array();
+										if( check_img_array != img_empty ) {
+											
+											/* Tile isn't empty */
+											var check_img_flip_v = JSON.stringify( img_flip_v );
+											var check_img_flip_h = JSON.stringify( img_flip_h );
+											var check_img_flip_vh = JSON.stringify( img_flip_vh );
 
-								$.each( output_images , function( index, _image ) {
+											/* Check every tile so far and see if we have a duplicate */
+											var duplicate = false;
 
-									var _new_texture = new Object();
-									_new_texture.name = new_name + " " + index;
-									_new_texture.order = index;
-									_new_texture.id = index;
-									_new_texture.data = new Array();
+											$.each( output_images, function( index, value ) {
 
-									$.extend( true, _new_texture.data, _image ); /* Clone array */
-									output.push( _new_texture );
-								} );
-
-								/* All textures added to a new group in the project */
-								var _new_g_texture = new Object();
-								_new_g_texture.name = new_name;
-
-								/* Get new ID value */
-								sort_texture_groups_by_gid();
-								_new_g_texture.gid = ( project.textures.length != 0 ) ? ( project.textures[project.textures.length - 1].gid + 1 ) : 0;
-
-								/* Get new order value */
-								sort_texture_groups_by_gorder();
-								_new_g_texture.gorder = ( project.textures.length != 0 ) ? ( project.textures[project.textures.length - 1].gorder + 1 ) : 0;
-								/* Note we sort by order 2nd so the array goes back to the correct order */
-
-								_new_g_texture.textures = new Array();
-								$.extend( true, _new_g_texture.textures, output ); /* Clone array */
-
-								/* Add the new texture into the local array*/
-								project.textures.push( _new_g_texture );
-
-								/* Let's also update the selected group to be our new one */
-								selected_texture.group = _new_g_texture;
+												var check_array = JSON.stringify( value )
 												
-								/* Reload texture list */
-								load_texture_list();
+												if( ( check_array == check_img_array ) || ( check_array == check_img_flip_v ) || ( check_array == check_img_flip_h ) || ( check_array == check_img_flip_vh ) ) {
 
-								/* Exit new texture creation */
-								$( "#container #sidebar #texture_list_toolbar" ).css( "display", "flex" );
-								$( "#container #sidebar #texture_list_toolbar_rename" ).css( "display", "none" );
-								
-								/* Unbind event listeners */
-								$( "#container #sidebar #texture_list_toolbar_rename #texture_rename" ).unbind( "keyup blur" );
+													/* We've got ourselves a duplicate */
+													duplicate = true;
+													return;
+												}
+											} );
 
-								/* Reload texture list */
-								load_texture_list();
+											/* If we didn't find a duplicate, even with transformations, add the image to the image array */
+											if( duplicate == false ) {
+
+												output_images.push( _image );
+												
+											}
+										}
+									} );
+
+									/* Let's now format our imported images for the project */
+									var output = new Array();
+
+									$.each( output_images , function( index, _image ) {
+
+										var _new_texture = new Object();
+										_new_texture.name = new_name + " " + index;
+										_new_texture.order = index;
+										_new_texture.id = index;
+										_new_texture.data = new Array();
+
+										$.extend( true, _new_texture.data, _image ); /* Clone array */
+										output.push( _new_texture );
+									} );
+
+									/* All textures added to a new group in the project */
+									var _new_g_texture = new Object();
+									_new_g_texture.name = new_name;
+
+									/* Get new ID value */
+									sort_texture_groups_by_gid();
+									_new_g_texture.gid = ( project.textures.length != 0 ) ? ( project.textures[project.textures.length - 1].gid + 1 ) : 0;
+
+									/* Get new order value */
+									sort_texture_groups_by_gorder();
+									_new_g_texture.gorder = ( project.textures.length != 0 ) ? ( project.textures[project.textures.length - 1].gorder + 1 ) : 0;
+									/* Note we sort by order 2nd so the array goes back to the correct order */
+
+									_new_g_texture.textures = new Array();
+									$.extend( true, _new_g_texture.textures, output ); /* Clone array */
+
+									/* Add the new texture into the local array*/
+									project.textures.push( _new_g_texture );
+
+									/* Let's also update the selected group to be our new one */
+									selected_texture.group = _new_g_texture;
+													
+									/* Reload texture list */
+									load_texture_list();
+
+									/* Exit new texture creation */
+									$( "#container #sidebar #texture_list_toolbar" ).css( "display", "flex" );
+									$( "#container #sidebar #texture_list_toolbar_rename" ).css( "display", "none" );
+									
+									/* Unbind event listeners */
+									$( "#container #sidebar #texture_list_toolbar_rename #texture_rename" ).unbind( "keyup blur" );
+
+									/* Reload texture list */
+									load_texture_list();
+								}
 							}
 						}
-					}
 
-					/* Discard change */
-					if( ( e.key == "Escape" ) || ( e.type == "blur" ) ) {
-						/* Exit new texture creation */
-						$( "#container #sidebar #texture_list_toolbar" ).css( "display", "flex" );
-						$( "#container #sidebar #texture_list_toolbar_rename" ).css( "display", "none" );
-						
-						/* Unbind event listeners */
-						$( "#container #sidebar #texture_list_toolbar_rename #texture_rename" ).unbind( "keyup blur" );
-					}
-				} );
+						/* Discard change */
+						if( ( e.key == "Escape" ) || ( e.type == "blur" ) ) {
+							/* Exit new texture creation */
+							$( "#container #sidebar #texture_list_toolbar" ).css( "display", "flex" );
+							$( "#container #sidebar #texture_list_toolbar_rename" ).css( "display", "none" );
+							
+							/* Unbind event listeners */
+							$( "#container #sidebar #texture_list_toolbar_rename #texture_rename" ).unbind( "keyup blur" );
+						}
+					} );
+
+				} else {
+					/* Image dimensions wrong */
+					alert( "Image width/height must be a multiple of 8" );
+				}
 
 			} else {
-				/* Image dimensions wrong */
-				alert( "Image width/height must be a multiple of 8" );
+				/* Error with file upload */
+				//alert( "Error uploading image" );
 			}
-
-		} else {
-			/* Error with file upload */
-			//alert( "Error uploading image" );
 		}
 	} );
 }
