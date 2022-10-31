@@ -30,11 +30,12 @@ body {
 	display: block;
 }
 .map_editor_table_cell {
-	border: 1px solid #666 !important;
 	padding: 0px !important;
+	box-sizing: border-box;
+	overflow: hidden;
 }
 .map_editor_table_cell_draw:hover {
-	border: 1px solid #f00 !important;
+	border: 2px solid #f00 !important;
 	cursor: crosshair !important;
 }
 .sortable {

@@ -4,6 +4,7 @@ const appConfig = require( "electron-settings" );
 const path = require( "path" );
 const fs = require( "fs" );
 const PNG = require( "pngjs" ).PNG;
+const Jimp = require('jimp');
 
 var mainWindow;
 
@@ -121,12 +122,14 @@ app.whenReady().then( () => {
 	ipcMain.handle( "save_data", save_data );
 
 	ipcMain.handle( "load_projects", load_projects );
-	
+
 	ipcMain.handle( "load_project_data", load_project_data );
 	ipcMain.handle( "save_project", save_project );
 	ipcMain.handle( "delete_project", delete_project );
 	ipcMain.handle( "rename_project", rename_project );
 	ipcMain.handle( "import_project", import_project );
+
+	ipcMain.handle( "update_cached_image", update_cached_image );
 
 	/* Create the window */
 	createWindow();
@@ -459,4 +462,46 @@ async function import_project( e ) {
 	}
 
 	return { cancelled: canceled, data: data };
+}
+
+function update_cached_image( e, project_name, image_type, image_size, image_name, image_data ) {
+
+	/* Create a new blank image */
+	let image = new Jimp( image_size, image_size, function ( err, image ) {
+		
+		if( err )
+			return false;
+
+		/* Map the pixels correct */
+		var _image_data = Array.from( { length: image_size }, () => Array.from( { length: image_size }, () => undefined ) );
+
+		for( var row_sel = 0; row_sel < image_size; row_sel++ )
+			for( var col_sel = 0; col_sel < image_size; col_sel++ )
+				_image_data[ col_sel ][ row_sel ]  = image_data.data[ row_sel ][ col_sel ];
+
+		/* Loop through each pixel to add to the image */
+		_image_data.forEach( ( row, y ) => {
+
+			row.forEach( ( colour, x ) => {
+
+				/* If we have a transparent pixel, don't add it to the image */
+				if( ( colour == "" ) || ( colour == null ) )
+					image.setPixelColor( Jimp.rgbaToInt( 0, 0, 0, 0 ), parseInt( x ), parseInt( y ) );
+				else 
+					image.setPixelColor( Jimp.cssColorToHex( "#" + colour ), parseInt( x ), parseInt( y ) );
+			} );
+		} );
+
+		/* Resize to a nice large size */
+		image.resize( 512, 512 , Jimp.RESIZE_NEAREST_NEIGHBOR );
+
+		/* Save the image to project directory */
+		image.write( path.join(  __dirname, "projects", project_name, "cache", image_type, image_name + ".png" ), ( err ) => {
+		
+			if( err )
+				return false;
+		} );
+	} );
+
+	return true;
 }

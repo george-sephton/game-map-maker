@@ -181,6 +181,11 @@ function load_map_editor() {
 			$( this ).addClass( "trans_background" );
 		}
 
+		$( this ).css( "border-top", "1px solid #666" );
+		$( this ).css( "border-right", "1px solid #666" );
+		$( this ).css( "border-bottom", "1px solid #666" );
+		$( this ).css( "border-left", "1px solid #666" );
+
 		if( ( texture_obj != undefined ) && ( texture_obj != -1 ) ) {
 
 			/* Whilst resizing, don't render the texture */
@@ -192,43 +197,52 @@ function load_map_editor() {
 			} else {
 
 				/* Add the texture table */
-				$( this ).html( '<table class="texture_table"></table>' );
+				$( this ).html( '<div class="texture_div"></div>' );
 
-				const _texture_table = $( this ).find( ".texture_table" );
+				const _texture_table = $( this );
 
-				/* Add 8 rows */
-				for(i=0; i<8; i++)
-					_texture_table.append( '<tr row_id="' + i + '"></tr>' );
+				//var group_obj = project.textures.find( obj => obj.gid == tile_info.texture_gid );
+				//texture_obj = group_obj.textures.find( obj => obj.id == tile_info.texture_id );
 
-				/* Add 8 cells for each row */
-				$( this ).find( ".texture_table tr" ).each( function() {
-					
-					for(i=0; i<8; i++) {
-							
-						/* Draw texture */
-						var row_sel = $( this ).attr( "row_id" );
-						var col_sel = i;
+				$( this ).find( ".texture_div" ).html( "<img style=\"" + ( tile_info.texture_reverse_x ? "transform: rotateY(180deg);" : "" ) + ( tile_info.texture_reverse_y ? "transform: rotateX(180deg);" : "" ) + "\" src=\"" + "../projects/" + project.name.toLowerCase().replace( / /g, "_" ) + "/cache/textures/" + ( group_obj.name + "_" + texture_obj.order ).toLowerCase().replace( / /g, "_" ) + ".png" + "\" />" )
 
-						if( tile_info.texture_reverse_y == true ) {
-							/* Flip vertically */
-							row_sel = 7 - ( $( this ).attr( "row_id" ) );
+
+				if( 0 ) {
+
+					/* Add 8 rows */
+					for(i=0; i<8; i++)
+						_texture_table.append( '<tr row_id="' + i + '"></tr>' );
+
+					/* Add 8 cells for each row */
+					$( this ).find( ".texture_table tr" ).each( function() {
+						
+						for(i=0; i<8; i++) {
+								
+							/* Draw texture */
+							var row_sel = $( this ).attr( "row_id" );
+							var col_sel = i;
+
+							if( tile_info.texture_reverse_y == true ) {
+								/* Flip vertically */
+								row_sel = 7 - ( $( this ).attr( "row_id" ) );
+							}
+							if( tile_info.texture_reverse_x == true ) {
+								/* Flip horizontally */
+								col_sel = 7 - i;
+							}
+
+							if( ( texture_obj.data[col_sel][row_sel] == "" ) || ( texture_obj.data[col_sel][row_sel] == undefined ) ) {
+
+								/* Transparent pixel */
+								$( '<td col_id="'+i+'"></td>' ).appendTo( $(this) ).css( "background", "#ccc" );
+							} else {
+
+								/* Normal pixel */
+								$( '<td col_id="'+i+'"></td>' ).appendTo( $(this) ).css( "background", "#" + texture_obj.data[col_sel][row_sel] );
+							}
 						}
-						if( tile_info.texture_reverse_x == true ) {
-							/* Flip horizontally */
-							col_sel = 7 - i;
-						}
-
-						if( ( texture_obj.data[col_sel][row_sel] == "" ) || ( texture_obj.data[col_sel][row_sel] == undefined ) ) {
-
-							/* Transparent pixel */
-							$( '<td col_id="'+i+'"></td>' ).appendTo( $(this) ).css( "background", "#ccc" );
-						} else {
-
-							/* Normal pixel */
-							$( '<td col_id="'+i+'"></td>' ).appendTo( $(this) ).css( "background", "#" + texture_obj.data[col_sel][row_sel] );
-						}
-					}
-				} );
+					} );
+				}
 
 				if( !bg_texture ) {
 
@@ -237,7 +251,10 @@ function load_map_editor() {
 						/* Update CSS for exit tiles */
 						switch( selected_map.data[tile_info.row][tile_info.col].exit_map_dir.join() ) {
 							case "0,0":  /* Exit any direction */
-								_texture_table.css( "border", "3px solid #ff0" );
+								_texture_table.css( "border-top", "3px solid #ff0" );
+								_texture_table.css( "border-right", "3px solid #ff0" );
+								_texture_table.css( "border-bottom", "3px solid #ff0" );
+								_texture_table.css( "border-left", "3px solid #ff0" );
 								break;
 							case "0,1": /* Exit when walking north */
 								_texture_table.css( "border-top", "3px solid #ff0" );
@@ -255,12 +272,19 @@ function load_map_editor() {
 					} else if( selected_map.data[tile_info.row][tile_info.col].interact_en ) {
 
 						/* Update CSS based on interact_en */
-						_texture_table.css( "border", "3px solid #0ff" );
+						_texture_table.css( "border-top", "3px solid #0ff" );
+						_texture_table.css( "border-right", "3px solid #0ff" );
+						_texture_table.css( "border-bottom", "3px solid #0ff" );
+						_texture_table.css( "border-left", "3px solid #0ff" );
 
 					} else if( selected_map.data[tile_info.row][tile_info.col].npc_en ) {
 
 						/* Update CSS based on npc_en */
-						_texture_table.css( "border", "3px solid #f0f" );
+						_texture_table.css( "border-top", "3px solid #f0f" );
+						_texture_table.css( "border-right", "3px solid #f0f" );
+						_texture_table.css( "border-bottom", "3px solid #f0f" );
+						_texture_table.css( "border-left", "3px solid #f0f" );
+
 
 					} else if( selected_map.data[tile_info.row][tile_info.col].top_layer ) {
 
@@ -307,7 +331,10 @@ function load_map_editor() {
 
 	/* Set zoom level on load */
 	$( "#map_editor_table .map_editor_table_row .map_editor_table_cell" ).css( "min-width", (map_cell_size * 5)+"px" );
-	$( "#map_editor_table .map_editor_table_row .map_editor_table_cell" ).css( "height", (map_cell_size * 5)+"px" );
+	$( "#map_editor_table .map_editor_table_row .map_editor_table_cell" ).css( "min-height", (map_cell_size * 5)+"px" );
+
+	$( "#map_editor_table .map_editor_table_row .map_editor_table_cell" ).css( "max-width", (map_cell_size * 5)+"px" );
+	$( "#map_editor_table .map_editor_table_row .map_editor_table_cell" ).css( "max-height", (map_cell_size * 5)+"px" );
 }
 
 function map_editor_toolbar_reset() {
@@ -834,6 +861,7 @@ function map_toolbar_event_listeners() {
 				case "zoom-in":
 				case "zoom-out":
 					
+					console.log( map_cell_size );
 					if( ( map_cell_size < 18 ) && ( func == "zoom-in" ) ){
 						map_cell_size +=2;
 					}
@@ -843,7 +871,13 @@ function map_toolbar_event_listeners() {
 					}
 
 					$( "#map_editor_table .map_editor_table_row .map_editor_table_cell" ).css( "min-width", (map_cell_size * 5)+"px" );
-					$( "#map_editor_table .map_editor_table_row .map_editor_table_cell" ).css( "height", (map_cell_size * 5)+"px" );
+					$( "#map_editor_table .map_editor_table_row .map_editor_table_cell" ).css( "min-height", (map_cell_size * 5)+"px" );
+
+					$( "#map_editor_table .map_editor_table_row .map_editor_table_cell" ).css( "max-width", (map_cell_size * 5)+"px" );
+					$( "#map_editor_table .map_editor_table_row .map_editor_table_cell" ).css( "max-height", (map_cell_size * 5)+"px" );
+
+					$( "#map_editor_table .map_editor_table_row .map_editor_table_cell .texture_div" ).css( "min-width", (map_cell_size * 5)+"px" );
+					$( "#map_editor_table .map_editor_table_row .map_editor_table_cell .texture_div" ).css( "max-width", (map_cell_size * 5)+"px" );
 					break;
 			}
 		}

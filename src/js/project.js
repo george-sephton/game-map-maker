@@ -83,12 +83,38 @@ function project_list_event_listeners() {
 
 					project = data;
 
+					/* Update cached images */
+					//update_cached_images();
+
 					/* Open the project view */
 					load_project_view();
 				}
 			} );
 		}
 	});
+}
+
+function update_cached_images() {
+
+	/* Loop through each sprite group */
+	$.each( project.sprites , function( gi, g_sprite ) {
+
+		/* Loop through each sprite in the group */
+		$.each( g_sprite.sprites, async function( si, sprite ) {
+
+			await window.electronAPI.update_cached_image( project.name.toLowerCase().replace( / /g, "_" ), "sprites", g_sprite.size, ( g_sprite.name + "_" + si ).toLowerCase().replace( / /g, "_" ), sprite );
+		} );
+	} );
+
+	/* Loop through each sprite group */
+	$.each( project.textures , function( gi, g_texture ) {
+
+		/* Loop through each sprite in the group */
+		$.each( g_texture.textures, async function( ti, texture ) {
+
+			await window.electronAPI.update_cached_image( project.name.toLowerCase().replace( / /g, "_" ), "textures", 8, ( g_texture.name + "_" + ti ).toLowerCase().replace( / /g, "_" ), texture );
+		} );
+	} );
 }
 
 function clear_project_list_toolbar_event_listeners() {
@@ -801,7 +827,7 @@ function project_toolbar_event_listeners() {
 
 								var filter = { name: "PicoSystem Header File", extensions: [ "hpp" ] };
 							} else if( $( this ).attr( "id" ) == "map_export_json" ) {
-								
+
 								var filter = { name: "JSON", extensions: [ "json" ] };
 							}
 
