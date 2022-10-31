@@ -1215,42 +1215,9 @@ function map_editor_event_listeners() {
 			/* Clear the cell */
 			$( this ).html( "" );
 
-			if( ( selected_map.bg_texture.gid == undefined ) && ( selected_map.bg_texture.id == undefined ) ) {
-				
-				/* Tile has no texture and map has no background texture, show nothing */
-				$( this ).css( "background", false );
-				$( this ).addClass( "trans_background" );
-			} else {
-
-				/* Tile has no texture but map has a background texture, show that instead */
-				$( this ).addClass( "remove_background" );
-
-				group_obj = project.textures.find( obj => obj.gid == selected_map.bg_texture.gid );
-				texture_obj = group_obj.textures.find( obj => obj.id == selected_map.bg_texture.id );
-
-				/* Draw in the cell */
-				$( this ).html( '<table class="texture_table"></table>' );
-
-				/* Add 8 rows */
-				for(i=0; i<8; i++)
-					$( this ).find( ".texture_table" ).append( '<tr row_id="' + i + '"></tr>' );
-
-				/* Add 8 cells for each row */
-				$( this ).find( ".texture_table tr" ).each( function() {
-					for(i=0; i<8; i++) {
-							
-						/* Draw texture */
-						var row_sel = $( this ).attr( "row_id" );
-						var col_sel = i;
-
-						$( '<td col_id="'+i+'"></td>' ).appendTo( $(this) ).css( "background", "#" + texture_obj.data[col_sel][row_sel] );
-						$( this ).removeClass( "trans_background" );
-					}
-				} );
-
-				/* Add a border so we know it's a blank tile */
-				$( this ).find( ".texture_table" ).css( "border", "1px solid #00f" );
-			}
+			$( this ).css( "background", false );
+			$( this ).addClass( "trans_background" );
+			$( this ).css( "border", "1px solid #666" );
 
 			/* Update the local array */
 			selected_map.data[tile_info.row][tile_info.col].texture_gid = undefined;
