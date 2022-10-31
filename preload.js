@@ -14,5 +14,6 @@ contextBridge.exposeInMainWorld( "electronAPI", {
 	rename_project: ( project_name, f_new_project_name ) => ipcRenderer.invoke( "rename_project", project_name, f_new_project_name ),
 	import_project: () => ipcRenderer.invoke( "import_project" ),
 
+	delete_all_cached_images: ( project_name ) => ipcRenderer.invoke( "delete_all_cached_images", project_name ),
 	update_cached_image: ( project_name, image_type, image_size, image_name, image_data ) => ipcRenderer.invoke( "update_cached_image", project_name, image_type, image_size, image_name, image_data )
 } );

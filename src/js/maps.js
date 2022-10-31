@@ -91,6 +91,8 @@ function close_map_editing_view() {
 
 function set_map_cell( selector, tile_info ) {
 
+	/* Clear the cell before starting */
+	selector.html( "" );
 	selector.css( "background", "#ccc" );
 
 	/* Get the texture flip info */
@@ -161,7 +163,13 @@ function set_map_cell( selector, tile_info ) {
 			selector.html( "<img src=\"" + "images/blue.png" + "\" />" );
 		} else {
 
-			selector.html( "<img style=\"transform: " + ( tile_info.texture_reverse_x ? " rotateY(180deg)" : "" ) + ( tile_info.texture_reverse_y ? " rotateX(180deg)" : "" ) + ";\" src=\"" + "../projects/" + project.name.toLowerCase().replace( / /g, "_" ) + "/cache/textures/" + ( group_obj.name + "_" + texture_obj.order ).toLowerCase().replace( / /g, "_" ) + ".png" + "\" />" )
+			selector.html( "<img style=\"transform: " + ( tile_info.texture_reverse_x ? " rotateY(180deg)" : "" ) + ( tile_info.texture_reverse_y ? " rotateX(180deg)" : "" ) + ";\" src=\"\" />" );
+
+			/* Set the image and ensure we are retrieving the most recent version */
+			var img_src = "../projects/" + project.name.toLowerCase().replace( / /g, "_" ) + "/cache/textures/" + ( group_obj.name + "_" + texture_obj.order ).toLowerCase().replace( / /g, "_" ) + ".png";
+			
+			var d = new Date();
+			selector.find( "img" ).attr( "src", img_src + "?" + d.getTime() );
 
 			if( !bg_texture ) {
 
@@ -270,7 +278,7 @@ function load_map_editor() {
 		tile_info.row = $( this ).parent().attr( "row_id" );
 		tile_info.col = $( this ).attr( "col_id" );
 
-		set_map_cell( $( this ), tile_info );		
+		set_map_cell( $( this ), tile_info );
 	} );
 
 	/* Keep zoom consistent */

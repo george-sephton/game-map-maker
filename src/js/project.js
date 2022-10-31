@@ -84,7 +84,7 @@ function project_list_event_listeners() {
 					project = data;
 
 					/* Update cached images */
-					//update_cached_images();
+					update_cached_images();
 
 					/* Open the project view */
 					load_project_view();
@@ -96,24 +96,26 @@ function project_list_event_listeners() {
 
 function update_cached_images() {
 
-	/* Loop through each sprite group */
-	$.each( project.sprites , function( gi, g_sprite ) {
+	$( async () => {
 
-		/* Loop through each sprite in the group */
-		$.each( g_sprite.sprites, async function( si, sprite ) {
+		/* First delete all old cached images */
+		if( await window.electronAPI.delete_all_cached_images( project.name.toLowerCase().replace( / /g, "_" ) ) ) {
 
-			await window.electronAPI.update_cached_image( project.name.toLowerCase().replace( / /g, "_" ), "sprites", g_sprite.size, ( g_sprite.name + "_" + si ).toLowerCase().replace( / /g, "_" ), sprite );
-		} );
-	} );
+			/* Then loop through each sprite group */
+			$.each( project.textures , function( gi, g_texture ) {
 
-	/* Loop through each sprite group */
-	$.each( project.textures , function( gi, g_texture ) {
+				sort_textures_by_order( g_texture.gid );
 
-		/* Loop through each sprite in the group */
-		$.each( g_texture.textures, async function( ti, texture ) {
+				/* Loop through each sprite in the group */
+				$.each( g_texture.textures, async function( ti, texture ) {
 
-			await window.electronAPI.update_cached_image( project.name.toLowerCase().replace( / /g, "_" ), "textures", 8, ( g_texture.name + "_" + ti ).toLowerCase().replace( / /g, "_" ), texture );
-		} );
+					await window.electronAPI.update_cached_image( project.name.toLowerCase().replace( / /g, "_" ), "textures", 8, ( g_texture.name + "_" + ti ).toLowerCase().replace( / /g, "_" ), texture );
+				} );
+			} );
+		} else {
+
+			show_error( "Error caching project textures." );
+		}
 	} );
 }
 

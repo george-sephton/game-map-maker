@@ -195,6 +195,38 @@ function load_texture_preview() {
 	if( ( drawing_functions == 1 ) || ( drawing_functions == 3 ) ) set_map_tile_settings_styles();
 }
 
+function update_image_cache() {
+
+	/* We only need to update the images for the selected group */
+	if( selected_texture.group != false ) {
+
+		/* Loop through each sprite in the group */
+		$.each( selected_texture.group.textures, async function( ti, texture ) {
+
+			await window.electronAPI.update_cached_image( project.name.toLowerCase().replace( / /g, "_" ), "textures", 8, ( selected_texture.group.name + "_" + ti ).toLowerCase().replace( / /g, "_" ), texture );
+		} );
+
+		/* Loop through each row of the map */
+		$.each( selected_map.data, function( tile_row, row ) {
+
+			/* Loop through each col of the map */
+			$.each( row, function( tile_col, cell ) {
+
+				/* Check if this tile of the map matched the one we're looking for, or if it's blank, is it the same as the background texture */
+				if( cell.texture_gid == selected_texture.group.gid ) {
+
+					/* Store tile information */
+					var tile_info = new Object();
+					tile_info.row = tile_row;
+					tile_info.col = tile_col;
+
+					set_map_cell( $( "#map_editor .map_editor_row[row_id=" + tile_row + "] .map_editor_cell[col_id=" + tile_col + "]" ), tile_info );		
+				}
+			} );
+		} );
+	}
+}
+
 function load_texture_editor_colour_pickers() {
 
 	/* Variable to store which cell is being update as the colour picker library sometimes bugs out */
@@ -256,6 +288,10 @@ function load_texture_editor_colour_pickers() {
 				/* Update the texture editor */
 				$( "#texture_editor table tr td" ).css("background", "#" + hex );
 				$( "#texture_editor table tr td" ).removeClass( "trans_background" );
+
+				/* Update image cache */
+				update_image_cache();
+
 			} else if( selected_picker.attr( "id" ) == "texture_paint" ) {
 
 				/* We're painting the texture  */
@@ -278,7 +314,7 @@ function load_texture_editor_colour_pickers() {
 				$( "#texture_paint" ).addClass( "selected_tool" );
 
 				/* Add hover functionality to map editor */
-				$( "#texture_editor table tr td" ).addClass( "map_editor_table_cell_draw" );
+				$( "#texture_editor table tr td" ).addClass( "map_editor_cell_draw" );
 
 				/* Add event listeners to the cells of the texture editor */
 				$( "#texture_editor table tr td" ).on( "mouseup", function( e ) {
@@ -310,8 +346,8 @@ function load_texture_editor_colour_pickers() {
 						/* Set the colour in the local array */
 						selected_texture.texture.data[ texture_col ][ texture_row ] = hex;
 
-						/* Update the preview and the map */
-						texture_update( texture_fill, hex, texture_row, texture_col );
+						/* Update the preview */
+						load_texture_preview();
 
 						/* Reset the selected picker */
 						selected_picker = false;
@@ -327,12 +363,15 @@ function load_texture_editor_colour_pickers() {
 					/* Re-enable controls */
 					enable_controls();
 
+					/* Update image cache */
+					update_image_cache();
+
 					/* Reset the selected picker */
 					selected_picker = false;
 
 					/* Remove paint brush as selected tool */
 					$( "#texture_paint" ).removeClass( "selected_tool" );
-					$( "#texture_editor table tr td" ).removeClass( "map_editor_table_cell_draw" );
+					$( "#texture_editor table tr td" ).removeClass( "map_editor_cell_draw" );
 
 					/* Unbind event listeners */
 					$( "#texture_paint" ).unbind( "mouseup" );
@@ -359,53 +398,13 @@ function load_texture_editor_colour_pickers() {
 				selected_picker = false;
 			}
 			
+			/* Update the preview */
 			if( !drawing_functions )
-				texture_update( texture_fill, hex, texture_row, texture_col );
+				load_texture_preview();
 				
 			/* Hide the colour picker */
 			$( e ).colpickHide();
 		}
-	} );
-}
-
-function texture_update( texture_fill, hex, texture_row, texture_col ) {
-
-	/* Update texture paint preview and any cells on the map */
-	load_texture_preview();
-
-	/* Check to see if we are updating a background texture */
-	var bg_texture = false;
-	if( ( selected_map.bg_texture.gid == selected_texture.group.gid ) && ( selected_map.bg_texture.id == selected_texture.texture.id ) )
-		bg_texture = true;
-
-	/* Loop through each row of the map */
-	$.each( selected_map.data, function( tile_row, row ) {
-
-		/* Loop through each col of the map */
-		$.each( row, function( tile_col, cell ) {
-
-			/* Check if this tile of the map matched the one we're looking for, or if it's blank, is it the same as the background texture */
-			if( ( ( cell.texture_gid == selected_texture.group.gid ) && ( cell.texture_id == selected_texture.texture.id ) ) || ( ( bg_texture ) && ( ( cell.texture_gid == undefined ) && ( cell.texture_id == undefined ) ) ) ) {
-
-				/* Cell is the texture we're looking for, found at (tile_row, tile_col) */
-				var tile = $( "#map_editor #map_editor_table .map_editor_table_row[row_id=" + tile_row + "] .map_editor_table_cell[col_id=" + tile_col + "]" );
-
-				if( texture_fill ) {
-
-					/* We're filling this entire cell with the same colour */
-					$( tile.find( "td" ) ).css("background", "#" + hex );
-				} else {
-
-					/* Get the cell of the pixel that was changed and update it */
-					var pixel = $( tile.find( ".texture_table tr[row_id=" + ( ( cell.texture_reverse_y ) ? ( 7 - texture_row ) : texture_row ) + "] td[col_id=" + ( ( cell.texture_reverse_x ) ? ( 7 - texture_col ) : texture_col ) + "]" ) );
-
-					if( hex != "" ) 
-						pixel.css("background", "#" + hex );
-					else 
-						pixel.css("background", "#ccc" );
-				}
-			}
-		} );
 	} );
 }
 
@@ -521,10 +520,10 @@ function texture_toolbar_event_listeners() {
 						$( "#texture_erase" ).addClass( "selected_tool" );
 
 						/* Add hover functionality to map editor */
-						$( "#texture_editor table tr td" ).addClass( "map_editor_table_cell_draw" );
+						$( "#texture_editor table tr td" ).addClass( "map_editor_cell_draw" );
 
 						/* Add event listener for the erase tool */
-						$( "#texture_editor .map_editor_table_cell_draw" ).on( "mouseup" , function( e ) {
+						$( "#texture_editor .map_editor_cell_draw" ).on( "mouseup" , function( e ) {
 
 							/* Clear the pixel in the editor */
 							$( this ).css( "background", false );
@@ -538,22 +537,25 @@ function texture_toolbar_event_listeners() {
 							selected_texture.texture.data[ pixel_col ][ pixel_row ] = undefined;
 
 							/* Update the preview */
-							texture_update( false, "", pixel_row, pixel_col )
+							load_texture_preview();
 						} );
 
 					} else {
-						/* Clear erase tool */				
+						/* Clear erase tool */
 						drawing_functions = false;
 
 						/* Re-enable controls */
 						enable_controls();
 
+						/* Update image cache */
+						update_image_cache();
+
 						/* Remove event listener */
-						$( "#texture_editor .map_editor_table_cell_draw" ).unbind( "mouseup" );
+						$( "#texture_editor .map_editor_cell_draw" ).unbind( "mouseup" );
 
 						/* Remove paint brush as selected tool */
 						$( "#texture_erase" ).removeClass( "selected_tool" );
-						$( "#texture_editor table tr td" ).removeClass( "map_editor_table_cell_draw" );
+						$( "#texture_editor table tr td" ).removeClass( "map_editor_cell_draw" );
 					}	
 					break;
 				case "new": /* Create a new texture */
@@ -687,6 +689,9 @@ function texture_toolbar_event_listeners() {
 											/* Select newly created texture */
 											selected_texture.texture = new_texture;
 										}
+
+										/* Update (or create if it doesn't exist) the image cache */
+										update_image_cache();
 									}
 
 									if( func == "rename" ) {
@@ -793,9 +798,6 @@ function texture_toolbar_event_listeners() {
 								} );
 							} );
 
-							/* Reload map editor */
-							load_map_editor();
-
 							if( selected_texture.group.textures.length == 0 ) {
 
 								/* We deleted the last texture in the group, so delete the group too */
@@ -836,9 +838,15 @@ function texture_toolbar_event_listeners() {
 						/* Unbind event listeners */
 						$( document ).unbind( "keyup" );
 						$( "#container #sidebar #texture_list_toolbar_delete input[type=button]" ).unbind( "click" );
-						
+
+						/* Update image cache */
+						update_image_cache();
+
 						/* Reload texture list */
 						load_texture_list();
+
+						/* Reload map editor */
+						load_map_editor();
 					} );
 
 					$( "#container #sidebar #texture_list_toolbar_delete #texture_delete_n" ).click( function() {
@@ -1145,6 +1153,7 @@ function texture_list_sortable() {
 		$( this ).css( "pointer-events", "none" );
 	} );
 	$( "#texture_list .sortable" ).on( "sortstop", function( e, ui ) {
+		
 		/* Once drag and drop ends, save the new order */
 
 		/* Store the currently selected texture */
@@ -1174,6 +1183,9 @@ function texture_list_sortable() {
 
 			/* Set the new order in the local array */
 			selected_texture.group.textures = newOrderArray;
+
+			/* Update image cache */
+			update_image_cache();
 		} else {
 
 			/* We're sorting groups */

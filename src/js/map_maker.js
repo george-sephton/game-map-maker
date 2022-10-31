@@ -98,6 +98,9 @@ $( function() {
 
 		project = await window.electronAPI.load_project_data( "gba_game" );
 
+		/* Update cached images */
+		update_cached_images();
+
 		selected_map = project.maps.find( obj => obj.id == 1 );
 		load_map_editing_view();
 	} );

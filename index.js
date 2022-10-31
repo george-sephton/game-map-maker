@@ -129,6 +129,7 @@ app.whenReady().then( () => {
 	ipcMain.handle( "rename_project", rename_project );
 	ipcMain.handle( "import_project", import_project );
 
+	ipcMain.handle( "delete_all_cached_images", delete_all_cached_images );
 	ipcMain.handle( "update_cached_image", update_cached_image );
 
 	/* Create the window */
@@ -462,6 +463,19 @@ async function import_project( e ) {
 	}
 
 	return { cancelled: canceled, data: data };
+}
+
+function delete_all_cached_images( e, project_name ) {
+
+	/* Recursively delete the project directory */
+	try {
+
+		fs.rmSync( path.join( __dirname, "projects", project_name, "cache" ), { recursive: true, force: true } );
+		return true;
+	} catch ( e ) {
+	
+		return false;
+	}
 }
 
 function update_cached_image( e, project_name, image_type, image_size, image_name, image_data ) {

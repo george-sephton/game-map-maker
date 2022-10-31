@@ -72,7 +72,7 @@
 	background:#fff;
 	box-sizing: border-box;
 	padding: 10px;
-	height: 60px;
+	height: 50px;
 	display: none;
 	justify-content: center;
 	align-items: center;
@@ -84,7 +84,7 @@
 	color: #fff;
 	background: #333;
 	border-radius: 10px;
-	font-size: 14px;
+	font-size: 12px;
 }
 #container #sidebar #texture_list_toolbar_delete input:hover {
 	background: #8bb1c7;
@@ -402,9 +402,9 @@
 	flex-grow: 1;
 	justify-content: flex-start;
 	align-items: flex-start;
+	overflow: auto;
 }
 #container #content #map_editor_container #map_editor {
-	overflow: auto;
 	display: none;
 	flex-direction: column;
 	box-sizing: border-box;
