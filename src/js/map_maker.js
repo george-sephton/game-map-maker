@@ -26,7 +26,7 @@ selected_sprite.group = false;
 
 /* Store current map info */
 var selected_map = false;
-var map_cell_size = 10;
+var map_cell_size = 6;
 
 /* Store drawing information */
 var drawing_functions = false;

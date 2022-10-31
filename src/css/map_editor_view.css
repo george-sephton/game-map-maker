@@ -1,6 +1,6 @@
 #container #sidebar {
-	min-width: 400px;
-	width: 400px;
+	min-width: 350px;
+	width: 350px;
 	height: 100%;
 	box-sizing: border-box;
 	gap: 10px;
@@ -45,7 +45,7 @@
 	background:#fff;
 	box-sizing: border-box;
 	padding: 10px;
-	height: 60px;
+	height: 50px;
 
 	display: flex;
 	flex-direction: row;
@@ -57,15 +57,15 @@
 	background:#fff;
 	box-sizing: border-box;
 	padding: 10px;
-	height: 60px;
+	height: 50px;
 	display: none;
 }
 #container #sidebar #texture_list_toolbar_rename input {
 	width: 100%;
-	font-size: 20px;
+	font-size: 14px;
 	border: 0px;
 	background: #FFF;
-	border-radius: 10px;
+	border-radius: 4px;
 }
 #container #sidebar #texture_list_toolbar_delete {
 	width: 100%;
@@ -105,7 +105,7 @@
 }
 #container #sidebar #texture_list_toolbar i {
 	color: #333;
-	font-size: 28px;
+	font-size: 24px;
 }
 #container #sidebar #texture_list_toolbar i:hover:not( #colour_ind ) {
 	color: #8bb1c7;
@@ -155,7 +155,7 @@
 	cursor: pointer;
 }
 #container #sidebar #texture_list .sortable li {
-	font-size: 1.2em;
+	font-size: 14px;
 	margin: 0 0 5px 0;
 	padding: 5px;
 	line-height: 1.2em;
@@ -171,14 +171,14 @@
 }
 #container #sidebar #texture_list .sortable .ui-state-group-highlight {
 	background: #8bb1c7;
-	height: 1.5em;
+	height: 1.3em;
 	line-height: 1.2em;
 }
 #container #sidebar #texture_list .sortable .ui-state-texture-highlight {
 	background: #8bb1c7;
-	height: 1.5em;
+	height: 1.3em;
 	line-height: 1.2em;
-	margin-left: 20px;
+	margin-left: 10px;
 }
 
 
@@ -398,41 +398,33 @@
 	background:#fff;
 	box-sizing: border-box;
 	padding: 10px;
-	overflow: auto;
 	display: none;
 	flex-grow: 1;
-	justify-content: center;
-	align-items: center;
+	justify-content: flex-start;
+	align-items: flex-start;
 }
 #container #content #map_editor_container #map_editor {
-	display: none;
-}
-#container #content #map_editor_container #map_editor #map_editor_table {
 	overflow: auto;
-	padding: 0px;
-	margin: 0px;
-	border-spacing: 1px;
-	border-collapse: collapse;
-	table-layout: fixed;
-}
-#container #content #map_editor_container #map_editor #map_editor_table tr, #container #content #map_editor_container #map_editor #map_editor_table td {
-	padding: 0px;
-}
-#container #content #map_editor_container #map_editor #map_editor_table td .texture_div {
-	border-spacing: 0;
-	width: 100%;
-	height: 100%;
+	display: none;
+	flex-direction: column;
 	box-sizing: border-box;
-	background-color: #ccc;
+	gap: 1px;
+}
+#container #content #map_editor_container #map_editor .map_editor_row {
+	gap: 1px;
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: row;
+}
+#container #content #map_editor_container #map_editor .map_editor_row .map_editor_cell {
+	box-sizing: border-box;
 	display: flex;
 	justify-content: center;
-	align-content: center;
 	align-items: center;
-	overflow: hidden;
+	border: 2px solid #999;	
 }
-#container #content #map_editor_container #map_editor #map_editor_table td .texture_div img {
-	width: 100%;
-	height: 100%;
-	display: block;
+#container #content #map_editor_container #map_editor .map_editor_row .map_editor_cell img {
+	width: 30px;
+	height: 30px;
 	box-sizing: border-box;
 }

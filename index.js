@@ -100,7 +100,7 @@ const createWindow = () => {
 	mainWindow.webContents.openDevTools();
 
 	mainWindow.once( "ready-to-show", () => {
-		mainWindow.webContents.setZoomFactor( 0.8 );
+		mainWindow.webContents.setZoomFactor( 1.0 );
 		//mainWindow.maximize();
 		mainWindow.show();
 	} );

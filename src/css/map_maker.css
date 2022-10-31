@@ -29,14 +29,16 @@ body {
 .map_editing_functions {
 	display: block;
 }
-.map_editor_table_cell {
+.map_editor_cell_draw {
 	padding: 0px !important;
 	box-sizing: border-box;
 	overflow: hidden;
 }
-.map_editor_table_cell_draw:hover {
-	border: 3px solid #f00 !important;
+.map_editor_cell_draw:hover {
+	border-color: #f00 !important;
+
 	cursor: crosshair !important;
+	box-sizing: content-box !important;
 }
 .sortable {
 	list-style-type: none;
