@@ -195,34 +195,59 @@ function load_texture_preview() {
 	if( ( drawing_functions == 1 ) || ( drawing_functions == 3 ) ) set_map_tile_settings_styles();
 }
 
-function update_image_cache() {
+function update_image_cache( single = false ) {
 
 	/* We only need to update the images for the selected group */
 	if( selected_texture.group != false ) {
 
-		/* Loop through each sprite in the group */
-		$.each( selected_texture.group.textures, async function( ti, texture ) {
+		var promises = [];
 
-			await window.electronAPI.update_cached_image( project.name.toLowerCase().replace( / /g, "_" ), "textures", 8, ( selected_texture.group.name + "_" + ti ).toLowerCase().replace( / /g, "_" ), texture );
-		} );
+		if( single ) {
 
-		/* Loop through each row of the map */
-		$.each( selected_map.data, function( tile_row, row ) {
+			/* We only need to update the cache of the current texture, not the whole group */
+			$.each( selected_texture.group.textures, async function( ti, texture ) {
 
-			/* Loop through each col of the map */
-			$.each( row, function( tile_col, cell ) {
-
-				/* Check if this tile of the map matched the one we're looking for, or if it's blank, is it the same as the background texture */
-				if( cell.texture_gid == selected_texture.group.gid ) {
-
-					/* Store tile information */
-					var tile_info = new Object();
-					tile_info.row = tile_row;
-					tile_info.col = tile_col;
-
-					set_map_cell( $( "#map_editor .map_editor_row[row_id=" + tile_row + "] .map_editor_cell[col_id=" + tile_col + "]" ), tile_info );		
-				}
+				if( texture.id == selected_texture.texture.id )
+					promises.push( await window.electronAPI.update_cached_image( project.name.toLowerCase().replace( / /g, "_" ), "textures", 8, ( selected_texture.group.name + "_" + ti ).toLowerCase().replace( / /g, "_" ), texture ) );
 			} );
+
+		} else {
+			
+			/* We are updating the cache of the whole texture group */
+			$.each( selected_texture.group.textures, async function( ti, texture ) {
+
+				promises.push( await window.electronAPI.update_cached_image( project.name.toLowerCase().replace( / /g, "_" ), "textures", 8, ( selected_texture.group.name + "_" + ti ).toLowerCase().replace( / /g, "_" ), texture ) );
+			} );
+		}
+
+		$.when.apply( $, promises ).done( function() {
+
+			/* Add a really small delay to let the file system catch up */
+			setTimeout( function() {
+
+				/* Loop through each row of the map */
+				$.each( selected_map.data, function( tile_row, row ) {
+
+					/* Loop through each col of the map */
+					$.each( row, function( tile_col, cell ) {
+
+						/* Check if this tile of the map matched the one we're looking for, or if it's blank, is it the same as the background texture */
+						if(
+							( ( cell.texture_gid == selected_texture.group.gid ) && ( !single ) ) ||
+							( ( cell.texture_gid == selected_texture.group.gid ) && ( cell.texture_id == selected_texture.texture.id ) && ( single ) )
+
+						) {
+
+							/* Store tile information */
+							var tile_info = new Object();
+							tile_info.row = tile_row;
+							tile_info.col = tile_col;
+
+							set_map_cell( $( "#map_editor .map_editor_row[row_id=" + tile_row + "] .map_editor_cell[col_id=" + tile_col + "]" ), tile_info );
+						}
+					} );
+				} );
+			}, 200 );
 		} );
 	}
 }
@@ -290,7 +315,7 @@ function load_texture_editor_colour_pickers() {
 				$( "#texture_editor table tr td" ).removeClass( "trans_background" );
 
 				/* Update image cache */
-				update_image_cache();
+				update_image_cache( true );
 
 			} else if( selected_picker.attr( "id" ) == "texture_paint" ) {
 
@@ -364,7 +389,7 @@ function load_texture_editor_colour_pickers() {
 					enable_controls();
 
 					/* Update image cache */
-					update_image_cache();
+					update_image_cache( true );
 
 					/* Reset the selected picker */
 					selected_picker = false;
@@ -393,6 +418,9 @@ function load_texture_editor_colour_pickers() {
 
 				/* Set the colour in the local array */
 				selected_texture.texture.data[ texture_col ][ texture_row ] = hex;
+
+				/* Update image cache */
+				update_image_cache( true );
 
 				/* Reset the selected picker */
 				selected_picker = false;
@@ -548,7 +576,7 @@ function texture_toolbar_event_listeners() {
 						enable_controls();
 
 						/* Update image cache */
-						update_image_cache();
+						update_image_cache( true );
 
 						/* Remove event listener */
 						$( "#texture_editor .map_editor_cell_draw" ).unbind( "mouseup" );

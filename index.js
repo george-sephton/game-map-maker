@@ -3,8 +3,10 @@ const { app, BrowserWindow, ipcMain, dialog, Menu, screen } = require( "electron
 const appConfig = require( "electron-settings" );
 const path = require( "path" );
 const fs = require( "fs" );
+const Jimp = require( "jimp" );
 const PNG = require( "pngjs" ).PNG;
-const Jimp = require('jimp');
+
+require( "v8-compile-cache" );
 
 var mainWindow;
 
