@@ -24,7 +24,6 @@ function load_map_editing_view() {
 	$( "#container #content #toolbar #settings #controls" ).css( "display", "flex" );
 	$( "#container #content #toolbar #settings #map_confirm" ).css( "display", "none" );
 
-	$( "#container #content #toolbar #map_paint_preview" ).css( "display", "none" );
 	$( "#container #content #toolbar #map_paint_settings" ).css( "display", "none" );
 	$( "#container #content #toolbar #map_size_settings" ).css( "display", "none" );
 
@@ -57,6 +56,9 @@ function load_map_editing_view() {
 
 	/* Load map editor */
 	load_map_editor();
+
+	/* Show the background texture */
+	load_texture_preview( true );
 
 	/* Load texture list */
 	load_texture_list();
@@ -312,8 +314,11 @@ function map_editor_toolbar_reset() {
 	$( "#container #toolbar #map_paint_settings #exit_tile_map_pos_y" ).val( "" );
 	$( "#container #toolbar #map_paint_settings #exit_tile_map_pos_y" ).css( "background", "#fff" );
 
-	if( selected_texture.group == false )
+	if( selected_texture.group == false ) {
+
 		$( "#container #toolbar #map_settings" ).css( "display", "flex" );
+		$( "#container #toolbar #map_paint_preview" ).css( "display", "block" );
+	}
 
 	/* Re-add sorting to the texture list */
 	texture_list_sortable();
@@ -336,13 +341,13 @@ function map_editor_toolbar_reset() {
 
 	/* Re-show flip icons and texture preview */
 	if( selected_texture.texture != false ) {
+
 		$( "#map_toolbar_flip_h" ).css( "display", "block" );
 		$( "#map_toolbar_flip_v" ).css( "display", "block" );
-		$( "#map_paint_preview" ).css( "display", "block" );
 	} else {
+
 		$( "#map_toolbar_flip_h" ).css( "display", "none" );
 		$( "#map_toolbar_flip_v" ).css( "display", "none" );
-		$( "#map_paint_preview" ).css( "display", "none" );
 	}
 }
 
@@ -596,6 +601,7 @@ function map_toolbar_event_listeners() {
 
 						/* Disable everything in texture list */
 						$( "#container #sidebar #texture_list .sortable li" ).addClass( "resize_disabled" );
+						$( "#container #toolbar #map_paint_preview" ).css( "display", "none" );
 
 					} else if( ( func == "paint" ) && ( drawing_functions != 1 ) ) {
 						
@@ -641,6 +647,7 @@ function map_toolbar_event_listeners() {
 
 						/* Disable everything in texture list */
 						$( "#container #sidebar #texture_list .sortable li" ).addClass( "resize_disabled" );
+						$( "#container #toolbar #map_paint_preview" ).css( "display", "none" );
 					} else {
 						
 						/* Re-enable controls */
@@ -734,6 +741,9 @@ function map_toolbar_event_listeners() {
 
 						/* Disable controls */
 						disable_controls();
+
+						/* Hide texture preview */
+						$( "#container #toolbar #map_paint_preview" ).css( "display", "none" );
 
 						/* Show the resizing controls */
 						$( "#container #toolbar #map_size_settings" ).css( "display", "flex" );
@@ -1656,6 +1666,7 @@ function disable_controls( hide_name_input = true ) {
 	$( "#container #content #project_view #sprite_editor_container #sprite_list_toolbar" ).css( "display", "flex" );
 
 	if( ( selected_sprite.group != false ) && ( drawing_functions == false ) ) {
+		
 		$( "#container #content #project_view #sprite_editor_container #sprite_editor_toolbar" ).css( "display", "none" );
 	} else {
 
@@ -1700,17 +1711,19 @@ function enable_controls() {
 		$( "#map_toolbar_flip_v" ).css( "display", "none" );
 	}
 
-	/* Re-add sorting */
-	//texture_list_sortable();
-
 	/* Show the other toolbar elements */
 	$( "#container #toolbar #settings #name_input_container" ).css( "display", "flex" );
+	
 	if( selected_texture.texture != false )
 		$( "#container #toolbar #map_paint_preview" ).css( "display", "block" );
 
-	if( ( selected_texture.texture == false ) && ( selected_map != false ) ) {
+	if( ( selected_texture.group == false ) && ( selected_map != false ) ) {
+		
 		$( "#container #toolbar #map_settings" ).css( "display", "flex" );
+		$( "#container #toolbar #map_paint_preview" ).css( "display", "block" );
 	}
+	
+	
 
 	if( selected_map == false ) {
 		

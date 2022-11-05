@@ -40,7 +40,6 @@ body {
 }
 .selected_tool {
 	color: #8bb1c7 !important;
-	font-size: 28px !important;
 }
 .selected_tool:hover {
 	color: #666;

@@ -38,6 +38,7 @@ function load_texture_list() {
 
 		/* Show the map settings */
 		$( "#container #toolbar #map_settings" ).css( "display", "flex" );
+		load_texture_preview( true );
 
 	} else {
 		
@@ -83,6 +84,7 @@ function load_texture_list() {
 
 		/* Hide the map settings */
 		$( "#container #toolbar #map_settings" ).css( "display", "none" );
+		$( "#container #toolbar #map_paint_preview" ).css( "display", "none" );
 	}
 
 	/* Add event listeners to the list */
@@ -97,6 +99,7 @@ function load_texture_list() {
 	/* Disable hovering for draw functions */
 	if( drawing_functions == 1 )
 		$( "#container #sidebar #texture_list #texture_list .sortable .ui-group" ).addClass( "resize_disabled" );
+	
 	else if( ( drawing_functions == 2 ) || ( drawing_functions == 3 ) )
 		$( "#container #sidebar #texture_list #texture_list .sortable li" ).addClass( "resize_disabled" );
 
@@ -157,13 +160,14 @@ function clear_texture_paint_preview() {
 	$( "#container #toolbar #map_paint_preview" ).css( "display", "none" );
 }
 
-function load_texture_preview() {
+function load_texture_preview( bg_texture = false ) {
 
 	/* Setup the texture paint preview */
 	$( "#container #toolbar #map_paint_preview" ).css( "display", "block" );
 	$( "#container #toolbar #map_paint_preview" ).html( "<table></table>" );
 
-	$( "#container #toolbar #map_settings" ).css( "display", "none" );
+	if( !bg_texture )
+		$( "#container #toolbar #map_settings" ).css( "display", "none" );
 	
 	/* Add 8 rows */
 	for(i=0; i<8; i++)
@@ -178,16 +182,30 @@ function load_texture_preview() {
 			var row_sel = $( this ).attr( "row_id" );
 			var col_sel = i;
 
-			if( selected_texture.texture_reverse_y == true ) {
-				/* Flip vertically */
-				row_sel = 7 - ( $( this ).attr( "row_id" ) );
-			}
-			if( selected_texture.texture_reverse_x == true ) {
-				/* Flip horizontally */
-				col_sel = 7 - i;
+			/* Only deal with flipping if we're not showing the background texture */
+			if( !bg_texture) {
+			
+				if( selected_texture.texture_reverse_y == true ) {
+					/* Flip vertically */
+					row_sel = 7 - ( $( this ).attr( "row_id" ) );
+				}
+				if( selected_texture.texture_reverse_x == true ) {
+					/* Flip horizontally */
+					col_sel = 7 - i;
+				}
 			}
 
-			$( '<td col_id="'+i+'"></td>' ).appendTo( $(this) ).css( "background", "#" + selected_texture.texture.data[col_sel][row_sel]);
+			/* Are we showing the current texture or the map's background texture? */
+			if( bg_texture ) {
+
+				var _bg_texture_group = project.textures.find( obj => obj.gid == selected_map.bg_texture.gid );
+				var _bg_texture = _bg_texture_group.textures.find( obj => obj.id == selected_map.bg_texture.id );
+
+				$( '<td col_id="'+i+'"></td>' ).appendTo( $(this) ).css( "background", "#" + _bg_texture.data[col_sel][row_sel]);
+			} else {
+
+				$( '<td col_id="'+i+'"></td>' ).appendTo( $(this) ).css( "background", "#" + selected_texture.texture.data[col_sel][row_sel]);
+			}
 		}
 	} );
 
@@ -501,6 +519,7 @@ function load_texture_editor() {
 			}
 		});
 	} else {
+
 		/* Clear the editor */
 		$( "#texture_editor" ).css( "display", "none" );
 		$( "#texture_editor_empty" ).css( "display", "flex" );
@@ -508,9 +527,6 @@ function load_texture_editor() {
 		/* Clear fill and paint texture icons */
 		$( "#texture_fill" ).css( "display", "none" );
 		$( "#texture_paint" ).css( "display", "none" );
-
-		/* Clear the paint preview */
-		clear_texture_paint_preview();
 	}
 }
 

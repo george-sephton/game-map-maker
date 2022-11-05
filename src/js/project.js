@@ -84,10 +84,10 @@ function project_list_event_listeners() {
 					project = data;
 
 					$( "#overlay #overlay_text" ).html( "Project Loading" );
-					$( "#overlay" ).css( "display", "flex" );
+					//$( "#overlay" ).css( "display", "flex" );
 
 					/* Update cached images */
-					update_cached_images();
+					//update_cached_images();
 
 					/* Clear changes */
 					clear_changes();

@@ -106,9 +106,9 @@ $( function() {
 	load_texture_editor_colour_pickers();
 	load_sprite_editor_colour_pickers();
 
-	load_project_list();
+	//load_project_list();
 
-	return;
+	//return;
 
 	/* Debug */
 	//load_project_view();
@@ -116,13 +116,14 @@ $( function() {
 	/* Load the data */
 	$( async () => {
 
-		project = await window.electronAPI.load_project_data( "gba_game" );
+		project = await window.electronAPI.load_project_data( "large" );
+		load_project_view();
 
 		/* Update cached images */
-		update_cached_images();
+		//update_cached_images();
 
-		selected_map = project.maps.find( obj => obj.id == 1 );
-		load_map_editing_view();
+		//selected_map = project.maps.find( obj => obj.id == 1 );
+		//load_map_editing_view();
 	} );
 
 	//selected_texture.group = project.textures.find( obj => obj.gid == 2 );
