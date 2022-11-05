@@ -544,14 +544,61 @@ function project_toolbar_event_listeners() {
 			switch( func ) {
 				case "close-project":
 					
-					/* Close the project view */
-					close_project_view();
+					if( changes ) {
 
-					/* Clear the selected project */
-					project = undefined;
+						/* Disable controls */
+						disable_controls();
 
-					/* Load the project list */
-					load_project_list();
+						/* There's unsaved changes, let's prompt to save first */
+						$( "#container #toolbar #settings #map_confirm #map_confirm_prompt" ).html( "You have unsaved changes, do you want to close the project without saving?" );
+
+						$( "#container #toolbar #settings #map_confirm input[type=button]" ).css( "display", "block" );
+						$( "#container #toolbar #settings #map_confirm #map_done" ).css( "display", "none" );
+
+						$( "#container #toolbar #settings #map_confirm" ).css( "display", "flex" );
+
+						/* Add event listeners */
+						$( "#container #toolbar #settings #map_confirm input[type=button]" ).on( "click" , function( e ) {
+							
+							if( $( this ).attr( "id" ) == "map_confirm_y" ) {
+								
+								/* Re-enable controls */
+								enable_controls();
+
+								/* Close the project view */
+								close_project_view();
+
+								/* Clear the selected project */
+								project = undefined;
+
+								/* Load the project list */
+								load_project_list();
+
+							} else if( $( this ).attr( "id" ) == "map_confirm_n" ) {
+								
+								/* Re-enable controls */
+								enable_controls();
+							}
+
+							/* Remove event listeners */
+							$( "#container #toolbar #settings #map_confirm input[type=button]" ).unbind( "click" );
+
+							/* Hide the confirmation prompt */
+							$( "#container #toolbar #settings #map_confirm #map_confirm_prompt" ).html( "" );
+							$( "#container #toolbar #settings #map_confirm" ).css( "display", "none" );
+						} );
+
+					} else {
+
+						/* Close the project view */
+						close_project_view();
+
+						/* Clear the selected project */
+						project = undefined;
+
+						/* Load the project list */
+						load_project_list();
+					}
 					break;
 				case "new-map":
 					
