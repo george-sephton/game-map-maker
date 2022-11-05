@@ -132,7 +132,7 @@ app.whenReady().then( () => {
 	ipcMain.handle( "import_project", import_project );
 
 	ipcMain.handle( "delete_all_cached_images", delete_all_cached_images );
-	ipcMain.handle( "update_cached_image", update_cached_image );
+	ipcMain.on( "update_cached_image", update_cached_image );
 
 	/* Create the window */
 	createWindow();
@@ -485,39 +485,48 @@ function update_cached_image( e, project_name, image_type, image_size, image_nam
 	/* Create a new blank image */
 	let image = new Jimp( image_size, image_size, function ( err, image ) {
 		
-		if( err )
-			return false;
+		if( !err ) {
 
-		/* Map the pixels correct */
-		var _image_data = Array.from( { length: image_size }, () => Array.from( { length: image_size }, () => undefined ) );
+			/* Map the pixels correct */
+			var _image_data = Array.from( { length: image_size }, () => Array.from( { length: image_size }, () => undefined ) );
 
-		for( var row_sel = 0; row_sel < image_size; row_sel++ )
-			for( var col_sel = 0; col_sel < image_size; col_sel++ )
-				_image_data[ col_sel ][ row_sel ]  = image_data.data[ row_sel ][ col_sel ];
+			for( var row_sel = 0; row_sel < image_size; row_sel++ )
+				for( var col_sel = 0; col_sel < image_size; col_sel++ )
+					_image_data[ col_sel ][ row_sel ]  = image_data.data[ row_sel ][ col_sel ];
 
-		/* Loop through each pixel to add to the image */
-		_image_data.forEach( ( row, y ) => {
+			/* Loop through each pixel to add to the image */
+			_image_data.forEach( ( row, y ) => {
 
-			row.forEach( ( colour, x ) => {
+				row.forEach( ( colour, x ) => {
 
-				/* If we have a transparent pixel, don't add it to the image */
-				if( ( colour == "" ) || ( colour == null ) )
-					image.setPixelColor( Jimp.rgbaToInt( 0, 0, 0, 0 ), parseInt( x ), parseInt( y ) );
-				else 
-					image.setPixelColor( Jimp.cssColorToHex( "#" + colour ), parseInt( x ), parseInt( y ) );
+					/* If we have a transparent pixel, don't add it to the image */
+					if( ( colour == "" ) || ( colour == null ) )
+						image.setPixelColor( Jimp.rgbaToInt( 0, 0, 0, 0 ), parseInt( x ), parseInt( y ) );
+					else 
+						image.setPixelColor( Jimp.cssColorToHex( "#" + colour ), parseInt( x ), parseInt( y ) );
+				} );
 			} );
-		} );
 
-		/* Resize to a nice large size */
-		image.resize( 512, 512 , Jimp.RESIZE_NEAREST_NEIGHBOR );
+			/* Resize to a nice large size */
+			image.resize( 512, 512 , Jimp.RESIZE_NEAREST_NEIGHBOR );
 
-		/* Save the image to project directory */
-		image.write( path.join(  __dirname, "projects", project_name, "cache", image_type, image_name + ".png" ), ( err ) => {
-		
-			if( err )
-				return false;
-		} );
+			/* Save the image to project directory */
+			image.write( path.join(  __dirname, "projects", project_name, "cache", image_type, image_name + ".png" ), ( err ) => {
+			
+				if( !err ) {
+					
+					mainWindow.webContents.send( "update_cached_image_callback", true );
+					return;
+				} else {
+
+					mainWindow.webContents.send( "update_cached_image_callback", false );
+					return;
+				}
+			} );
+		} else {
+
+			mainWindow.webContents.send( "update_cached_image_callback", false );
+			return;
+		}
 	} );
-
-	return true;
 }

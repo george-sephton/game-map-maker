@@ -83,6 +83,9 @@ function project_list_event_listeners() {
 
 					project = data;
 
+					$( "#overlay #overlay_text" ).html( "Project Loading" );
+					$( "#overlay" ).css( "display", "flex" );
+
 					/* Update cached images */
 					update_cached_images();
 
@@ -94,9 +97,45 @@ function project_list_event_listeners() {
 	});
 }
 
+/* None of this is elegant, but it works great! */
+var _image_cache_count, _image_cache_total, _image_cache_count_errors;
+window.electronAPI.update_cached_image_callback( ( event, value ) => {
+	
+	/* Return value received from our update_cached_image function, increment the count */
+	_image_cache_count++;
+
+	/* If we had an error, add it to the count */
+	if( !value ) _image_cache_count_errors++;
+
+	/* Once all images have been re-cached, the project is ready to be shown */
+	if ( _image_cache_count >= _image_cache_total ) {
+
+		/* All images updated, let's remove the overlay */
+		$( "#overlay" ).css( "display", "none" );
+
+		/* See if we had any errors */
+		if( _image_cache_count_errors != 0 ) {
+
+			/* We had errors along the way, go back to the project list and show an error */
+			load_project_list();
+			show_error( "Error loading project." );
+		}
+	}
+} );
+
 function update_cached_images() {
 
 	$( async () => {
+
+		/* Calculate total number of textures */
+		_image_cache_total = 0;
+		$.each( project.textures , function( gi, group ) {
+			_image_cache_total += group.textures.length;
+		} );
+
+		/* Reset all counters */
+		_image_cache_count = 0;
+		_image_cache_count_errors = 0;
 
 		/* First delete all old cached images */
 		if( await window.electronAPI.delete_all_cached_images( project.name.toLowerCase().replace( / /g, "_" ) ) ) {
@@ -107,11 +146,11 @@ function update_cached_images() {
 				sort_textures_by_order( g_texture.gid );
 
 				/* Loop through each sprite in the group */
-				$.each( g_texture.textures, async function( ti, texture ) {
+				$.each( g_texture.textures, function( ti, texture ) {
 
-					await window.electronAPI.update_cached_image( project.name.toLowerCase().replace( / /g, "_" ), "textures", 8, ( g_texture.name + "_" + ti ).toLowerCase().replace( / /g, "_" ), texture );
+					window.electronAPI.update_cached_image( project.name.toLowerCase().replace( / /g, "_" ), "textures", 8, ( g_texture.name + "_" + ti ).toLowerCase().replace( / /g, "_" ), texture );
 				} );
-			} );
+			} );			
 		} else {
 
 			show_error( "Error caching project textures." );

@@ -15,5 +15,6 @@ contextBridge.exposeInMainWorld( "electronAPI", {
 	import_project: () => ipcRenderer.invoke( "import_project" ),
 
 	delete_all_cached_images: ( project_name ) => ipcRenderer.invoke( "delete_all_cached_images", project_name ),
-	update_cached_image: ( project_name, image_type, image_size, image_name, image_data ) => ipcRenderer.invoke( "update_cached_image", project_name, image_type, image_size, image_name, image_data )
+	update_cached_image: ( project_name, image_type, image_size, image_name, image_data ) => ipcRenderer.send( "update_cached_image", project_name, image_type, image_size, image_name, image_data ),
+	update_cached_image_callback: ( callback ) => ipcRenderer.on( "update_cached_image_callback", callback )
 } );

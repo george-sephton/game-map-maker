@@ -355,7 +355,7 @@ function load_texture_editor_colour_pickers() {
 
 							/* Show colour indicator briefly */
 							$( "#container #sidebar #texture_list_toolbar #colour_ind" ).css( "display", "block" );
-							$( "#container #sidebar #texture_list_toolbar #colour_ind" ).css( "color", "#"+hex );
+							$( "#container #sidebar #texture_list_toolbar #colour_ind" ).css( "color", "#"+hex );666
 							$( "#container #sidebar #texture_list_toolbar #colour_ind" ).fadeOut( 750 );
 						}
 					} else {

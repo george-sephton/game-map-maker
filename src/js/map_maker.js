@@ -87,11 +87,16 @@ var project = undefined;
 /* Document load */
 $( function() {
 
+	/* Hide overlay */
+	$( "#overlay" ).css( "display", "none" );
+
 	/* Load editors and colour pickers, only called once */
 	load_texture_editor_colour_pickers();
 	load_sprite_editor_colour_pickers();
 
-	//load_project_list();
+	load_project_list();
+
+	return;
 
 	/* Debug */
 	//load_project_view();
