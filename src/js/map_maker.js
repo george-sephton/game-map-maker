@@ -81,6 +81,11 @@ function show_error( text ) {
 	}, 3000 );
 }
 
+function log_change() {
+
+	console.log( "Change" );
+}
+
 /* No project */
 var project = undefined;
 

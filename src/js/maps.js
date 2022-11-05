@@ -349,6 +349,7 @@ function map_editor_toolbar_reset() {
 function clear_map_toolbar_event_listeners() {
 	
 	$( "#container #toolbar #settings #controls i" ).unbind( "click" );
+	$( "#container #toolbar #map_settings #map_settings_options #map_running_en" ).unbind( "change" );
 }
 
 function map_toolbar_event_listeners() {
@@ -427,6 +428,9 @@ function map_toolbar_event_listeners() {
 											
 											/* Change the map name */
 											selected_map.name = map_name_value;
+
+											/* Log changes */
+											log_change();
 										}
 									} else {
 										if( map_name_value != "" ) {
@@ -449,6 +453,9 @@ function map_toolbar_event_listeners() {
 
 											/* Add the duplicated map to the array */
 											project.maps.push( new_map );
+
+											/* Log changes */
+											log_change();
 
 											/* Reload map editor */
 											close_map_editing_view();
@@ -516,6 +523,9 @@ function map_toolbar_event_listeners() {
 								v.order = i;
 								i++;
 							} );
+
+							/* Log changes */
+							log_change();
 							
 							/* Re-enable controls */
 							enable_controls();
@@ -546,6 +556,9 @@ function map_toolbar_event_listeners() {
 					/* Set the selected texture as the background texture */
 					selected_map.bg_texture.gid = selected_texture.group.gid;
 					selected_map.bg_texture.id = selected_texture.texture.id;
+
+					/* Log changes */
+					log_change();
 					
 					/* Re-load texture list */
 					load_texture_list();
@@ -688,12 +701,16 @@ function map_toolbar_event_listeners() {
 							/* Fill the map */
 							selected_map.data = Array.from( { length: selected_map.height }, () => Array.from( { length: selected_map.width }, () => Object.assign( {}, fill_tile ) ) );
 
+							/* Log changes */
+							log_change();
+
 							/* Re-enable controls */
 							enable_controls();
 
 							/* Reload the map editor */
 							load_map_editor();
 						} else if( $( this ).attr( "id" ) == "map_confirm_n" ) {
+
 							/* Re-enable controls */
 							enable_controls();
 						}
@@ -778,6 +795,9 @@ function map_toolbar_event_listeners() {
 							selected_map.height = map_resizing.new_height;
 							selected_map.data = temporary_map;
 
+							/* Log changes */
+							log_change();
+
 							/* Reload map editor */
 							load_map_editor();
 						} );
@@ -841,6 +861,9 @@ function map_toolbar_event_listeners() {
 
 		/* Set the allow running setting */
 		selected_map.can_run = $( this ).prop( "checked" );
+
+		/* Log changes */
+		log_change();
 	} );
 
 	/* Remove map paint settings event listeners */
@@ -1142,8 +1165,8 @@ function map_editor_start_drawing() {
 
 function clear_map_editor_event_listeners() {
 	
-	$( "#container #content #map_editor_container #map_editor .map_editor_row .map_editor_cell .map_editor_cell_draw" ).unbind( "click" );
-	$( "#container #content #map_editor_container #map_editor .map_editor_row .map_editor_cell .map_editor_cell_draw" ).unbind( "contextmenu" );
+	$( "#container #content #map_editor_container #map_editor .map_editor_row .map_editor_cell" ).unbind( "click" );
+	$( "#container #content #map_editor_container #map_editor .map_editor_row .map_editor_cell" ).unbind( "contextmenu" );
 }
 
 function map_editor_event_listeners() {
@@ -1172,6 +1195,9 @@ function map_editor_event_listeners() {
 			selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_pos = [0, 0];
 			selected_map.data[ tile_info.row ][ tile_info.col ].interact_en = false;
 			selected_map.data[ tile_info.row ][ tile_info.col ].interact_id = false;
+
+			/* Log changes */
+			log_change();
 			
 			/* Clear the cell */
 			set_map_cell( $( this ), tile_info );
@@ -1230,6 +1256,9 @@ function map_editor_event_listeners() {
 			$.extend( true, selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_dir, selected_texture.exit_map_dir ); /* Clone array */
 			selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_pos = new Array();
 			$.extend( true, selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_pos, selected_texture.exit_map_pos ); /* Clone array */
+
+			/* Log changes */
+			log_change();
 
 			/* Clear the cell */
 			set_map_cell( $( this ), tile_info );

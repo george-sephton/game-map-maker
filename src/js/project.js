@@ -591,7 +591,6 @@ function project_toolbar_event_listeners() {
 
 									if( map_name_value != "" ) {
 
-										/* Duplicate current map */
 										new_map = new Object();
 										
 										/* Set the new name */
@@ -633,6 +632,9 @@ function project_toolbar_event_listeners() {
 
 										/* Add the duplicated map to the array */
 										project.maps.push( new_map );
+
+										/* Log changes */
+										log_change();
 
 										/* Close the project view */
 										close_project_view();
@@ -975,6 +977,9 @@ function map_list_sortable() {
 
 		/* Set the new order in the local array */
 		project.maps = newOrderArray;
+
+		/* Log changes */
+		log_change();
 					
 		/* Reload texture list */
 		load_map_list();
@@ -1062,16 +1067,6 @@ function load_sprite_list() {
 	
 	/* Reload sprite Editor */
 	load_sprite_editor();
-
-	/* Disable hovering for draw functions */
-	/*if( drawing_functions == 1 )
-		$( "#container #sidebar #texture_list #texture_list .sortable .ui-group" ).addClass( "resize_disabled" );
-	else if( ( drawing_functions == 2 ) || ( drawing_functions == 3 ) )
-		$( "#container #sidebar #texture_list #texture_list .sortable li" ).addClass( "resize_disabled" );*/
-
-	/* Disable cursor on texture editor */
-	//if( drawing_functions != false )
-	//	$( ".sprite_picker" ).addClass( "auto_cursor" );
 }
 
 function clear_sprite_list_event_listeners() {
@@ -1389,6 +1384,9 @@ function sprite_toolbar_event_listeners() {
 												/* Add the new texture into the local array*/
 												project.sprites.push( new_group );
 
+												/* Log changes */
+												log_change();
+
 												/* Let's also update the selected group to be our new one */
 												selected_sprite.group = new_group;
 
@@ -1418,6 +1416,9 @@ function sprite_toolbar_event_listeners() {
 
 												/* Add the new texture into the local array*/
 												selected_sprite.group.sprites.push( new_sprite );
+												
+												/* Log changes */
+												log_change();
 
 												/* Select newly created texture */
 												selected_sprite.sprite = new_sprite;
@@ -1426,12 +1427,17 @@ function sprite_toolbar_event_listeners() {
 
 										if( func == "rename" ) {
 											if( selected_sprite.sprite == false ) {
+
 												/* Rename current group in local array */
 												selected_sprite.group.name = new_name;
 											} else {
+
 												/* Rename current texture in local array */
 												selected_sprite.sprite.name = new_name;								
 											}
+												
+											/* Log changes */
+											log_change();
 										}
 									}
 								}
@@ -1450,6 +1456,7 @@ function sprite_toolbar_event_listeners() {
 
 						/* Discard change */
 						if( ( e.key == "Escape" ) || ( e.type == "blur" ) ) {
+
 							/* Exit new sprite creation */
 							$( "#container #content #project_view #sprite_editor_container #sprite_editor_toolbar_rename" ).css( "display", "none" );
 							$( "#container #content #project_view #sprite_list_container #sprite_editor_toolbar_new_group_name" ).css( "display", "none" );
@@ -1473,6 +1480,7 @@ function sprite_toolbar_event_listeners() {
 					$( document ).on( "keyup", function( e ) {
 						
 						if( e.key == "Escape" ) {
+
 							/* Exit delete sprite confirmation */
 							$( "#container #content #project_view #sprite_editor_container #sprite_editor_toolbar_delete" ).css( "display", "none" );
 							
@@ -1501,6 +1509,9 @@ function sprite_toolbar_event_listeners() {
 								v.gorder = i;
 								i++;
 							} );
+
+							/* Log changes */
+							log_change();
 
 							/* Clear the selected group */
 							selected_sprite.group = false;
@@ -1538,6 +1549,9 @@ function sprite_toolbar_event_listeners() {
 									i++;
 								} );
 							}
+
+							/* Log changes */
+							log_change();
 
 							/* Clear the selected texture */
 							selected_sprite.sprite = false;
@@ -1604,9 +1618,13 @@ function sprite_toolbar_event_listeners() {
 
 							/* Clear the pixel in the local array */
 							selected_sprite.sprite.data[ pixel_col ][ pixel_row ] = "";
+
+							/* Log changes */
+							log_change();
 						} );
 
 					} else {
+
 						/* Clear erase tool */				
 						drawing_functions = false;
 
@@ -1661,6 +1679,7 @@ function sprite_list_sortable() {
 		/* Temporarily ignore onClick event listener */
 		$( this ).css( "pointer-events", "none" );
 	} );
+
 	$( "#sprite_list .sortable" ).on( "sortstop", function( e, ui ) {
 		/* Once drag and drop ends, save the new order */
 
@@ -1677,8 +1696,6 @@ function sprite_list_sortable() {
 
 			/* We're sorting sprites */
 			$.each( $( "#sprite_list .sortable" ).children( ":not(.ui-state-disabled)" ), function( k, v ) {
-
-				console.log( $( v ) );
 
 				/* Get sprite objects in sort order */
 				var sprite_obj = selected_sprite.group.sprites.find( obj => obj.id == $( v ).attr( "sprite_id" ) );
@@ -1712,6 +1729,9 @@ function sprite_list_sortable() {
 			/* Set the new order in the local array */
 			project.sprites = newOrderArray;
 		}
+
+		/* Log changes */
+		log_change();
 					
 		/* Reload sprite list */
 		load_sprite_list();
@@ -1786,6 +1806,10 @@ function load_sprite_editor_colour_pickers() {
 				/* Update the texture editor */
 				$( "#sprite_editor table tr td:not( .oob )" ).css("background", "#" + hex );
 				$( "#sprite_editor table tr td:not( .oob )" ).removeClass( "trans_background" );
+
+
+				/* Log changes */
+				log_change();
 			} else if( selected_picker.attr( "id" ) == "sprite_paint" ) {
 
 				/* We're painting the texture  */
@@ -1840,6 +1864,9 @@ function load_sprite_editor_colour_pickers() {
 						/* Set the colour in the local array */
 						selected_sprite.sprite.data[ sprite_col ][ sprite_row ] = hex;
 
+						/* Log changes */
+						log_change();
+
 						/* Reset the selected picker */
 						selected_picker = false;
 					}
@@ -1881,6 +1908,9 @@ function load_sprite_editor_colour_pickers() {
 
 				/* Set the colour in the local array */
 				selected_sprite.sprite.data[ sprite_col ][ sprite_row ] = hex;
+
+				/* Log changes */
+				log_change();
 			}
 				
 			/* Hide the colour picker */

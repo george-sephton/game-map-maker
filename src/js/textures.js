@@ -309,6 +309,9 @@ function load_texture_editor_colour_pickers() {
 				/* We're filling the entire texture with the selected colour */
 				selected_texture.texture.data = Array.from( { length: 8 }, () => Array.from( { length: 8 }, () => hex ) );
 				texture_fill = true;
+
+				/* Log changes */
+				log_change();
 				
 				/* Update the texture editor */
 				$( "#texture_editor table tr td" ).css("background", "#" + hex );
@@ -371,6 +374,9 @@ function load_texture_editor_colour_pickers() {
 						/* Set the colour in the local array */
 						selected_texture.texture.data[ texture_col ][ texture_row ] = hex;
 
+						/* Log changes */
+						log_change();
+
 						/* Update the preview */
 						load_texture_preview();
 
@@ -418,6 +424,9 @@ function load_texture_editor_colour_pickers() {
 
 				/* Set the colour in the local array */
 				selected_texture.texture.data[ texture_col ][ texture_row ] = hex;
+
+				/* Log changes */
+				log_change();
 
 				/* Update image cache */
 				update_image_cache( true );
@@ -564,6 +573,9 @@ function texture_toolbar_event_listeners() {
 							/* Clear the pixel in the local array */
 							selected_texture.texture.data[ pixel_col ][ pixel_row ] = undefined;
 
+							/* Log changes */
+							log_change();
+
 							/* Update the preview */
 							load_texture_preview();
 						} );
@@ -682,6 +694,9 @@ function texture_toolbar_event_listeners() {
 											/* Add the new texture into the local array*/
 											project.textures.push( new_group );
 
+											/* Log changes */
+											log_change();
+
 											/* Let's also update the selected group to be our new one */
 											selected_texture.group = new_group;
 
@@ -714,6 +729,9 @@ function texture_toolbar_event_listeners() {
 											/* Add the new texture into the local array*/
 											selected_texture.group.textures.push( new_texture );
 
+											/* Log changes */
+											log_change();
+
 											/* Select newly created texture */
 											selected_texture.texture = new_texture;
 										}
@@ -724,11 +742,19 @@ function texture_toolbar_event_listeners() {
 
 									if( func == "rename" ) {
 										if( selected_texture.texture == false ) {
+
 											/* Rename current group in local array */
 											selected_texture.group.name = new_name;
+
+											/* Log changes */
+											log_change();
 										} else {
+
 											/* Rename current texture in local array */
-											selected_texture.texture.name = new_name;								
+											selected_texture.texture.name = new_name;
+
+											/* Log changes */
+											log_change();								
 										}
 									}
 								}
@@ -766,6 +792,7 @@ function texture_toolbar_event_listeners() {
 					$( document ).on( "keyup", function( e ) {
 						
 						if( e.key == "Escape" ) {
+
 							/* Exit delete texture confirmation */
 							$( "#container #sidebar #texture_list_toolbar" ).css( "display", "flex" );
 							$( "#container #sidebar #texture_list_toolbar_delete" ).css( "display", "none" );
@@ -793,12 +820,15 @@ function texture_toolbar_event_listeners() {
 								i++;
 							} );
 
+							/* Log changes */
+							log_change();
+
 							/* Clear the selected group */
 							selected_texture.group = false;
 
 						} else {
 
-							/* Delete selected texture from local array */
+							/* Delete selected texture from texture group array */
 							selected_texture.group.textures = selected_texture.group.textures.filter(obj => obj.id != selected_texture.texture.id);
 
 							/* Loop through each map and remove any of these textures */
@@ -840,6 +870,9 @@ function texture_toolbar_event_listeners() {
 									i++;
 								} );
 
+								/* Log changes */
+								log_change();
+
 								/* Clear the selected group */
 								selected_texture.group = false;
 
@@ -853,6 +886,10 @@ function texture_toolbar_event_listeners() {
 									v.order = i;
 									i++;
 								} );
+
+
+								/* Log changes */
+								log_change();
 							}
 
 							/* Clear the selected texture */
@@ -1102,6 +1139,9 @@ function texture_toolbar_event_listeners() {
 
 									/* Let's also update the selected group to be our new one */
 									selected_texture.group = _new_g_texture;
+
+									/* Log changes */
+									log_change();
 													
 									/* Reload texture list */
 									load_texture_list();
@@ -1131,13 +1171,15 @@ function texture_toolbar_event_listeners() {
 					} );
 
 				} else {
+					
 					/* Image dimensions wrong */
 					alert( "Image width/height must be a multiple of 8" );
 				}
 
 			} else {
+				
 				/* Error with file upload */
-				//alert( "Error uploading image" );
+				alert( "Error uploading image" );
 			}
 		}
 	} );
@@ -1180,6 +1222,7 @@ function texture_list_sortable() {
 		/* Temporarily ignore onClick event listener */
 		$( this ).css( "pointer-events", "none" );
 	} );
+	
 	$( "#texture_list .sortable" ).on( "sortstop", function( e, ui ) {
 		
 		/* Once drag and drop ends, save the new order */
@@ -1212,6 +1255,9 @@ function texture_list_sortable() {
 			/* Set the new order in the local array */
 			selected_texture.group.textures = newOrderArray;
 
+			/* Log changes */
+			log_change();
+
 			/* Update image cache */
 			update_image_cache();
 		} else {
@@ -1232,6 +1278,9 @@ function texture_list_sortable() {
 
 			/* Set the new order in the local array */
 			project.textures = newOrderArray;
+
+			/* Log changes */
+			log_change();
 		}
 					
 		/* Reload texture list */
