@@ -156,7 +156,7 @@ function set_map_cell( selector, tile_info ) {
 	/* Show empty tile */
 	if( texture_obj == undefined ) {
 
-		if( controls_disabled == true ) {
+		if( ( controls_disabled == true ) && (  drawing_functions != 2 ) ) {
 
 			/* Tile is an empty tile whilst resizing - show as grey */
 			selector.css( "background", "#ccc" );

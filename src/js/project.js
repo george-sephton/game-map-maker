@@ -325,7 +325,11 @@ function project_list_toolbar_event_listeners() {
 													if( await window.electronAPI.save_project( check_name, JSON.stringify( data.data ) ) ) {
 
 														/* Project created successfully */
-														show_alert( "Project created successfully." );
+														$( "#overlay #overlay_text" ).html( "Project Loading" );
+														$( "#overlay" ).css( "display", "flex" );
+
+														/* Update cached images */
+														update_cached_images();
 
 														/* Open the project view */
 														project = data.data;

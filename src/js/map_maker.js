@@ -132,5 +132,5 @@ $( function() {
 /* Prevent accidental refreshes */
 $(window).on('beforeunload', function(){
 
-	return false;
+	//return false;
 } );
