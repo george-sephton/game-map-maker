@@ -152,8 +152,15 @@ function set_map_cell( selector, tile_info ) {
 	/* Show empty tile */
 	if( texture_obj == undefined ) {
 
-		/* Tile has no texture, show as transparent - saves a bit of resource */
-		selector.html( "<img src=\"" + "images/transparent.png" + "\" />" );
+		if( controls_disabled == true ) {
+
+			/* Tile is an empty tile whilst resizing - show as grey */
+			selector.css( "background", "#ccc" );
+		} else {
+
+			/* Tile has no texture, show as transparent - saves a bit of resource */
+			selector.html( "<img src=\"" + "images/transparent.png" + "\" />" );
+		}
 	}
 
 	if( ( texture_obj != undefined ) && ( texture_obj != -1 ) ) {
@@ -162,7 +169,7 @@ function set_map_cell( selector, tile_info ) {
 		if( ( controls_disabled == true ) && ( drawing_functions != 1 ) ) {
 
 			/* Tile is an normal tile whilst resizing - show as blue */
-			selector.html( "<img src=\"" + "images/blue.png" + "\" />" );
+			selector.css( "background", "#327da8" );
 		} else {
 
 			selector.html( "<img style=\"transform: " + ( tile_info.texture_reverse_x ? " rotateY(180deg)" : "" ) + ( tile_info.texture_reverse_y ? " rotateX(180deg)" : "" ) + ";\" src=\"\" />" );
@@ -240,11 +247,7 @@ function set_map_cell( selector, tile_info ) {
 	} else if( texture_obj == -1 ) {
 
 		/* Tile is part of soon to be added row/column whilst resizing - show as grey */
-		selector.html( "<img src=\"" + "images/transparent.png" + "\" />" );
-	} else if( ( texture_obj == undefined ) && ( controls_disabled == true ) ) {
-
-		/* Tile is an empty tile whilst resizing - show as grey */
-		selector.html( "<img src=\"" + "images/transparent.png" + "\" />" );
+		selector.css( "background", "#ccc" );
 	}
 }
 
@@ -283,9 +286,17 @@ function load_map_editor() {
 		set_map_cell( $( this ), tile_info );
 	} );
 
-	/* Keep zoom consistent */
-	$( "#container #content #map_editor_container #map_editor .map_editor_row .map_editor_cell img" ).css( "width", ( map_cell_size * 5 ) + "px" );
-	$( "#container #content #map_editor_container #map_editor .map_editor_row .map_editor_cell img" ).css( "height", ( map_cell_size * 5 ) + "px" );
+	if( controls_disabled == true ) {
+
+		/* If we are resizing, we need to give the cells a width and height otherwise they'll be tiny */
+		$( "#container #content #map_editor_container #map_editor .map_editor_row .map_editor_cell" ).css( "width", ( map_cell_size * 5 ) + "px" );
+		$( "#container #content #map_editor_container #map_editor .map_editor_row .map_editor_cell" ).css( "height", ( map_cell_size * 5 ) + "px" );
+	} else {
+	
+		/* Keep zoom consistent */
+		$( "#container #content #map_editor_container #map_editor .map_editor_row .map_editor_cell img" ).css( "width", ( map_cell_size * 5 ) + "px" );
+		$( "#container #content #map_editor_container #map_editor .map_editor_row .map_editor_cell img" ).css( "height", ( map_cell_size * 5 ) + "px" );
+	}
 
 	/* Show map editor */
 	$( "#container #map_editor_container #map_editor" ).css( "display", "flex" );
