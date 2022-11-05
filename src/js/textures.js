@@ -297,7 +297,10 @@ function load_texture_editor_colour_pickers() {
 					alert( "Error: Colour Picker not initialised correctly.\n\nPlease reload the Map Maker to fix, remember to save your work first!" );
 				}
 				
-				$( this ).colpickSetColor( selected_texture.texture.data[ $( this ).attr( "col_id" ) ][ $( this ).parent().attr( "row_id" ) ], true );
+				if( ( selected_texture.texture.data[ $( this ).attr( "col_id" ) ][ $( this ).parent().attr( "row_id" ) ] != undefined ) && ( selected_texture.texture.data[ $( this ).attr( "col_id" ) ][ $( this ).parent().attr( "row_id" ) ] != "" ) )
+					$( this ).colpickSetColor( selected_texture.texture.data[ $( this ).attr( "col_id" ) ][ $( this ).parent().attr( "row_id" ) ], true );
+				else
+					$( this ).colpickSetColor( "000000", true );
 			}
 		},
 		onSubmit: function( hsb, hex, rgb, e ) {
@@ -1222,7 +1225,7 @@ function texture_list_sortable() {
 		/* Temporarily ignore onClick event listener */
 		$( this ).css( "pointer-events", "none" );
 	} );
-	
+
 	$( "#texture_list .sortable" ).on( "sortstop", function( e, ui ) {
 		
 		/* Once drag and drop ends, save the new order */
