@@ -31,6 +31,13 @@ body {
 .oob {
 	cursor: auto !important;
 }
+.save_changes {
+	color: #6f95ab !important;
+}
+.save_changes:hover {
+	color: #8bb1c7 !important;
+	cursor: pointer;
+}
 .selected_tool {
 	color: #8bb1c7 !important;
 	font-size: 28px !important;

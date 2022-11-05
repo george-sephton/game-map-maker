@@ -89,6 +89,9 @@ function project_list_event_listeners() {
 					/* Update cached images */
 					update_cached_images();
 
+					/* Clear changes */
+					clear_changes();
+
 					/* Open the project view */
 					load_project_view();
 				}
@@ -840,6 +843,9 @@ function project_toolbar_event_listeners() {
 
 							/* Project created successfully */
 							show_alert( "Project saved successfully." );
+
+							/* Clear changes */
+							clear_changes();
 						} else {
 
 							show_error( "Error saving project." );

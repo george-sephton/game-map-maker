@@ -39,8 +39,8 @@ map_resizing.new_height = 0;
 /* Store if controls are disabled */
 var controls_disabled = false;
 
-/* Keep count of image cache */
-var image_cache_count = 0;
+/* Store if changes have been made */
+var changes = false;
 
 function sanitise_input( input_text ) {
 
@@ -81,9 +81,16 @@ function show_error( text ) {
 	}, 3000 );
 }
 
+function clear_changes() {
+
+	changes = false;
+	$( "#save_project" ).removeClass( "save_changes" );
+}
+
 function log_change() {
 
-	console.log( "Change" );
+	changes = true;
+	$( "#save_project" ).addClass( "save_changes" );
 }
 
 /* No project */
