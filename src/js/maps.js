@@ -168,8 +168,8 @@ function set_map_cell( selector, tile_info ) {
 			/* Set the image and ensure we are retrieving the most recent version */
 			var img_src = "../projects/" + project.name.toLowerCase().replace( / /g, "_" ) + "/cache/textures/" + ( group_obj.name + "_" + texture_obj.order ).toLowerCase().replace( / /g, "_" ) + ".png";
 			
-			selector.find( "img" ).attr( "src", img_src + "?" + image_cache_count );
-			image_cache_count++;
+			d = new Date();
+			selector.find( "img" ).attr( "src", img_src + "?" + d.getTime() );
 
 			if( !bg_texture ) {
 

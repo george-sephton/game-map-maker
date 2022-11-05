@@ -129,3 +129,9 @@ $( function() {
 	//selected_texture.texture = selected_texture.group.textures.find( obj => obj.id == 0 );
 	//load_texture_list();
 } );
+
+/* Prevent accidental refreshes */
+$(window).on('beforeunload', function(){
+
+	//return false;
+} );
