@@ -963,13 +963,11 @@ function texture_toolbar_event_listeners() {
 				/* Is the image the correct size */
 				if( ( ( img_data.width % 8 ) == 0 ) && ( ( img_data.height % 8 ) == 0 ) ) {
 				
-					/* Create a blank 3D array to store all the textures */
-					var images_array = Array.from( { length: ( ( img_data.width * img_data.height ) / 64 ) }, () => Array.from( { length: 8 }, () => Array.from( { length: 8 }, () => undefined ) ) );
-					
-					var _col = 0, _row = 0, _img_count = 0, _img_multiplier = 0, _i = 0;
+					/* Create some temperorary variables */
 					var temp_object = new Object();
+					var _img_data = new Array();
 
-					/* Loop through each colour channel in the image, group them and then sort them all into our image array */
+					/* Loop through each colour channel in the image and convert to hex */
 					$.each( img_data.data , function( index, value ) {
 
 						/* Add each colour value to our temporary object */
@@ -997,33 +995,75 @@ function texture_toolbar_event_listeners() {
 							}
 
 							/* Add pixel to image array */
-							images_array[ _img_count ][ _row ][ _col ] = hex;
+							_img_data.push( hex );
+						}
+					} );
 
-							/* Deal with our 3 indicies */
-							_row++;
-							if( _row >= 8 ) {
+					//console.log( _img_data );
+
+					/* Create a blank 3D array to store all the textures */
+					var images_array = Array.from( { length: ( ( img_data.width * img_data.height ) / 64 ) }, () => Array.from( { length: 8 }, () => Array.from( { length: 8 }, () => undefined ) ) );
+
+					/* Keep track of our inidicies */
+					var _col = 0, _row = 0, _img_count = 0, _img_multiplier = 0;
+					/* Let's now split the image up into individual textures */
+					$.each( _img_data , function( index, value ) {
+
+					/* JS Fiddle:
+					var img_data = new Object();
+					img_data.width = 256;
+					img_data.height = 80;
+
+					var _col = 0, _row = 0, _img_count = 0, _img_multiplier = 0;
+
+					for (i = 0; i < (img_data.width * img_data.height); i++) {
+
+						if( _col == 0 )
+							console.log( _col + ", " + _row + " :: " + _img_count );
+					*/
+
+						/* Data starts at 0,0 and then pages across each column of the image and then down to the next row */
+						//console.log( value );
+						images_array[ _img_count ][ _row ][ _col ] = 11;
+
+						/* Deal with our 3 indicies */	
+						_col++;
+
+						/* Every 8 columns is the end of a new texture */
+						if( ( i % 8 ) == 7 ) {
+
+							/* Move to the next texture */
+							_img_count++;
+							_col = 0;
+							
+							/* Final column in the image width, loop to the next row  */
+							if( ( i % img_data.width ) == ( img_data.width - 1 ) ) {
+
+								/* Reset the column and image counter */
+								_img_count = _img_multiplier;
+								_col = 0;
+
+								/* Move down to the next row */
+								_row++;
+
+								/* After we hit our 8th row, increment the image multiplier and image count to move onto the next texture */
+								if ((_row % 8) == 0) {
 								
-								/* Once we hit the bottom of 8 rows of pixels of an image, continue to the next image below */
-								_row = 0;
-								_img_count++;
+									_row = 0;
+									
+									//console.log( "Img Multiplier" );
 
-								if( ( _img_count % ( img_data.height / 8 ) ) == 0 ) {
-
-									/* Once we reach the bottom of the whole image, loop back to the top and increment our column counter */
+									_img_multiplier += (img_data.width / 8);
 									_img_count = _img_multiplier;
-									_col++;
-
-									if( _col >= 8 ) {
-
-										/* Once the column counter gets to the end of 8 columns of pixels, reset all our counters, time to deal with the next column of images */
-										_col = 0;
-										_img_multiplier += ( img_data.height / 8 );
-										_img_count = _img_multiplier;
-									}
 								}
 							}
 						}
-					});
+					//} //JS Fiddle
+					} );
+
+					console.log( images_array );
+
+					return;
 
 					/* Data uploaded, let's prompt the user for a new name */
 					$( "#container #sidebar #texture_list_toolbar_rename #texture_rename" ).val( "" );
