@@ -968,16 +968,16 @@ function texture_toolbar_event_listeners() {
 					var _img_data = new Array();
 
 					/* Loop through each colour channel in the image and convert to hex */
-					$.each( img_data.data , function( index, value ) {
+					$.each( img_data.data , function( j, value ) {
 
 						/* Add each colour value to our temporary object */
-						if( ( index % 4 ) == 0 ) {
+						if( ( j % 4 ) == 0 ) {
 							temp_object.R = value;
-						} else if( ( index % 4 ) == 1 ) {
+						} else if( ( j % 4 ) == 1 ) {
 							temp_object.G = value;
-						} else if( ( index % 4 ) == 2 ) {
+						} else if( ( j % 4 ) == 2 ) {
 							temp_object.B = value;
-						} else if( ( index % 4 ) == 3 ) {
+						} else if( ( j % 4 ) == 3 ) {
 							temp_object.A = value;
 
 							/* After adding all channels, convert to hex */
@@ -999,32 +999,17 @@ function texture_toolbar_event_listeners() {
 						}
 					} );
 
-					//console.log( _img_data );
-
 					/* Create a blank 3D array to store all the textures */
 					var images_array = Array.from( { length: ( ( img_data.width * img_data.height ) / 64 ) }, () => Array.from( { length: 8 }, () => Array.from( { length: 8 }, () => undefined ) ) );
 
 					/* Keep track of our inidicies */
 					var _col = 0, _row = 0, _img_count = 0, _img_multiplier = 0;
+
 					/* Let's now split the image up into individual textures */
-					$.each( _img_data , function( index, value ) {
-
-					/* JS Fiddle:
-					var img_data = new Object();
-					img_data.width = 256;
-					img_data.height = 80;
-
-					var _col = 0, _row = 0, _img_count = 0, _img_multiplier = 0;
-
-					for (i = 0; i < (img_data.width * img_data.height); i++) {
-
-						if( _col == 0 )
-							console.log( _col + ", " + _row + " :: " + _img_count );
-					*/
+					$.each( _img_data , function( i, value ) {
 
 						/* Data starts at 0,0 and then pages across each column of the image and then down to the next row */
-						//console.log( value );
-						images_array[ _img_count ][ _row ][ _col ] = 11;
+						images_array[ _img_count ][ _col ][ _row ] = value;
 
 						/* Deal with our 3 indicies */	
 						_col++;
@@ -1058,12 +1043,7 @@ function texture_toolbar_event_listeners() {
 								}
 							}
 						}
-					//} //JS Fiddle
 					} );
-
-					console.log( images_array );
-
-					return;
 
 					/* Data uploaded, let's prompt the user for a new name */
 					$( "#container #sidebar #texture_list_toolbar_rename #texture_rename" ).val( "" );
@@ -1201,6 +1181,9 @@ function texture_toolbar_event_listeners() {
 
 									/* Log changes */
 									log_change();
+
+									/* Add to image cache */
+									update_image_cache();
 													
 									/* Reload texture list */
 									load_texture_list();

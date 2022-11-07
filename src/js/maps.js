@@ -97,25 +97,21 @@ function set_map_cell( selector, tile_info ) {
 	selector.html( "" );
 	selector.css( "background", "#ccc" );
 
-	/* We don't need to get this information during resizing */
-	if( controls_disabled != true ) {
-
-		/* Get the texture flip info */
-		if( ( tile_info.col >= selected_map.width ) || ( tile_info.row >= selected_map.height ) ) {
-			tile_info.texture_reverse_x = false;
-			tile_info.texture_reverse_y = false;
-		} else {
-			tile_info.texture_reverse_x = selected_map.data[ tile_info.row ][ tile_info.col ].texture_reverse_x;
-			tile_info.texture_reverse_y = selected_map.data[ tile_info.row ][ tile_info.col ].texture_reverse_y;
-		}
-
-		/* If we are looking for a newly added row, outside of the exisiting map bounds, return an empty tile */
-		if( ( tile_info.col >= selected_map.width ) || ( tile_info.row >= selected_map.height ) ) tile_info.texture_gid = -1;
-		else tile_info.texture_gid = selected_map.data[tile_info.row][tile_info.col].texture_gid;
-		/* If we are looking for a newly added column, outside of the exisiting map bounds, return an empty tile */
-		if( ( tile_info.col >= selected_map.width ) || ( tile_info.row >= selected_map.height ) ) tile_info.texture_gid = -1;
-		else tile_info.texture_id = selected_map.data[tile_info.row][tile_info.col].texture_id;
+	/* Get the texture flip info */
+	if( ( tile_info.col >= selected_map.width ) || ( tile_info.row >= selected_map.height ) ) {
+		tile_info.texture_reverse_x = false;
+		tile_info.texture_reverse_y = false;
+	} else {
+		tile_info.texture_reverse_x = selected_map.data[ tile_info.row ][ tile_info.col ].texture_reverse_x;
+		tile_info.texture_reverse_y = selected_map.data[ tile_info.row ][ tile_info.col ].texture_reverse_y;
 	}
+
+	/* If we are looking for a newly added row, outside of the exisiting map bounds, return an empty tile */
+	if( ( tile_info.col >= selected_map.width ) || ( tile_info.row >= selected_map.height ) ) tile_info.texture_gid = -1;
+	else tile_info.texture_gid = selected_map.data[tile_info.row][tile_info.col].texture_gid;
+	/* If we are looking for a newly added column, outside of the exisiting map bounds, return an empty tile */
+	if( ( tile_info.col >= selected_map.width ) || ( tile_info.row >= selected_map.height ) ) tile_info.texture_gid = -1;
+	else tile_info.texture_id = selected_map.data[tile_info.row][tile_info.col].texture_id;
 
 	var texture_obj = undefined;
 	var bg_texture = false;
