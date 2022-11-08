@@ -13,6 +13,15 @@ function load_map_editing_view() {
 	$( "#container #content #toolbar #settings #name_input_container #name_input" ).attr( "disabled", "disabled" );
 	$( "#container #content #toolbar #settings #name_input_container #name_input" ).val( "" );
 
+	/* Auto increment checkbox - used for painting tiles */
+	$( "#container #toolbar #settings #name_input_container #paint_auto_inc_en" ).css( "display", "none" );
+	$( "#container #toolbar #settings #name_input_container label[for='paint_auto_inc_en']" ).css( "display", "none" );
+
+	if( paint_auto_inc )
+		$( "#container #toolbar #settings #name_input_container #paint_auto_inc_en" ).prop( "checked", true );
+	else 
+		$( "#container #toolbar #settings #name_input_container #paint_auto_inc_en" ).prop( "checked", false );
+
 	$( "#container #toolbar #map_settings" ).css( "display", "flex" );
 
 	/* Set the Allow Running checbox */
@@ -333,9 +342,14 @@ function map_editor_toolbar_reset() {
 	/* Remove restrictions on texture panel */
 	$( "#container #sidebar #texture_list_toolbar i" ).removeClass( "resize_disabled" );
 	$( "#container #sidebar #texture_list .sortable li" ).removeClass( "resize_disabled" );
+
 	/* Re-enable colour picker */
 	$( ".sprite_picker" ).removeClass( "auto_cursor" );
 	$( ".texture_picker" ).removeClass( "auto_cursor" );
+
+	/* Hide auto increment checkbox */
+	$( "#container #toolbar #settings #name_input_container #paint_auto_inc_en" ).css( "display", "none" );
+	$( "#container #toolbar #settings #name_input_container label[for='paint_auto_inc_en']" ).css( "display", "none" );
 
 	$( "#container #toolbar #map_paint_settings #exit_tile_map_pos_x" ).val( "" );
 	$( "#container #toolbar #map_paint_settings #exit_tile_map_pos_x" ).css( "background", "#fff" );
@@ -383,6 +397,7 @@ function clear_map_toolbar_event_listeners() {
 	
 	$( "#container #toolbar #settings #controls i" ).unbind( "click" );
 	$( "#container #toolbar #map_settings #map_settings_options #map_running_en" ).unbind( "change" );
+	$( "#container #toolbar #settings #name_input_container #paint_auto_inc_en" ).unbind( "change" );
 }
 
 function map_toolbar_event_listeners() {
@@ -391,6 +406,11 @@ function map_toolbar_event_listeners() {
 	clear_map_toolbar_event_listeners();
 
 	/* Map toolbar event listeners */
+	$( "#container #toolbar #settings #name_input_container #paint_auto_inc_en" ).click(function() {
+
+		paint_auto_inc = $( this ).prop( "checked" );
+	} );
+
 	$( "#container #toolbar #settings #controls i" ).click(function() {
 		
 		var func = $( this ).attr( "func" );
@@ -640,6 +660,10 @@ function map_toolbar_event_listeners() {
 						/* Highlight the paintbrush icon */
 						$( "#map_toolbar_paint" ).addClass( "selected_tool" );
 						$( "#map_toolbar_paint" ).removeClass( "resize_disabled" );
+
+						/* Show the auto increment option */
+						$( "#container #toolbar #settings #name_input_container #paint_auto_inc_en" ).css( "display", "block" );
+						$( "#container #toolbar #settings #name_input_container label[for='paint_auto_inc_en']" ).css( "display", "block" );
 
 						/* Enable the flip icons and preview */
 						$( "#map_toolbar_flip_h" ).removeClass( "resize_disabled" );
@@ -1315,6 +1339,17 @@ function map_editor_event_listeners() {
 			$( this ).find( "img" ).css( "width", ( map_cell_size * 5 ) + "px" );
 			$( this ).find( "img" ).css( "height", ( map_cell_size * 5 ) + "px" );
 
+			/* Auto increment */
+			if( paint_auto_inc ) {
+				
+				if( selected_texture.texture.order < ( selected_texture.group.textures.length - 1 ) ) {
+
+					/* Switch to the next texture */
+					selected_texture.texture = selected_texture.group.textures.find( obj => obj.order == ( selected_texture.texture.order + 1 ) );
+					load_texture_list();
+				}
+			}
+
 		} else if( drawing_functions == 6 ) { /* Eyedropper */
 
 			/* Get current tile information and switch to paint tool */
@@ -1348,6 +1383,10 @@ function map_editor_event_listeners() {
 				/* Update preview and tile settings panel */
 				display_tile_info( tile_info.row, tile_info.col );
 
+				/* Display auto increment option */
+				$( "#container #toolbar #settings #name_input_container #paint_auto_inc_en" ).css( "display", "block" );
+				$( "#container #toolbar #settings #name_input_container label[for='paint_auto_inc_en']" ).css( "display", "block" );
+
 				$( "#container #toolbar #map_paint_settings" ).css( "display", "flex" );
 				load_texture_preview();
 
@@ -1362,6 +1401,7 @@ function map_editor_event_listeners() {
 			var cell_texture_id = selected_map.data[tile_info.row][tile_info.col].texture_id;
 
 			if( cell_texture_gid != undefined ) {
+				
 				/* If we have a texture to examine, load the info */
 				display_tile_info( tile_info.row, tile_info.col );
 			}
@@ -1764,8 +1804,10 @@ function enable_controls() {
 		$( "#container #toolbar #map_settings" ).css( "display", "flex" );
 		$( "#container #toolbar #map_paint_preview" ).css( "display", "block" );
 	}
-	
-	
+
+	/* Hide auto increment option */
+	$( "#container #toolbar #settings #name_input_container #paint_auto_inc_en" ).css( "display", "none" );
+	$( "#container #toolbar #settings #name_input_container label[for='paint_auto_inc_en']" ).css( "display", "none" );
 
 	if( selected_map == false ) {
 		
