@@ -705,6 +705,9 @@ function map_toolbar_event_listeners() {
 						/* Re-enable controls */
 						enable_controls();
 
+						/* Re-add sorting to texture list */
+						texture_list_sortable();
+
 						/* Disable all drawing functions */				
 						drawing_functions = false;
 					}
