@@ -216,12 +216,25 @@
 }
 #container #toolbar #settings #name_input_container {
 	display: none;
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-start;
 }
 #container #toolbar #settings #name_input_container #name_input {
-	width: 400px;
+	width: 390px;
 	font-size: 20px;
 	border: 0px;
 	background: #FFF;
+}
+#container #toolbar #settings #name_input_container .checkbox-input {
+	width: 30px;
+	height: 30px;
+	margin: 0px;
+}
+#container #toolbar #settings #name_input_container label {
+	width: 136px;
+	margin: 0 0 0 15px;
+	font-size: 18px;
 }
 #container #toolbar #settings #map_confirm {
 	display: none;

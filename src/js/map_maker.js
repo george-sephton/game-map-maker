@@ -31,6 +31,7 @@ var map_border_size = 1;
 
 /* Store drawing information */
 var drawing_functions = false;
+var paint_auto_inc = false;
 
 /* Store map resizing information */
 var map_resizing = new Object();
@@ -123,11 +124,11 @@ $( function() {
 
 		selected_map = project.maps.find( obj => obj.id == 1 );
 		load_map_editing_view();
-	} );
 
-	//selected_texture.group = project.textures.find( obj => obj.gid == 2 );
-	//selected_texture.texture = selected_texture.group.textures.find( obj => obj.id == 0 );
-	//load_texture_list();
+		selected_texture.group = project.textures.find( obj => obj.gid == 2 );
+		selected_texture.texture = selected_texture.group.textures.find( obj => obj.id == 0 );
+		load_texture_list();
+	} );
 } );
 
 /* Prevent accidental refreshes */
