@@ -91,6 +91,17 @@ function close_map_editing_view() {
 	$( "#container #content #map_editor_container #map_editor" ).html( "" );
 }
 
+function set_map_cell_border_size() {
+	
+	/* Update cell borders width */
+	if( map_cell_size < 8 )
+		map_border_size = 1;
+	else if( ( map_cell_size >= 8 ) && ( map_cell_size <= 14 ) )
+		map_border_size = 2;
+	else
+		map_border_size = 3;
+}
+
 function set_map_cell( selector, tile_info ) {
 
 	/* Clear the cell before starting */
@@ -187,60 +198,60 @@ function set_map_cell( selector, tile_info ) {
 					/* Update CSS for exit tiles */
 					switch( selected_map.data[tile_info.row][tile_info.col].exit_map_dir.join() ) {
 						case "0,0":  /* Exit any direction */
-							selector.css( "border-top", "2px solid #ff0" );
-							selector.css( "border-right", "2px solid #ff0" );
-							selector.css( "border-bottom", "2px solid #ff0" );
-							selector.css( "border-left", "2px solid #ff0" );
+							selector.css( "border-top", map_border_size + "px solid #ff0" );
+							selector.css( "border-right", map_border_size + "px solid #ff0" );
+							selector.css( "border-bottom", map_border_size + "px solid #ff0" );
+							selector.css( "border-left", map_border_size + "px solid #ff0" );
 							break;
 						case "0,1": /* Exit when walking north */
-							selector.css( "border-top", "2px solid #ff0" );
+							selector.css( "border-top", map_border_size + "px solid #ff0" );
 							break;
 						case "1,0": /* Exit when walking east */
-							selector.css( "border-right", "2px solid #ff0" );
+							selector.css( "border-right", map_border_size + "px solid #ff0" );
 							break;
 						case "0,-1": /* Exit when walking south */
-							selector.css( "border-bottom", "2px solid #ff0" );
+							selector.css( "border-bottom", map_border_size + "px solid #ff0" );
 							break;
 						case "-1,0": /* Exit when walking west */
-							selector.css( "border-left", "2px solid #ff0" );
+							selector.css( "border-left", map_border_size + "px solid #ff0" );
 							break;
 					}
 				} else if( selected_map.data[tile_info.row][tile_info.col].interact_en ) {
 
 					/* Update CSS based on interact_en */
-					selector.css( "border-top", "2px solid #0ff" );
-					selector.css( "border-right", "2px solid #0ff" );
-					selector.css( "border-bottom", "2px solid #0ff" );
-					selector.css( "border-left", "2px solid #0ff" );
+					selector.css( "border-top", map_border_size + "px solid #0ff" );
+					selector.css( "border-right", map_border_size + "px solid #0ff" );
+					selector.css( "border-bottom", map_border_size + "px solid #0ff" );
+					selector.css( "border-left", map_border_size + "px solid #0ff" );
 
 				} else if( selected_map.data[tile_info.row][tile_info.col].npc_en ) {
 
 					/* Update CSS based on npc_en */
-					selector.css( "border-top", "2px solid #f0f" );
-					selector.css( "border-right", "2px solid #f0f" );
-					selector.css( "border-bottom", "2px solid #f0f" );
-					selector.css( "border-left", "2px solid #f0f" );
+					selector.css( "border-top", map_border_size + "px solid #f0f" );
+					selector.css( "border-right", map_border_size + "px solid #f0f" );
+					selector.css( "border-bottom", map_border_size + "px solid #f0f" );
+					selector.css( "border-left", map_border_size + "px solid #f0f" );
 
 
 				} else if( selected_map.data[tile_info.row][tile_info.col].top_layer ) {
 
 					/* Update CSS based on top_layer */
-					selector.css( "border-top", "2px solid #0f0" );
-					selector.css( "border-right", "2px solid #0f0" );
-					selector.css( "border-bottom", "2px solid #0f0" );
-					selector.css( "border-left", "2px solid #0f0" );
+					selector.css( "border-top", map_border_size + "px solid #0f0" );
+					selector.css( "border-right", map_border_size + "px solid #0f0" );
+					selector.css( "border-bottom", map_border_size + "px solid #0f0" );
+					selector.css( "border-left", map_border_size + "px solid #0f0" );
 
-					if( !selected_map.data[tile_info.row][tile_info.col].can_walk[0] ) selector.css( "border-top", "2px solid #fc8805" );
-					if( !selected_map.data[tile_info.row][tile_info.col].can_walk[1] ) selector.css( "border-right", "2px solid #fc8805" );
-					if( !selected_map.data[tile_info.row][tile_info.col].can_walk[2] ) selector.css( "border-bottom", "2px solid #fc8805" );
-					if( !selected_map.data[tile_info.row][tile_info.col].can_walk[3] ) selector.css( "border-left", "2px solid #fc8805" );
+					if( !selected_map.data[tile_info.row][tile_info.col].can_walk[0] ) selector.css( "border-top", map_border_size + "px solid #fc8805" );
+					if( !selected_map.data[tile_info.row][tile_info.col].can_walk[1] ) selector.css( "border-right", map_border_size + "px solid #fc8805" );
+					if( !selected_map.data[tile_info.row][tile_info.col].can_walk[2] ) selector.css( "border-bottom", map_border_size + "px solid #fc8805" );
+					if( !selected_map.data[tile_info.row][tile_info.col].can_walk[3] ) selector.css( "border-left", map_border_size + "px solid #fc8805" );
 				} else {
 
 					/* Update CSS based on can_walk */
-					if( !selected_map.data[tile_info.row][tile_info.col].can_walk[0] ) selector.css( "border-top", "2px solid #f00" );
-					if( !selected_map.data[tile_info.row][tile_info.col].can_walk[1] ) selector.css( "border-right", "2px solid #f00" );
-					if( !selected_map.data[tile_info.row][tile_info.col].can_walk[2] ) selector.css( "border-bottom", "2px solid #f00" );
-					if( !selected_map.data[tile_info.row][tile_info.col].can_walk[3] ) selector.css( "border-left", "2px solid #f00" );
+					if( !selected_map.data[tile_info.row][tile_info.col].can_walk[0] ) selector.css( "border-top", map_border_size + "px solid #f00" );
+					if( !selected_map.data[tile_info.row][tile_info.col].can_walk[1] ) selector.css( "border-right", map_border_size + "px solid #f00" );
+					if( !selected_map.data[tile_info.row][tile_info.col].can_walk[2] ) selector.css( "border-bottom", map_border_size + "px solid #f00" );
+					if( !selected_map.data[tile_info.row][tile_info.col].can_walk[3] ) selector.css( "border-left", map_border_size + "px solid #f00" );
 				}
 			}
 		}
@@ -274,6 +285,12 @@ function load_map_editor() {
 		for( i = 0; i < show_cols; i++ )
 			$( '<cell col_id="'+i+'" class="map_editor_cell"></cell>' ).appendTo( $(this) );
 	} );
+
+	/* Set cell border width */
+	set_map_cell_border_size();
+
+	/* Update cell border widths */
+	$( "#container #map_editor_container #map_editor row cell" ).css( "border-width", map_border_size + "px" );
 
 	/* Add texture to each cell */
 	$( "#container #map_editor_container #map_editor row cell" ).each( function() {
@@ -862,9 +879,15 @@ function map_toolbar_event_listeners() {
 						map_cell_size +=2;
 					}
 					
-					if( ( map_cell_size > 4 ) && ( func == "zoom-out" ) ){
+					if( ( map_cell_size > 2 ) && ( func == "zoom-out" ) ){
 						map_cell_size -=2;
 					}
+
+					/* Set cell border width */
+					set_map_cell_border_size();
+
+					/* Update cell border widths */
+					$( "#container #map_editor_container #map_editor row cell" ).css( "border-width", map_border_size + "px" );
 
 					$( "#container #content #map_editor_container #map_editor .map_editor_row .map_editor_cell img" ).css( "width", ( map_cell_size * 5 ) + "px" );
 					$( "#container #content #map_editor_container #map_editor .map_editor_row .map_editor_cell img" ).css( "height", ( map_cell_size * 5 ) + "px" );
@@ -1223,6 +1246,10 @@ function map_editor_event_listeners() {
 			/* Clear the cell */
 			set_map_cell( $( this ), tile_info );
 
+			/* Set the correct cell size */
+			$( this ).find( "img" ).css( "width", ( map_cell_size * 5 ) + "px" );
+			$( this ).find( "img" ).css( "height", ( map_cell_size * 5 ) + "px" );
+
 		} else if( drawing_functions == 1 ) { /* Paint */
 
 			if( selected_texture.exit_tile ) {
@@ -1283,6 +1310,10 @@ function map_editor_event_listeners() {
 
 			/* Clear the cell */
 			set_map_cell( $( this ), tile_info );
+
+			/* Set the correct cell size */
+			$( this ).find( "img" ).css( "width", ( map_cell_size * 5 ) + "px" );
+			$( this ).find( "img" ).css( "height", ( map_cell_size * 5 ) + "px" );
 
 		} else if( drawing_functions == 6 ) { /* Eyedropper */
 

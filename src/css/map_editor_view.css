@@ -421,7 +421,7 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	border: 2px solid #999;	
+	border: 1px solid #999;	
 }
 #container #content #map_editor_container #map_editor .map_editor_row .map_editor_cell img {
 	width: 30px;
