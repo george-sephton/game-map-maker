@@ -319,7 +319,7 @@
 	display: none;
 }
 #container #toolbar #map_paint_preview table {
-	min-width: 75px;
+	min-width: 70px;
 	height: 100%;
 	border: 2px solid #000;
 	border-spacing: 0;

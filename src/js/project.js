@@ -917,54 +917,57 @@ function project_toolbar_event_listeners() {
 					/* Add event listeners */
 					$( "#container #toolbar #settings #map_export input[type=button]" ).on( "click" , function( e ) {
 						
-						$( async () => {
+						if( $( this ).attr( "id" ) != "map_export_cancel" ) {
 
-							/* Which format are we exporting */
-							if( $( this ).attr( "id" ) == "map_export_gba" ) {
+							$( async () => {
 
-								var filter = { name: "GBA Header File", extensions: [ "h" ] };
-							} else if( $( this ).attr( "id" ) == "map_export_ps" ) {
+								/* Which format are we exporting */
+								if( $( this ).attr( "id" ) == "map_export_gba" ) {
 
-								var filter = { name: "PicoSystem Header File", extensions: [ "hpp" ] };
-							} else if( $( this ).attr( "id" ) == "map_export_json" ) {
+									var filter = { name: "GBA Header File", extensions: [ "h" ] };
+								} else if( $( this ).attr( "id" ) == "map_export_ps" ) {
 
-								var filter = { name: "JSON", extensions: [ "json" ] };
-							}
+									var filter = { name: "PicoSystem Header File", extensions: [ "hpp" ] };
+								} else if( $( this ).attr( "id" ) == "map_export_json" ) {
 
-							var data = await window.electronAPI.save_file_dialog( filter );
-							
-							if( data.cancelled == false ) {
+									var filter = { name: "JSON", extensions: [ "json" ] };
+								}
 
-								/* Check if we returned actual data */
-								if( data.data != undefined ) {
+								var data = await window.electronAPI.save_file_dialog( filter );
+								
+								if( data.cancelled == false ) {
 
-									if( $( this ).attr( "id" ) == "map_export_gba" ) {
+									/* Check if we returned actual data */
+									if( data.data != undefined ) {
 
-										var export_data = export_data_gba();
-										var alert_msg = "Project exported for Game Boy Advance at ";
-									} else if( $( this ).attr( "id" ) == "map_export_ps" ) {
+										if( $( this ).attr( "id" ) == "map_export_gba" ) {
 
-										var export_data = export_data_ps();
-										var alert_msg = "Project exported for PicoSystem at ";
-									} else if( $( this ).attr( "id" ) == "map_export_json" ) {
+											var export_data = export_data_gba();
+											var alert_msg = "Project exported for Game Boy Advance at ";
+										} else if( $( this ).attr( "id" ) == "map_export_ps" ) {
 
-										var export_data =  JSON.stringify( project );
-										var alert_msg = "Project exported in JSON format at ";
-									}
-									
-									if( await window.electronAPI.save_data( data.data, export_data ) ) {
+											var export_data = export_data_ps();
+											var alert_msg = "Project exported for PicoSystem at ";
+										} else if( $( this ).attr( "id" ) == "map_export_json" ) {
 
-										show_alert( alert_msg + data.data );
+											var export_data =  JSON.stringify( project );
+											var alert_msg = "Project exported in JSON format at ";
+										}
+										
+										if( await window.electronAPI.save_data( data.data, export_data ) ) {
+
+											show_alert( alert_msg + data.data );
+										} else {
+
+											show_error( "Error exporting project." );
+										}
 									} else {
 
 										show_error( "Error exporting project." );
 									}
-								} else {
-
-									show_error( "Error exporting project." );
 								}
-							}
-						} );
+							} );
+						}
 
 						/* Re-enable controls */
 						enable_controls();
