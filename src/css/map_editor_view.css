@@ -185,17 +185,18 @@
 #container #toolbar #settings {
 	display: none;
 	flex-direction: column;
-	gap: 14px;
+	gap: 8px;
 	box-sizing: border-box;
 }
 #container #toolbar #settings #controls {
 	display: none;
 	flex-direction: row;
-	gap: 8px;
+	gap: 6px;
+	margin: 2px 0 0 0;
 }
 #container #toolbar #settings #controls i{
 	color: #333;
-	font-size: 28px;
+	font-size: 22px;
 }
 #container #toolbar #settings #controls i:hover {
 	color: #8bb1c7;
@@ -221,35 +222,38 @@
 	justify-content: flex-start;
 }
 #container #toolbar #settings #name_input_container #name_input {
-	width: 390px;
-	font-size: 20px;
+	width: 280px;
+	font-size: 15px;
 	border: 0px;
 	background: #FFF;
 }
 #container #toolbar #settings #name_input_container .checkbox-input {
-	width: 30px;
-	height: 30px;
+	width: 24px;
+	height: 24px;
 	margin: 0px;
 }
 #container #toolbar #settings #name_input_container label {
-	width: 136px;
+	width: 122px;
 	margin: 0 0 0 15px;
-	font-size: 18px;
+	font-size: 16px;
+}
+#container #toolbar #settings #map_confirm #map_confirm_prompt {
+	font-size: 14px;
 }
 #container #toolbar #settings #map_confirm {
 	display: none;
 	justify-content: flex-start;
 	align-items: center;
-	gap: 8px;
-	margin: 6px 0 0 0;
+	gap: 6px;
+	margin: 3px 0 0 0;
 }
 #container #toolbar #settings #map_confirm input {
-	padding: 8px;
+	padding: 5px;
 	border: 1px solid #666;
 	color: #fff;
 	background: #333;
-	border-radius: 10px;
-	font-size: 14px;
+	border-radius: 6px;
+	font-size: 10px;
 }
 #container #toolbar #settings #map_confirm input:hover {
 	background: #8bb1c7;
@@ -261,16 +265,19 @@
 	justify-content: flex-start;
 	align-items: center;
 	gap: 8px;
-	margin: 6px 0 0 0;
+	margin: 2px 0 0 2px;
+}
+#container #toolbar #settings #map_export #map_export_prompt {
+	font-size: 14px;
 }
 #container #toolbar #settings #map_export input {
-	padding: 8px;
+	padding: 5px;
 	border: 1px solid #666;
 	color: #fff;
 	background: #333;
 	border-radius: 10px;
-	font-size: 14px;
-	width: 105px;
+	font-size: 10px;
+	width: 80px;
 }
 #container #toolbar #settings #map_export input:hover {
 	background: #8bb1c7;
@@ -281,37 +288,38 @@
 	display: none;
 	flex-direction: column;
 	background: #8bb1c7;
-	gap: 14px;
-	padding: 10px;
+	gap: 8px;
+	padding: 8px;
 	border-radius: 6px;
 	box-sizing: border-box;
 }
 #container #toolbar #map_settings #map_settings_heading {
 	display: flex;
 	flex-direction: row;
-	font-size: 22px;
+	font-size: 18px;
 }
 #container #toolbar #map_settings #map_settings_options {
 	display: flex;
 	flex-direction: row;
+	font-size: 14px;
 }
 #container #toolbar #map_settings #map_settings_options .checkbox-input {
-	width: 30px;
-	height: 30px;
+	width: 24px;
+	height: 24px;
 	margin: 0px;
 }
 #container #toolbar #map_settings #map_settings_options label {
 	width: 120px;
-	margin: 6px 0 0 0;
+	margin: 4px 0 0 0;
 }
 #container #toolbar #map_paint_preview {
-	width: 100px;
+	width: 78px;
 	height: 100%;
-	margin: 0 0 0 6px;
+	margin: 0 0 0 8px;
 	display: none;
 }
 #container #toolbar #map_paint_preview table {
-	min-width: 95px;
+	min-width: 75px;
 	height: 100%;
 	border: 2px solid #000;
 	border-spacing: 0;
@@ -322,7 +330,7 @@
 	background: #8bb1c7;
 	height: 100%;
 	gap: 14px;
-	padding: 0 10px 0 10px;
+	padding: 0 8px 0 8px;
 	border-radius: 6px;
 }
 #container #toolbar #map_paint_settings #map_paint_settings_l, #container #toolbar #map_paint_settings #map_paint_settings_r {
@@ -330,23 +338,23 @@
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
-	gap: 14px;
+	gap: 10px;
 	box-sizing: border-box;
 }
 #container #toolbar #map_paint_settings .checkbox-input{
-	width: 30px;
-	height: 30px;
+	width: 22px;
+	height: 22px;
 	margin: 0px;
 }
 #container #toolbar #map_paint_settings .text-input {
-	font-size: 12px;
+	font-size: 10px;
 	width: 40px;
 	background: #FFF;
 }
 #container #toolbar #map_paint_settings .select-input {
-	font-size: 16px;
+	font-size: 10px;
 	background: #FFF;
-	border-radius: 10px;
+	border-radius: 6px;
 	border: 1px solid #666;
 	padding: 4px;
 }
@@ -354,18 +362,19 @@
 	margin-left: 3px;
 }
 #container #toolbar #map_paint_settings #exit_tile_map_id {
-	font-size: 16px;
-	width: 190px;
+	font-size: 10px;
+	width: 160px;
 }
 #container #toolbar #map_paint_settings #exit_tile_map_dir {
-	font-size: 16px;
-	width: 130px;
+	font-size: 10px;
+	width: 116px;
 }
 #container #toolbar #map_paint_settings #map_exit_tile_en label {
-	min-width: 30px;
+	min-width: 26px;
 }
 #container #toolbar #map_paint_settings label {
-	margin: 6px 0 0 0;
+	margin: 4px 0 0 0;
+	font-size: 14px;
 }
 #container #toolbar #map_paint_settings div {
 	display: flex;
@@ -384,26 +393,29 @@
 	flex-direction: column;
 	gap: 4px;
 	font-size: 20px;
+	margin: 0 0 0 6px;
 }
 #container #toolbar #map_size_settings div {
 	padding: 2px;
 }
 #container #toolbar #map_size_settings input {
 	display: inline-block;
-	min-width: 80px;
+	min-width: 60px;
+	font-size: 14px;
 }
 #container #toolbar #map_size_settings label {
 	display: inline-block;
-	min-width: 100px;
+	min-width: 60px;
+	font-size: 16px;
 }
 #container #toolbar input {
-	padding: 8px;
+	padding: 5px;
 	border: 1px solid #666;
 	background: #fff;
 	color: #333;
-	border-radius: 10px;
+	border-radius: 6px;
 	font-size: 20px;
-	width: 80px;
+	width: 66px;
 }
 
 #container #content #map_editor_container {

@@ -122,7 +122,7 @@ $( function() {
 		/* Update cached images */
 		update_cached_images();
 
-		selected_map = project.maps.find( obj => obj.id == 1 );
+		selected_map = project.maps.find( obj => obj.id == 0 );
 		load_map_editing_view();
 
 		selected_texture.group = project.textures.find( obj => obj.gid == 2 );

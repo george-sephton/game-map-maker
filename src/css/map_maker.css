@@ -132,14 +132,14 @@ body {
 #container #toolbar {
 	width: 100%;
 	min-width: 600px;
-	min-height: 120px;
+	min-height: 90px;
 	background:#ccc;
 	box-sizing: border-box;
-	padding: 12px;
+	padding: 10px;
 	display: flex;
 	justify-content: flex-start;
 	align-items: center;
-	gap: 15px;
+	gap: 8px;
 	overflow: auto;
 }
 #container #toolbar #upload_settings {
