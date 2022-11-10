@@ -420,7 +420,7 @@ function map_toolbar_event_listeners() {
 		if	(     ( controls_disabled == false ) || 
 			  ( ( ( func == "zoom-in" ) || ( func == "zoom-out" ) ) && ( drawing_functions != false ) ) || 
 			    ( ( func == "eyedropper" ) && ( drawing_functions == 6 ) ) || 
-			    ( ( func == "duplicate-tiles" ) && ( drawing_functions == 7 ) ) || 
+			    ( ( func == "duplicate-tiles" ) && ( ( drawing_functions == 7 ) || ( drawing_functions == 8 ) ) ) || 
 			    ( ( func == "erase" ) && ( drawing_functions == 2 ) ) || 
 			  ( ( ( func == "paint" ) || ( func == "flip-v" ) || ( func == "flip-h" ) ) && ( drawing_functions == 1 ) )
 			) {
@@ -654,7 +654,7 @@ function map_toolbar_event_listeners() {
 						$( "#container #sidebar #texture_list .sortable li" ).addClass( "resize_disabled" );
 						$( "#container #toolbar #map_paint_preview" ).css( "display", "none" );
 
-					} else if( ( func == "duplicate-tiles" ) && ( drawing_functions != 7 ) ) {
+					} else if( ( func == "duplicate-tiles" ) && ( drawing_functions != 7 ) && ( drawing_functions != 8 ) ) {
 
 						/* Switch to duplicate tiles */
 						drawing_functions = 7;
@@ -669,12 +669,35 @@ function map_toolbar_event_listeners() {
 						$( "#container #toolbar #map_paint_preview" ).css( "display", "none" );
 
 						/* Add in selector functions for the map */
+						dupl_en = true;
+
 						$( "#container #content #map_editor_container #map_editor" ).selectable( {
 							filter: ".map_editor_cell",
 							stop: function( event, ui ) {
 
-								/* Selection has ended, time to switch to stamp mode */
-								console.log( "End selection" );
+								/* Selection has ended, time to switch to stamp mode, find out which tiles were selected */
+								$( "#container #content #map_editor_container #map_editor .ui-selected" ).each( function( i, cell ) {
+									
+									//console.log( i + ": " + $( this ).attr( "col_id" ) + ", " + $( this ).parent().attr( "row_id" ) );
+
+									/* Stop the top left coordinate */
+									if( i == 0 ) {
+
+										dupl_start_pos.x = Number( $( this ).attr( "col_id" ) );
+										dupl_start_pos.y = Number( $( this ).parent().attr( "row_id" ) );
+									}
+									
+									/* Stop the bottom right coordinate */
+									dupl_end_pos.x = Number( $( this ).attr( "col_id" ) );
+									dupl_end_pos.y = Number( $( this ).parent().attr( "row_id" ) );
+
+								} );
+
+								dupl_selection_size.width = dupl_end_pos.x - dupl_start_pos.x + 1;
+								dupl_selection_size.height = dupl_end_pos.y - dupl_start_pos.y + 1;
+
+								/* Switch to stamp function */
+								drawing_functions = 8;
 							}
 						} );
 
@@ -729,6 +752,21 @@ function map_toolbar_event_listeners() {
 						$( "#container #toolbar #map_paint_preview" ).css( "display", "none" );
 					} else {
 						
+						/* Clear the map editor if we've been duplicating */
+						if( dupl_en ) {
+							$( "#container #content #map_editor_container #map_editor .map_editor_row .map_editor_cell" ).each( function( i, cell ) {
+
+								$( this ).removeClass( "dupl_hover" );
+								$( this ).removeClass( "ui-selectee" );
+								$( this ).removeClass( "ui-selected" );
+							} );
+
+							/* Remove selectable function */
+							$( "#container #content #map_editor_container #map_editor" ).selectable( "destroy" );
+
+							dupl_en = false;
+						}
+
 						/* Re-enable controls */
 						enable_controls();
 
@@ -1425,6 +1463,16 @@ function map_editor_event_listeners() {
 			}
 		} else if( drawing_functions == 7 ) { /* Awaiting duplicate tiles selection */
 
+			/* Do nothing */
+		} else if( drawing_functions == 8 ) { /* Duplicate tiles stamp */
+
+			/* Update the cells with our duplicate tiles */
+			var hover_cell = new Object();
+			hover_cell.x = Number( $( this ).attr( "col_id" ) );
+			hover_cell.y = Number( $( this ).parent().attr( "row_id" ) );
+
+			console.log( hover_cell );
+			
 		} else {
 
 			/* Get texture info */
@@ -1436,6 +1484,35 @@ function map_editor_event_listeners() {
 				/* If we have a texture to examine, load the info */
 				display_tile_info( tile_info.row, tile_info.col );
 			}
+		}
+	} );
+
+	$( "#container #content #map_editor_container #map_editor .map_editor_row .map_editor_cell" ).hover( function( e ) {
+
+		/* Hover functionality for the cells on the map, only used when stamping duplicate tiles  */
+		if( drawing_functions == 8 ) {
+
+			var hover_cell = new Object();
+			hover_cell.x = Number( $( this ).attr( "col_id" ) );
+			hover_cell.y = Number( $( this ).parent().attr( "row_id" ) );
+
+			/* Set style of all tiles on the map */
+			$( "#container #content #map_editor_container #map_editor .map_editor_row .map_editor_cell" ).each( function( i, cell ) {
+
+				/* Remove all classes */
+				$( this ).removeClass( "dupl_hover" );
+
+				/* Get the coordinates of the cell we're loop through at the moment */
+				var current_cell = new Object();
+				current_cell.x = Number( $( this ).attr( "col_id" ) );
+				current_cell.y = Number( $( this ).parent().attr( "row_id" ) );
+
+				if( ( ( current_cell.x >= hover_cell.x ) && ( current_cell.x < ( hover_cell.x + dupl_selection_size.width ) ) ) &&
+					( ( current_cell.y >= hover_cell.y ) && ( current_cell.y < ( hover_cell.y + dupl_selection_size.height ) ) ) ) {
+
+					$( this ).addClass( "dupl_hover" );
+				}
+			} );
 		}
 	} );
 

@@ -33,6 +33,12 @@ var map_border_size = 1;
 var drawing_functions = false;
 var paint_auto_inc = false;
 
+/* Variables for tile duplication function */
+var dupl_en = false;
+var dupl_start_pos = new Object();
+var dupl_end_pos = new Object();
+var dupl_selection_size = new Object();
+
 /* Store map resizing information */
 var map_resizing = new Object();
 map_resizing.new_width = 0;
