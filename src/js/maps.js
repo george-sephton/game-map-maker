@@ -286,23 +286,23 @@ function load_map_editor() {
 	/* Add map rows */
 	var show_rows = controls_disabled ? map_resizing.new_height : selected_map.height;
 	for( i = 0; i < show_rows; i++ )
-		$( "#container #map_editor_container #map_editor" ).append( '<row row_id="' + i + '" class="map_editor_row"></row>' );
+		$( "#container #map_editor_container #map_editor" ).append( '<div row_id="' + i + '" class="map_editor_row"></div>' );
 
 	/* Add map cells for each row */
 	var show_cols = controls_disabled ? map_resizing.new_width : selected_map.width;
 	$( "#container #map_editor_container #map_editor" ).children().each( function() {
 		for( i = 0; i < show_cols; i++ )
-			$( '<cell col_id="'+i+'" class="map_editor_cell"></cell>' ).appendTo( $(this) );
+			$( '<li col_id="'+i+'" class="map_editor_cell"></li>' ).appendTo( $(this) );
 	} );
 
 	/* Set cell border width */
 	set_map_cell_border_size();
 
 	/* Update cell border widths */
-	$( "#container #map_editor_container #map_editor row cell" ).css( "border-width", map_border_size + "px" );
+	$( "#container #map_editor_container #map_editor .map_editor_row .map_editor_cell" ).css( "border-width", map_border_size + "px" );
 
 	/* Add texture to each cell */
-	$( "#container #map_editor_container #map_editor row cell" ).each( function() {
+	$( "#container #map_editor_container #map_editor .map_editor_row .map_editor_cell" ).each( function() {
 		
 		/* Store tile information */
 		var tile_info = new Object();
@@ -338,6 +338,7 @@ function map_editor_toolbar_reset() {
 	$( "#map_toolbar_paint" ).removeClass( "selected_tool" );
 	$( "#map_toolbar_erase" ).removeClass( "selected_tool" );
 	$( "#map_toolbar_eyedropper" ).removeClass( "selected_tool" );
+	$( "#map_toolbar_duplicate_tiles" ).removeClass( "selected_tool" );
 
 	/* Remove restrictions on texture panel */
 	$( "#container #sidebar #texture_list_toolbar i" ).removeClass( "resize_disabled" );
@@ -419,6 +420,7 @@ function map_toolbar_event_listeners() {
 		if	(     ( controls_disabled == false ) || 
 			  ( ( ( func == "zoom-in" ) || ( func == "zoom-out" ) ) && ( drawing_functions != false ) ) || 
 			    ( ( func == "eyedropper" ) && ( drawing_functions == 6 ) ) || 
+			    ( ( func == "duplicate-tiles" ) && ( drawing_functions == 7 ) ) || 
 			    ( ( func == "erase" ) && ( drawing_functions == 2 ) ) || 
 			  ( ( ( func == "paint" ) || ( func == "flip-v" ) || ( func == "flip-h" ) ) && ( drawing_functions == 1 ) )
 			) {
@@ -622,6 +624,7 @@ function map_toolbar_event_listeners() {
 				case "paint":
 				case "erase":
 				case "eyedropper":
+				case "duplicate-tiles":
 
 					/* Reset toolbar for a clean start */
 					map_editor_toolbar_reset();
@@ -650,6 +653,30 @@ function map_toolbar_event_listeners() {
 						/* Disable everything in texture list */
 						$( "#container #sidebar #texture_list .sortable li" ).addClass( "resize_disabled" );
 						$( "#container #toolbar #map_paint_preview" ).css( "display", "none" );
+
+					} else if( ( func == "duplicate-tiles" ) && ( drawing_functions != 7 ) ) {
+
+						/* Switch to duplicate tiles */
+						drawing_functions = 7;
+						map_editor_start_drawing();
+
+						/* Highlight the eyedropper icon */
+						$( "#map_toolbar_duplicate_tiles" ).addClass( "selected_tool" );
+						$( "#map_toolbar_duplicate_tiles" ).removeClass( "resize_disabled" );
+
+						/* Disable everything in texture list */
+						$( "#container #sidebar #texture_list .sortable li" ).addClass( "resize_disabled" );
+						$( "#container #toolbar #map_paint_preview" ).css( "display", "none" );
+
+						/* Add in selector functions for the map */
+						$( "#container #content #map_editor_container #map_editor" ).selectable( {
+							filter: ".map_editor_cell",
+							stop: function( event, ui ) {
+
+								/* Selection has ended, time to switch to stamp mode */
+								console.log( "End selection" );
+							}
+						} );
 
 					} else if( ( func == "paint" ) && ( drawing_functions != 1 ) ) {
 						
@@ -914,7 +941,7 @@ function map_toolbar_event_listeners() {
 					set_map_cell_border_size();
 
 					/* Update cell border widths */
-					$( "#container #map_editor_container #map_editor row cell" ).css( "border-width", map_border_size + "px" );
+					$( "#container #map_editor_container #map_editor .map_editor_row .map_editor_cell" ).css( "border-width", map_border_size + "px" );
 
 					$( "#container #content #map_editor_container #map_editor .map_editor_row .map_editor_cell img" ).css( "width", ( map_cell_size * 5 ) + "px" );
 					$( "#container #content #map_editor_container #map_editor .map_editor_row .map_editor_cell img" ).css( "height", ( map_cell_size * 5 ) + "px" );
@@ -1396,6 +1423,7 @@ function map_editor_event_listeners() {
 				/* Disable groups in texture list */
 				$( "#container #sidebar #texture_list .sortable .ui-group" ).addClass( "resize_disabled" );
 			}
+		} else if( drawing_functions == 7 ) { /* Awaiting duplicate tiles selection */
 
 		} else {
 
