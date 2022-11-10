@@ -314,8 +314,8 @@
 	width: 100%;
 	background:#fff;
 	box-sizing: border-box;
-	padding: 10px;
-	height: 60px;
+	padding: 8px;
+	height: 46px;
 
 	display: none;
 	flex-direction: row;
@@ -326,35 +326,35 @@
 	width: 100%;
 	background:#fff;
 	box-sizing: border-box;
-	padding: 10px;
-	height: 60px;
+	padding: 8px;
+	height: 46px;
 	display: none;
 }
 #container #content #project_view #sprite_editor_container #sprite_editor_toolbar_rename input {
 	width: 100%;
-	font-size: 20px;
+	font-size: 15px;
 	border: 0px;
 	background: #FFF;
-	border-radius: 10px;
+	border-radius: 6px;
 }
 #container #content #project_view #sprite_editor_container #sprite_editor_toolbar_delete {
 	width: 100%;
 	background:#fff;
 	box-sizing: border-box;
-	padding: 10px;
-	height: 60px;
+	padding: 8px;
+	height: 46px;
 	display: none;
 	justify-content: center;
 	align-items: center;
 	gap: 8px;
 }
 #container #content #project_view #sprite_editor_container #sprite_editor_toolbar_delete input {
-	padding: 8px;
+	padding: 6px;
 	border: 1px solid #666;
 	color: #fff;
 	background: #333;
-	border-radius: 10px;
-	font-size: 14px;
+	border-radius: 8px;
+	font-size: 12px;
 }
 #container #content #project_view #sprite_editor_container #sprite_editor_toolbar_delete input:hover {
 	background: #8bb1c7;
@@ -375,7 +375,7 @@
 }
 #container #content #project_view #sprite_editor_container #sprite_editor_toolbar i {
 	color: #333;
-	font-size: 28px;
+	font-size: 24px;
 	margin: 0 8px 0 0;
 }
 #container #content #project_view #sprite_editor_container #sprite_editor_toolbar i:hover:not( #colour_ind ) {
