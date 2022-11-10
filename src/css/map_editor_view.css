@@ -290,6 +290,7 @@
 	background: #8bb1c7;
 	gap: 8px;
 	padding: 8px;
+	margin: 0 0 0 8px;
 	border-radius: 6px;
 	box-sizing: border-box;
 }

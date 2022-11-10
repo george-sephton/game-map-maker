@@ -24,6 +24,9 @@ function load_project_list() {
 	$( "#container #content #map_editor_container #map_editor" ).css( "display", "none" );
 	$( "#container #content #map_editor_container #map_editor_loading" ).css( "display", "none" );
 
+	$( "#container #toolbar #settings #name_input_container #paint_auto_inc_en" ).css( "display", "none" );
+	$( "#container #toolbar #settings #name_input_container label[for='paint_auto_inc_en']" ).css( "display", "none" );
+
 	/* Show project icons */
 	$( ".project_functions" ).css( "display", "block" );
 	$( ".map_editing_functions" ).css( "display", "none" );
@@ -395,6 +398,9 @@ function load_project_view() {
 	$( "#container #content #toolbar #settings #name_input_container" ).css( "display", "flex" );
 	$( "#container #content #toolbar #settings #name_input_container #name_input" ).attr( "disabled", "disabled" );
 	$( "#container #content #toolbar #settings #name_input_container #name_input" ).val( "" );
+	
+	$( "#container #content #toolbar #settings #name_input_container #paint_auto_inc_en" ).css( "display", "none" );
+	$( "#container #content #toolbar #settings #name_input_container label[for='paint_auto_inc_en']" ).css( "display", "none" );
 
 	$( "#container #toolbar #map_settings" ).css( "display", "none" );
 

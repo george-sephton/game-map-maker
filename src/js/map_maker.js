@@ -111,13 +111,12 @@ $( function() {
 	//load_project_list();
 
 	/* Debug */
-	//load_project_view();
-
-	/* Load the data */
 	$( async () => {
 
 		project = await window.electronAPI.load_project_data( "gba_game" );
 		load_project_view();
+
+		return;
 
 		/* Update cached images */
 		update_cached_images();
