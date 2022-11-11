@@ -438,6 +438,10 @@ function map_toolbar_event_listeners() {
 			) {
 
 			switch( func ) {
+				case "undo":
+
+					undo();
+					break;
 				case "close-map":
 
 					/* Clear map editing content */

@@ -552,6 +552,10 @@ function project_toolbar_event_listeners() {
 			var func = $( this ).attr( "func" );
 
 			switch( func ) {
+				case "undo":
+
+					undo();
+					break;
 				case "close-project":
 					
 					if( changes ) {
