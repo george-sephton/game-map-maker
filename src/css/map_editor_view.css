@@ -459,7 +459,7 @@
 #container #content #map_editor_container #map_editor .ui-selecting {
 	border-color: #f00 !important;
 }
-#container #content #map_editor_container #map_editor .ui-selected {
+#container #content #map_editor_container #map_editor .dup_selected {
 	border-color: #0f0 !important;
 }
 #container #content #map_editor_container #map_editor .dupl_hover {

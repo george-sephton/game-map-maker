@@ -34,7 +34,7 @@ var drawing_functions = false;
 var paint_auto_inc = false;
 
 /* Variables for tile duplication function */
-var dupl_en = false;
+var dupl_tiles = new Array();
 var dupl_start_pos = new Object();
 var dupl_end_pos = new Object();
 var dupl_selection_size = new Object();
