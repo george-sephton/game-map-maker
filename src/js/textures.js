@@ -198,10 +198,13 @@ function load_texture_preview( bg_texture = false ) {
 			/* Are we showing the current texture or the map's background texture? */
 			if( bg_texture ) {
 
-				var _bg_texture_group = project.textures.find( obj => obj.gid == selected_map.bg_texture.gid );
-				var _bg_texture = _bg_texture_group.textures.find( obj => obj.id == selected_map.bg_texture.id );
+				if( ( selected_map.bg_texture.gid != undefined ) && ( selected_map.bg_texture.id != undefined ) ) {
 
-				$( '<td col_id="'+i+'"></td>' ).appendTo( $(this) ).css( "background", "#" + _bg_texture.data[col_sel][row_sel]);
+					var _bg_texture_group = project.textures.find( obj => obj.gid == selected_map.bg_texture.gid );
+					var _bg_texture = _bg_texture_group.textures.find( obj => obj.id == selected_map.bg_texture.id );
+
+					$( '<td col_id="'+i+'"></td>' ).appendTo( $(this) ).css( "background", "#" + _bg_texture.data[col_sel][row_sel]);
+				}
 			} else {
 
 				$( '<td col_id="'+i+'"></td>' ).appendTo( $(this) ).css( "background", "#" + selected_texture.texture.data[col_sel][row_sel]);

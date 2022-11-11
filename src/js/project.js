@@ -910,81 +910,100 @@ function project_toolbar_event_listeners() {
 					} );
 					break;
 				case "export-project":
+
+					/* Check if all maps have background textures */
+					var bg_textures_good = true;
+
+					$.each( project.maps , function( i, map ) {
+
+						if( ( map.bg_texture.gid == undefined ) || ( map.bg_texture.id == undefined ) ) {
+
+							/* Oops, we have a map with a missing background texture */
+							bg_textures_good = false;
+						}
+					} );
+
+					/* If we have a map with a missing background texture, make sure the user knows */
+					if( !bg_textures_good ) {
+
+						show_alert( "Ensure all maps have background textures set before exporting" );
+					} else {
 					
-					/* Disable controls */
-					disable_controls();
+						/* Disable controls */
+						disable_controls();
 
-					/* Show the confirmation prompt */
-					$( "#container #toolbar #settings #map_export #map_export_prompt" ).html( "What format would you like to export?" );
-					$( "#container #toolbar #settings #map_export #map_done" ).css( "display", "none" );
+						/* Show the confirmation prompt */
+						$( "#container #toolbar #settings #map_export #map_export_prompt" ).html( "What format would you like to export?" );
+						$( "#container #toolbar #settings #map_export #map_done" ).css( "display", "none" );
 
-					$( "#container #toolbar #settings #map_export" ).css( "display", "flex" );
+						$( "#container #toolbar #settings #map_export" ).css( "display", "flex" );
 
-					/* Add event listeners */
-					$( "#container #toolbar #settings #map_export input[type=button]" ).on( "click" , function( e ) {
-						
-						if( $( this ).attr( "id" ) != "map_export_cancel" ) {
+						/* Add event listeners */
+						$( "#container #toolbar #settings #map_export input[type=button]" ).on( "click" , function( e ) {
+							
+							if( $( this ).attr( "id" ) != "map_export_cancel" ) {
 
-							$( async () => {
+								$( async () => {
 
-								/* Which format are we exporting */
-								if( $( this ).attr( "id" ) == "map_export_gba" ) {
+									/* Which format are we exporting */
+									if( $( this ).attr( "id" ) == "map_export_gba" ) {
 
-									var filter = { name: "GBA Header File", extensions: [ "h" ] };
-								} else if( $( this ).attr( "id" ) == "map_export_ps" ) {
+										var filter = { name: "GBA Header File", extensions: [ "h" ] };
+									} else if( $( this ).attr( "id" ) == "map_export_ps" ) {
 
-									var filter = { name: "PicoSystem Header File", extensions: [ "hpp" ] };
-								} else if( $( this ).attr( "id" ) == "map_export_json" ) {
+										var filter = { name: "PicoSystem Header File", extensions: [ "hpp" ] };
+									} else if( $( this ).attr( "id" ) == "map_export_json" ) {
 
-									var filter = { name: "JSON", extensions: [ "json" ] };
-								}
+										var filter = { name: "JSON", extensions: [ "json" ] };
+									}
 
-								var data = await window.electronAPI.save_file_dialog( filter );
-								
-								if( data.cancelled == false ) {
+									var data = await window.electronAPI.save_file_dialog( filter );
+									
+									if( data.cancelled == false ) {
 
-									/* Check if we returned actual data */
-									if( data.data != undefined ) {
+										/* Check if we returned actual data */
+										if( data.data != undefined ) {
 
-										if( $( this ).attr( "id" ) == "map_export_gba" ) {
+											if( $( this ).attr( "id" ) == "map_export_gba" ) {
 
-											var export_data = export_data_gba();
-											var alert_msg = "Project exported for Game Boy Advance at ";
-										} else if( $( this ).attr( "id" ) == "map_export_ps" ) {
+												var export_data = export_data_gba();
+												var alert_msg = "Project exported for Game Boy Advance at ";
+											} else if( $( this ).attr( "id" ) == "map_export_ps" ) {
 
-											var export_data = export_data_ps();
-											var alert_msg = "Project exported for PicoSystem at ";
-										} else if( $( this ).attr( "id" ) == "map_export_json" ) {
+												var export_data = export_data_ps();
+												var alert_msg = "Project exported for PicoSystem at ";
+											} else if( $( this ).attr( "id" ) == "map_export_json" ) {
 
-											var export_data =  JSON.stringify( project );
-											var alert_msg = "Project exported in JSON format at ";
-										}
-										
-										if( await window.electronAPI.save_data( data.data, export_data ) ) {
+												var export_data =  JSON.stringify( project );
+												var alert_msg = "Project exported in JSON format at ";
+											}
+											
+											if( await window.electronAPI.save_data( data.data, export_data ) ) {
 
-											show_alert( alert_msg + data.data );
+												show_alert( alert_msg + data.data );
+											} else {
+
+												show_error( "Error exporting project." );
+											}
 										} else {
 
 											show_error( "Error exporting project." );
 										}
-									} else {
-
-										show_error( "Error exporting project." );
 									}
-								}
-							} );
-						}
+								} );
+							}
 
-						/* Re-enable controls */
-						enable_controls();
+							/* Re-enable controls */
+							enable_controls();
 
-						/* Remove event listeners */
-						$( "#container #toolbar #settings #map_export input[type=button]" ).unbind( "click" );
+							/* Remove event listeners */
+							$( "#container #toolbar #settings #map_export input[type=button]" ).unbind( "click" );
 
-						/* Hide the confirmation prompt */
-						$( "#container #toolbar #settings #map_export #map_export_prompt" ).html( "" );
-						$( "#container #toolbar #settings #map_export" ).css( "display", "none" );
-					} );
+							/* Hide the confirmation prompt */
+							$( "#container #toolbar #settings #map_export #map_export_prompt" ).html( "" );
+							$( "#container #toolbar #settings #map_export" ).css( "display", "none" );
+						} );
+					}
 					break;
 			}
 		}

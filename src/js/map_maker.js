@@ -114,7 +114,9 @@ $( function() {
 	load_texture_editor_colour_pickers();
 	load_sprite_editor_colour_pickers();
 
-	//load_project_list();
+	load_project_list();
+
+	return;
 
 	/* Debug */
 	$( async () => {
