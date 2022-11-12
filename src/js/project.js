@@ -387,7 +387,7 @@ function project_list_toolbar_event_listeners() {
 	} );
 }
 
-function load_project_view( log_switch_view = true ) {
+function load_project_view() {
 
 	/* Show project view elements */
 	$( "#container #sidebar" ).css( "display", "none" );
@@ -454,12 +454,6 @@ function load_project_view( log_switch_view = true ) {
 
 	/* Load sprite list */
 	load_sprite_list();
-
-	if( log_switch_view ) {
-
-		/* Log the undo action */
-		log_undo( "switch_views", current_view, "project" );
-	}
 
 	/* Set the current view */
 	current_view = "project";
@@ -1490,7 +1484,7 @@ function sprite_toolbar_event_listeners() {
 												project.sprites.push( new_group );
 
 												/* Log the undo action */
-												log_undo( "new_sprite_group", new_group, new_group );
+												log_undo( "new_sprite_group", new_group.gid, new_group );
 
 												/* Log changes */
 												log_change();
@@ -1540,14 +1534,14 @@ function sprite_toolbar_event_listeners() {
 											if( selected_sprite.sprite == false ) {
 
 												/* Log the undo action */
-												log_undo( "rename_sprite_group", [ selected_sprite.group.name, selected_sprite.group ], [ new_name, selected_sprite.group ] );
+												log_undo( "rename_sprite_group", [ selected_sprite.group.name, selected_sprite.group.gid ], [ new_name, selected_sprite.group.gid ] );
 
 												/* Rename current group in local array */
 												selected_sprite.group.name = new_name;
 											} else {
 
 												/* Log the undo action */
-												log_undo( "rename_sprite", [ selected_sprite.sprite.name, selected_sprite.sprite ], [ new_name, selected_sprite.group ] );
+												//log_undo( "rename_sprite", [ selected_sprite.sprite.name, selected_sprite.sprite ], [ new_name, selected_sprite.group ] );
 
 												/* Rename current sprite in local array */
 												selected_sprite.sprite.name = new_name;								

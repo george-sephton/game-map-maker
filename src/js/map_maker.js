@@ -126,7 +126,7 @@ $( function() {
 		//$( "#overlay #overlay_text" ).html( "Project Loading" );
 
 		project = await window.electronAPI.load_project_data( "gba_game" );
-		load_project_view( false );
+		load_project_view();
 
 		update_undo_panel();
 
@@ -153,118 +153,61 @@ var undo_list = new Array();
 var undo_list_index = 0;
 
 var undo_list = [
-	{
-	"action": "rename_sprite_group",
-	"undo_data": [ "New Sprite Group", {
-			"name": "Renamed Sprite Group",
-			"gid": 6,
-			"gorder": 6,
-			"size": 8,
-			"sprites": [
-				{
-					"name": "New Sprite Group",
-					"id": 0,
-					"order": 0,
-					"data": [
-						[ "", "", "", "", "", "", "", ""],
-						[ "", "", "", "", "", "", "", ""],
-						[ "", "", "", "", "", "", "", ""],
-						[ "", "", "", "", "", "", "", ""],
-						[ "", "", "", "", "", "", "", ""],
-						[ "", "", "", "", "", "", "", ""],
-						[ "", "", "", "", "", "", "", ""],
-						[ "", "", "", "", "", "", "", ""],
-					]
-				}
-			]
-		}
-	],
-	"redo_data": [
-		"Renamed Sprite Group",
-		{
-			"name": "Renamed Sprite Group",
-			"gid": 6,
-			"gorder": 6,
-			"size": 8,
-			"sprites": [
-				{
-					"name": "New Sprite Group",
-					"id": 0,
-					"order": 0,
-					"data": [
-						[ "", "", "", "", "", "", "", ""],
-						[ "", "", "", "", "", "", "", ""],
-						[ "", "", "", "", "", "", "", ""],
-						[ "", "", "", "", "", "", "", ""],
-						[ "", "", "", "", "", "", "", ""],
-						[ "", "", "", "", "", "", "", ""],
-						[ "", "", "", "", "", "", "", ""],
-						[ "", "", "", "", "", "", "", ""],
-					]
-				}
-			]
-		}
-	]
-},
-{
-	"action": "new_sprite_group",
-	"undo_data": {
-		"name": "Renamed Sprite Group",
-		"gid": 6,
-		"gorder": 6,
-		"size": 8,
-		"sprites": [
-			{
-				"name": "New Sprite Group",
-				"id": 0,
-				"order": 0,
-				"data": [
-					[ "", "", "", "", "", "", "", ""],
-					[ "", "", "", "", "", "", "", ""],
-					[ "", "", "", "", "", "", "", ""],
-					[ "", "", "", "", "", "", "", ""],
-					[ "", "", "", "", "", "", "", ""],
-					[ "", "", "", "", "", "", "", ""],
-					[ "", "", "", "", "", "", "", ""],
-					[ "", "", "", "", "", "", "", ""],
-				]
-			}
-		]
-	},
-	"redo_data": {
-		"name": "Renamed Sprite Group",
-		"gid": 6,
-		"gorder": 6,
-		"size": 8,
-		"sprites": [
-			{
-				"name": "New Sprite Group",
-				"id": 0,
-				"order": 0,
-				"data": [
-					[ "", "", "", "", "", "", "", ""],
-					[ "", "", "", "", "", "", "", ""],
-					[ "", "", "", "", "", "", "", ""],
-					[ "", "", "", "", "", "", "", ""],
-					[ "", "", "", "", "", "", "", ""],
-					[ "", "", "", "", "", "", "", ""],
-					[ "", "", "", "", "", "", "", ""],
-					[ "", "", "", "", "", "", "", ""],
-				]
-			}
-		]
-	}
-},
-{
-	"action": "switch_views",
-	"undo_data": "map",
-	"redo_data": "project"
-},
-{
-	"action": "switch_views",
-	"undo_data": false,
-	"redo_data": "map"
-} ];
+    {
+        "action": "rename_sprite_group",
+        "undo_data": [
+            "New Sprite Group",
+            6
+        ],
+        "redo_data": [
+            "Renamed Sprite Group",
+            6
+        ]
+    },
+    {
+        "action": "new_sprite_group",
+        "undo_data": 6,
+        "redo_data": {
+            "name": "Renamed Sprite Group",
+            "gid": 6,
+            "gorder": 6,
+            "size": 8,
+            "sprites": [
+                {
+                    "name": "New Sprite Group",
+                    "id": 0,
+                    "order": 0,
+                    "data": [
+                        [ "", "", "", "", "", "", "", "" ],
+                        [ "", "", "", "", "", "", "", "" ],
+                        [ "", "", "", "", "", "", "", "" ],
+                        [ "", "", "", "", "", "", "", "" ],
+                        [ "", "", "", "", "", "", "", "" ],
+                        [ "", "", "", "", "", "", "", "" ],
+                        [ "", "", "", "", "", "", "", "" ],
+                        [ "", "", "", "", "", "", "", "" ],  
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "action": "switch_views",
+        "undo_data": [
+            "map",
+            0
+        ],
+        "redo_data": "project"
+    },
+    {
+        "action": "switch_views",
+        "undo_data": "project",
+        "redo_data": [
+            "map",
+            0
+        ]
+    }
+];
 
 /* Undo panel used for debugging */
 function update_undo_panel() {
@@ -307,30 +250,30 @@ function log_undo( action, undo_data, redo_data ) {
 
 	/* Debugging */
 	update_undo_panel();
+
+	console.log( undo_list )
 }
 
 function redo() {
 
-	if( undo_list_index >= 0 ) undo_list_index--;
-
 	/* Go forward a step */
 	if( undo_list_index >= 0 ) {
 
+		var _redo = undo_list[ undo_list_index ];
 		undo_list_index--;
-
-		var _redo = undo_list[ undo_list_index + 1 ];
 
 		/* See if there's something to undo */
 		if( _redo != undefined ) {
 
-
+			console.log( _redo );
+			console.log( "New index: " + undo_list_index + "/" + undo_list.length );
 		} 
 
 		/* Debugging */
 		update_undo_panel();
 	} else {
 
-		console.log( "Nope" );
+		console.log( "Can't redo, index: " + undo_list_index );
 	}
 }
 
@@ -339,44 +282,48 @@ function undo() {
 	/* Go back a step */
 	if( undo_list_index < ( undo_list.length ) ) {
 
+		var _undo = undo_list[ undo_list_index ];
 		undo_list_index++;
-
-		var _undo = undo_list[ undo_list_index - 1 ];
 
 		/* See if there's something to undo */
 		if( _undo != undefined ) {
 
 			console.log( _undo );
+			console.log( "New index: " + undo_list_index + "/" + undo_list.length );
 
-			/* Parse the action */
-			switch( _undo.action ) {
-
-				case "switch_views":
-
-					/* Go back to the preview view */
-					if( _undo.undo_data == "project" )
-						load_project_view( false ); /* Don't log this view switch otherwise we have to press undo twice */
-
-					break;
-				case "rename_sprite_group":
-
-					/* Restore the sprite group name */
-					var sprite_group_obj = project.sprites.find( obj => obj.gid == _undo.undo_data[1].gid );
-					sprite_group_obj.name = _undo.undo_data[0];
-
-					/* Reload the sprite list */
-					selected_sprite.group = sprite_group_obj;
-					selected_sprite.sprite = false;
-					load_sprite_list();
-
-					break;
-			}
+			
 		}
 
 		/* Debugging */
 		update_undo_panel();
 	} else {
 
-		console.log( "Nope" );
+		console.log( "Can't undo, index: " + undo_list_index );
+	}
+}
+
+/* Parse the action */
+if(0) {
+	switch( _undo.action ) {
+
+		case "switch_views":
+
+			/* Go back to the preview view */
+			if( _undo.undo_data == "project" )
+				load_project_view( false ); /* Don't log this view switch otherwise we have to press undo twice */
+
+			break;
+		case "rename_sprite_group":
+
+			/* Restore the sprite group name */
+			var sprite_group_obj = project.sprites.find( obj => obj.gid == _undo.undo_data[1].gid );
+			sprite_group_obj.name = _undo.undo_data[0];
+
+			/* Reload the sprite list */
+			selected_sprite.group = sprite_group_obj;
+			selected_sprite.sprite = false;
+			load_sprite_list();
+
+			break;
 	}
 }

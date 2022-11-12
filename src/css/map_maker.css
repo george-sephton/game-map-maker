@@ -118,7 +118,8 @@ body {
 
 /* For debugging */
 #container #undo_panel {
-	min-width: 200px;
+	min-width: 300px;
+	max-width: 300px;
 	background: #fff;
 	height: 100%;
 	box-sizing: border-box;
