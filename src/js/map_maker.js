@@ -152,6 +152,120 @@ $( function() {
 var undo_list = new Array();
 var undo_list_index = 0;
 
+var undo_list = [
+	{
+	"action": "rename_sprite_group",
+	"undo_data": [ "New Sprite Group", {
+			"name": "Renamed Sprite Group",
+			"gid": 6,
+			"gorder": 6,
+			"size": 8,
+			"sprites": [
+				{
+					"name": "New Sprite Group",
+					"id": 0,
+					"order": 0,
+					"data": [
+						[ "", "", "", "", "", "", "", ""],
+						[ "", "", "", "", "", "", "", ""],
+						[ "", "", "", "", "", "", "", ""],
+						[ "", "", "", "", "", "", "", ""],
+						[ "", "", "", "", "", "", "", ""],
+						[ "", "", "", "", "", "", "", ""],
+						[ "", "", "", "", "", "", "", ""],
+						[ "", "", "", "", "", "", "", ""],
+					]
+				}
+			]
+		}
+	],
+	"redo_data": [
+		"Renamed Sprite Group",
+		{
+			"name": "Renamed Sprite Group",
+			"gid": 6,
+			"gorder": 6,
+			"size": 8,
+			"sprites": [
+				{
+					"name": "New Sprite Group",
+					"id": 0,
+					"order": 0,
+					"data": [
+						[ "", "", "", "", "", "", "", ""],
+						[ "", "", "", "", "", "", "", ""],
+						[ "", "", "", "", "", "", "", ""],
+						[ "", "", "", "", "", "", "", ""],
+						[ "", "", "", "", "", "", "", ""],
+						[ "", "", "", "", "", "", "", ""],
+						[ "", "", "", "", "", "", "", ""],
+						[ "", "", "", "", "", "", "", ""],
+					]
+				}
+			]
+		}
+	]
+},
+{
+	"action": "new_sprite_group",
+	"undo_data": {
+		"name": "Renamed Sprite Group",
+		"gid": 6,
+		"gorder": 6,
+		"size": 8,
+		"sprites": [
+			{
+				"name": "New Sprite Group",
+				"id": 0,
+				"order": 0,
+				"data": [
+					[ "", "", "", "", "", "", "", ""],
+					[ "", "", "", "", "", "", "", ""],
+					[ "", "", "", "", "", "", "", ""],
+					[ "", "", "", "", "", "", "", ""],
+					[ "", "", "", "", "", "", "", ""],
+					[ "", "", "", "", "", "", "", ""],
+					[ "", "", "", "", "", "", "", ""],
+					[ "", "", "", "", "", "", "", ""],
+				]
+			}
+		]
+	},
+	"redo_data": {
+		"name": "Renamed Sprite Group",
+		"gid": 6,
+		"gorder": 6,
+		"size": 8,
+		"sprites": [
+			{
+				"name": "New Sprite Group",
+				"id": 0,
+				"order": 0,
+				"data": [
+					[ "", "", "", "", "", "", "", ""],
+					[ "", "", "", "", "", "", "", ""],
+					[ "", "", "", "", "", "", "", ""],
+					[ "", "", "", "", "", "", "", ""],
+					[ "", "", "", "", "", "", "", ""],
+					[ "", "", "", "", "", "", "", ""],
+					[ "", "", "", "", "", "", "", ""],
+					[ "", "", "", "", "", "", "", ""],
+				]
+			}
+		]
+	}
+},
+{
+	"action": "switch_views",
+	"undo_data": "map",
+	"redo_data": "project"
+},
+{
+	"action": "switch_views",
+	"undo_data": false,
+	"redo_data": "map"
+} ];
+
 /* Undo panel used for debugging */
 function update_undo_panel() {
 
@@ -193,15 +307,11 @@ function log_undo( action, undo_data, redo_data ) {
 
 	/* Debugging */
 	update_undo_panel();
-
-	console.log( undo_list_index );
 }
 
 function redo() {
 
 	if( undo_list_index >= 0 ) undo_list_index--;
-
-	console.log( undo_list_index );
 
 	/* Go forward a step */
 	if( undo_list_index >= 0 ) {

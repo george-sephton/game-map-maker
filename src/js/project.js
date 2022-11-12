@@ -1490,7 +1490,7 @@ function sprite_toolbar_event_listeners() {
 												project.sprites.push( new_group );
 
 												/* Log the undo action */
-												//log_undo( "new_sprite_group", new_group );
+												log_undo( "new_sprite_group", new_group, new_group );
 
 												/* Log changes */
 												log_change();
