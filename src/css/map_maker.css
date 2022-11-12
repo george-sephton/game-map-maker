@@ -140,6 +140,9 @@ body {
 	border: 1px solid #333;
 	background: #ccc;
 }
+#container #undo_panel li.top_level {
+	background-color: #F99;
+}
 
 #container #content {
 	flex-grow: 1;

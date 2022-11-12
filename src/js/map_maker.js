@@ -150,8 +150,6 @@ $( function() {
 
 /* Undo functionality */
 var undo_list = new Array();
-var undo_list_index = 0;
-
 var undo_list = [
     {
         "action": "rename_sprite_group",
@@ -208,11 +206,18 @@ var undo_list = [
         ]
     }
 ];
+var undo_list_index = -1;
 
 /* Undo panel used for debugging */
 function update_undo_panel() {
 
 	$( "#undo_list" ).html( "" );
+
+	var li_value = "<i>Top</i>";
+	if( undo_list_index == - 1 )
+			li_value = "<i class=\"bi-arrow-right-short\"></i>" + li_value;
+
+	$( "#undo_list" ).append( $( "<li>", { html: li_value, class: ( undo_list_index == - 1 ) ? "top_level" : 0 } ) );
 
 	$.each( undo_list, function( key, value ) {
 
@@ -240,18 +245,16 @@ function log_undo( action, undo_data, redo_data ) {
 	undo_object.redo_data = redo_data;
 
 	/* Crop the undo list so we only store the last 100 commands, and clear any things ahead in the tree */
-	undo_list = undo_list.slice( undo_list_index, 4 );
+	undo_list = undo_list.slice( ( undo_list_index + 1 ), 4 );
 
 	/* Add to the undo list */
 	undo_list.unshift( undo_object );
 
 	/* Reset the undo tree */
-	undo_list_index = 0;
+	undo_list_index = -1
 
 	/* Debugging */
 	update_undo_panel();
-
-	console.log( undo_list )
 }
 
 function redo() {
@@ -265,59 +268,80 @@ function redo() {
 		/* See if there's something to undo */
 		if( _redo != undefined ) {
 
-			console.log( _redo );
-			console.log( "New index: " + undo_list_index + "/" + undo_list.length );
+			//console.log( _redo );
+			//console.log( "Parse: " + undo_list_index + "/" + undo_list.length );
+
+			parse_undo_redo( false, _redo );
 		} 
 
 		/* Debugging */
 		update_undo_panel();
 	} else {
 
-		console.log( "Can't redo, index: " + undo_list_index );
+		console.log( "Can't redo, index: " + undo_list_index + "/" + undo_list.length );
 	}
+
+	undo_list_dir = -1;
 }
 
 function undo() {
 
 	/* Go back a step */
-	if( undo_list_index < ( undo_list.length ) ) {
+	if( undo_list_index < ( undo_list.length - 1 ) ) {
 
-		var _undo = undo_list[ undo_list_index ];
 		undo_list_index++;
+		var _undo = undo_list[ undo_list_index ];
 
 		/* See if there's something to undo */
 		if( _undo != undefined ) {
 
-			console.log( _undo );
-			console.log( "New index: " + undo_list_index + "/" + undo_list.length );
+			//console.log( _undo );
+			//console.log( "Parse: " + undo_list_index + "/" + undo_list.length );
 
-			
+			parse_undo_redo( true, _undo );
 		}
 
 		/* Debugging */
 		update_undo_panel();
 	} else {
 
-		console.log( "Can't undo, index: " + undo_list_index );
+		console.log( "Can't undo, index: " + undo_list_index + "/" + undo_list.length );
 	}
+
+	undo_list_dir = 1;
 }
 
-/* Parse the action */
-if(0) {
-	switch( _undo.action ) {
+function parse_undo_redo( is_undo, data ) {
+
+	console.log( data );
+
+	/* Parse the action */
+	switch( data.action ) {
 
 		case "switch_views":
 
-			/* Go back to the preview view */
-			if( _undo.undo_data == "project" )
-				load_project_view( false ); /* Don't log this view switch otherwise we have to press undo twice */
+			if( ( ( is_undo ) && ( data.undo_data == "project" ) ) || ( ( !is_undo ) && ( data.redo_data == "project" ) ) ) {
 
+				/* We're switching to the project view, don't log this view switch otherwise we have to press undo twice */
+				close_map_editing_view( false );
+				load_project_view();
+
+			} else if( ( ( is_undo ) && ( data.undo_data[0] == "map" ) ) || ( ( !is_undo ) && ( data.redo_data[0] == "map" ) ) ) {
+
+				/* We're switching to the map view */
+				var map_obj = project.maps.find( obj => obj.id == ( is_undo ) ? data.undo_data[1] : data.redo_data[1] );
+				selected_map = map_obj;
+
+				/* Close the project view and open the map editor view */
+				close_project_view();
+				load_map_editing_view( false );
+			}
 			break;
 		case "rename_sprite_group":
 
 			/* Restore the sprite group name */
-			var sprite_group_obj = project.sprites.find( obj => obj.gid == _undo.undo_data[1].gid );
-			sprite_group_obj.name = _undo.undo_data[0];
+			var sprite_group_obj = project.sprites.find( obj => obj.gid == ( is_undo ) ? data.undo_data[1] : data.redo_data[1] );
+			sprite_group_obj.name = ( is_undo ) ? data.undo_data[0] : data.redo_data[0];
 
 			/* Reload the sprite list */
 			selected_sprite.group = sprite_group_obj;
