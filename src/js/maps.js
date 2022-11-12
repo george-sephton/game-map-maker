@@ -1,4 +1,4 @@
-function load_map_editing_view() {
+function load_map_editing_view( log_switch_view = true ) {
 
 	/* Show project view elements */
 	$( "#container #sidebar" ).css( "display", "flex" );
@@ -75,6 +75,15 @@ function load_map_editing_view() {
 	/* Load toolbar event listeners */
 	map_toolbar_event_listeners();
 	texture_toolbar_event_listeners();
+
+	if( log_switch_view ) {
+
+		/* Log the undo action */
+		log_undo( "switch_views", false, "map" );
+	}
+
+	/* Set the current view */
+	current_view = "map";
 }
 
 function close_map_editing_view() {
@@ -441,6 +450,10 @@ function map_toolbar_event_listeners() {
 				case "undo":
 
 					undo();
+					break;
+				case "redo":
+
+					redo();
 					break;
 				case "close-map":
 

@@ -54,6 +54,9 @@ function load_project_list() {
 
 	/* Toolbar event listeners */
 	project_list_toolbar_event_listeners();
+
+	/* Set the current view */
+	current_view = "home";
 }
 
 function clear_project_list_event_listeners() {
@@ -384,7 +387,7 @@ function project_list_toolbar_event_listeners() {
 	} );
 }
 
-function load_project_view() {
+function load_project_view( log_switch_view = true ) {
 
 	/* Show project view elements */
 	$( "#container #sidebar" ).css( "display", "none" );
@@ -451,6 +454,15 @@ function load_project_view() {
 
 	/* Load sprite list */
 	load_sprite_list();
+
+	if( log_switch_view ) {
+
+		/* Log the undo action */
+		log_undo( "switch_views", current_view, "project" );
+	}
+
+	/* Set the current view */
+	current_view = "project";
 }
 
 function close_project_view() {
@@ -555,6 +567,10 @@ function project_toolbar_event_listeners() {
 				case "undo":
 
 					undo();
+					break;
+				case "redo":
+
+					redo();
 					break;
 				case "close-project":
 					
@@ -1473,6 +1489,9 @@ function sprite_toolbar_event_listeners() {
 												/* Add the new texture into the local array*/
 												project.sprites.push( new_group );
 
+												/* Log the undo action */
+												//log_undo( "new_sprite_group", new_group );
+
 												/* Log changes */
 												log_change();
 
@@ -1505,6 +1524,9 @@ function sprite_toolbar_event_listeners() {
 
 												/* Add the new texture into the local array*/
 												selected_sprite.group.sprites.push( new_sprite );
+
+												/* Log the undo action */
+												//log_undo( "project", "new_sprite", new_sprite );
 												
 												/* Log changes */
 												log_change();
@@ -1517,11 +1539,17 @@ function sprite_toolbar_event_listeners() {
 										if( func == "rename" ) {
 											if( selected_sprite.sprite == false ) {
 
+												/* Log the undo action */
+												log_undo( "rename_sprite_group", [ selected_sprite.group.name, selected_sprite.group ], [ new_name, selected_sprite.group ] );
+
 												/* Rename current group in local array */
 												selected_sprite.group.name = new_name;
 											} else {
 
-												/* Rename current texture in local array */
+												/* Log the undo action */
+												log_undo( "rename_sprite", [ selected_sprite.sprite.name, selected_sprite.sprite ], [ new_name, selected_sprite.group ] );
+
+												/* Rename current sprite in local array */
 												selected_sprite.sprite.name = new_name;								
 											}
 												

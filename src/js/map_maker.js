@@ -1,3 +1,6 @@
+/* Store which view we're in at the moment */
+var current_view = undefined;
+
 /* Store the currently selected texture */
 var selected_texture = new Object();
 selected_texture.texture = false;
@@ -123,7 +126,9 @@ $( function() {
 		//$( "#overlay #overlay_text" ).html( "Project Loading" );
 
 		project = await window.electronAPI.load_project_data( "gba_game" );
-		load_project_view();
+		load_project_view( false );
+
+		update_undo_panel();
 
 		/* Update cached images */
 		//update_cached_images();
@@ -144,7 +149,124 @@ $( function() {
 //} );
 
 /* Undo functionality */
+var undo_list = new Array();
+var undo_list_index = 0;
+
+/* Undo panel used for debugging */
+function update_undo_panel() {
+
+	$( "#undo_list" ).html( "" );
+
+	$.each( undo_list, function( key, value ) {
+
+		if( value == undefined )
+			var _action = "<i>none</i>";
+		else 
+			var _action = value.action + " - " + value.undo_data;
+
+		var li_value = _action;
+
+		if( key == undo_list_index )
+			li_value = "<i class=\"bi-arrow-right-short\"></i>" + li_value;
+
+		$( "#undo_list" ).append( $( "<li>", { html: li_value } ) );
+	} );
+}
+
+function log_undo( action, undo_data, redo_data ) {
+
+	/* Create an object to log into the undo list */
+	var undo_object = new Object();
+
+	undo_object.action = action;
+	undo_object.undo_data = undo_data;
+	undo_object.redo_data = redo_data;
+
+	/* Crop the undo list so we only store the last 100 commands, and clear any things ahead in the tree */
+	undo_list = undo_list.slice( undo_list_index, 4 );
+
+	/* Add to the undo list */
+	undo_list.unshift( undo_object );
+
+	/* Reset the undo tree */
+	undo_list_index = 0;
+
+	/* Debugging */
+	update_undo_panel();
+
+	console.log( undo_list_index );
+}
+
+function redo() {
+
+	if( undo_list_index >= 0 ) undo_list_index--;
+
+	console.log( undo_list_index );
+
+	/* Go forward a step */
+	if( undo_list_index >= 0 ) {
+
+		undo_list_index--;
+
+		var _redo = undo_list[ undo_list_index + 1 ];
+
+		/* See if there's something to undo */
+		if( _redo != undefined ) {
+
+
+		} 
+
+		/* Debugging */
+		update_undo_panel();
+	} else {
+
+		console.log( "Nope" );
+	}
+}
+
 function undo() {
 
-	//console.log( "Undo called" );
+	/* Go back a step */
+	if( undo_list_index < ( undo_list.length ) ) {
+
+		undo_list_index++;
+
+		var _undo = undo_list[ undo_list_index - 1 ];
+
+		/* See if there's something to undo */
+		if( _undo != undefined ) {
+
+			console.log( _undo );
+
+			/* Parse the action */
+			switch( _undo.action ) {
+
+				case "switch_views":
+
+					/* Go back to the preview view */
+					if( _undo.undo_data == "project" )
+						load_project_view( false ); /* Don't log this view switch otherwise we have to press undo twice */
+
+					break;
+				case "rename_sprite_group":
+
+					/* Restore the sprite group name */
+					var sprite_group_obj = project.sprites.find( obj => obj.gid == _undo.undo_data[1].gid );
+					sprite_group_obj.name = _undo.undo_data[0];
+
+					/* Reload the sprite list */
+					selected_sprite.group = sprite_group_obj;
+					selected_sprite.sprite = false;
+					load_sprite_list();
+
+					break;
+			}
+		}
+
+		/* Debugging */
+		update_undo_panel();
+	} else {
+
+		console.log( "Nope" );
+	}
 }
