@@ -79,7 +79,7 @@ function load_map_editing_view( log_switch_view = true ) {
 	if( log_switch_view ) {
 
 		/* Log the undo action */
-		log_undo( "switch_views", "project", [ "map", selected_map.id ] );
+		log_undo( "switch_views", selected_map.id, "project", "map" );
 	}
 
 	/* Set the current view */
@@ -91,7 +91,7 @@ function close_map_editing_view( log_switch_view = true ) {
 	/* Log the undo action */
 	if( log_switch_view ) {
 
-		log_undo( "switch_views", [ "map", selected_map.id ], "project" );
+		log_undo( "switch_views", selected_map.id, "map", "project" );
 	}
 
 	/* Clear all event listeners */

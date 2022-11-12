@@ -150,62 +150,6 @@ $( function() {
 
 /* Undo functionality */
 var undo_list = new Array();
-var undo_list = [
-    {
-        "action": "rename_sprite_group",
-        "undo_data": [
-            "New Sprite Group",
-            6
-        ],
-        "redo_data": [
-            "Renamed Sprite Group",
-            6
-        ]
-    },
-    {
-        "action": "new_sprite_group",
-        "undo_data": 6,
-        "redo_data": {
-            "name": "Renamed Sprite Group",
-            "gid": 6,
-            "gorder": 6,
-            "size": 8,
-            "sprites": [
-                {
-                    "name": "New Sprite Group",
-                    "id": 0,
-                    "order": 0,
-                    "data": [
-                        [ "", "", "", "", "", "", "", "" ],
-                        [ "", "", "", "", "", "", "", "" ],
-                        [ "", "", "", "", "", "", "", "" ],
-                        [ "", "", "", "", "", "", "", "" ],
-                        [ "", "", "", "", "", "", "", "" ],
-                        [ "", "", "", "", "", "", "", "" ],
-                        [ "", "", "", "", "", "", "", "" ],
-                        [ "", "", "", "", "", "", "", "" ],  
-                    ]
-                }
-            ]
-        }
-    },
-    {
-        "action": "switch_views",
-        "undo_data": [
-            "map",
-            0
-        ],
-        "redo_data": "project"
-    },
-    {
-        "action": "switch_views",
-        "undo_data": "project",
-        "redo_data": [
-            "map",
-            0
-        ]
-    }
-];
 var undo_list_index = -1;
 
 /* Undo panel used for debugging */
@@ -235,12 +179,13 @@ function update_undo_panel() {
 	} );
 }
 
-function log_undo( action, undo_data, redo_data ) {
+function log_undo( action, identifier, undo_data, redo_data ) {
 
 	/* Create an object to log into the undo list */
 	var undo_object = new Object();
 
 	undo_object.action = action;
+	undo_object.identifier = identifier;
 	undo_object.undo_data = undo_data;
 	undo_object.redo_data = redo_data;
 
@@ -326,10 +271,10 @@ function parse_undo_redo( is_undo, data ) {
 				close_map_editing_view( false );
 				load_project_view();
 
-			} else if( ( ( is_undo ) && ( data.undo_data[0] == "map" ) ) || ( ( !is_undo ) && ( data.redo_data[0] == "map" ) ) ) {
+			} else if( ( ( is_undo ) && ( data.undo_data == "map" ) ) || ( ( !is_undo ) && ( data.redo_data == "map" ) ) ) {
 
 				/* We're switching to the map view */
-				var map_obj = project.maps.find( obj => obj.id == ( is_undo ) ? data.undo_data[1] : data.redo_data[1] );
+				var map_obj = project.maps.find( obj => obj.id == data.identifier );
 				selected_map = map_obj;
 
 				/* Close the project view and open the map editor view */
@@ -340,8 +285,8 @@ function parse_undo_redo( is_undo, data ) {
 		case "rename_sprite_group":
 
 			/* Restore the sprite group name */
-			var sprite_group_obj = project.sprites.find( obj => obj.gid == ( is_undo ) ? data.undo_data[1] : data.redo_data[1] );
-			sprite_group_obj.name = ( is_undo ) ? data.undo_data[0] : data.redo_data[0];
+			var sprite_group_obj = project.sprites.find( obj => obj.gid == data.identifier );
+			sprite_group_obj.name = ( is_undo ) ? data.undo_data : data.redo_data;
 
 			/* Reload the sprite list */
 			selected_sprite.group = sprite_group_obj;

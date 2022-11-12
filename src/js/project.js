@@ -1484,7 +1484,7 @@ function sprite_toolbar_event_listeners() {
 												project.sprites.push( new_group );
 
 												/* Log the undo action */
-												log_undo( "new_sprite_group", new_group.gid, new_group );
+												log_undo( "new_sprite_group", new_group.gid, false, new_group );
 
 												/* Log changes */
 												log_change();
@@ -1520,7 +1520,7 @@ function sprite_toolbar_event_listeners() {
 												selected_sprite.group.sprites.push( new_sprite );
 
 												/* Log the undo action */
-												//log_undo( "project", "new_sprite", new_sprite );
+												
 												
 												/* Log changes */
 												log_change();
@@ -1534,14 +1534,13 @@ function sprite_toolbar_event_listeners() {
 											if( selected_sprite.sprite == false ) {
 
 												/* Log the undo action */
-												log_undo( "rename_sprite_group", [ selected_sprite.group.name, selected_sprite.group.gid ], [ new_name, selected_sprite.group.gid ] );
+												log_undo( "rename_sprite_group", selected_sprite.group.gid, selected_sprite.group.name, new_name, selected_sprite.group.gid );
 
 												/* Rename current group in local array */
 												selected_sprite.group.name = new_name;
 											} else {
 
 												/* Log the undo action */
-												//log_undo( "rename_sprite", [ selected_sprite.sprite.name, selected_sprite.sprite ], [ new_name, selected_sprite.group ] );
 
 												/* Rename current sprite in local array */
 												selected_sprite.sprite.name = new_name;								
