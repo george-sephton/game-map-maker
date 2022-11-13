@@ -459,7 +459,14 @@ function load_project_view() {
 	current_view = "project";
 }
 
-function close_project_view() {
+function close_project_view( log_switch_view = true ) {
+
+	/* Log the undo action */
+	if( log_switch_view ) {
+
+		/* Log the undo action - recreate the selected_sprite object as it's not passed by object */
+		log_undo( "switch_views", selected_map.id, "project", "map" );
+	}
 
 	/* Clear all event listeners */
 	clear_map_list_event_listeners();
@@ -1534,13 +1541,14 @@ function sprite_toolbar_event_listeners() {
 											if( selected_sprite.sprite == false ) {
 
 												/* Log the undo action */
-												log_undo( "rename_sprite_group", selected_sprite.group.gid, selected_sprite.group.name, new_name, selected_sprite.group.gid );
+												log_undo( "rename_sprite_group", selected_sprite.group.gid, selected_sprite.group.name, new_name );
 
 												/* Rename current group in local array */
 												selected_sprite.group.name = new_name;
 											} else {
 
 												/* Log the undo action */
+												log_undo( "rename_sprite", [ selected_sprite.group.gid, selected_sprite.sprite.id ], selected_sprite.sprite.name, new_name );
 
 												/* Rename current sprite in local array */
 												selected_sprite.sprite.name = new_name;								

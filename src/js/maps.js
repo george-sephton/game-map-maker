@@ -1,4 +1,4 @@
-function load_map_editing_view( log_switch_view = true ) {
+function load_map_editing_view() {
 
 	/* Show project view elements */
 	$( "#container #sidebar" ).css( "display", "flex" );
@@ -57,9 +57,6 @@ function load_map_editing_view( log_switch_view = true ) {
 	$( ".map_editing_functions" ).css( "display", "block" );
 
 	/* Set variables */
-	selected_texture.texture = false;
-	selected_texture.group = false;
-
 	drawing_functions = false;
 	controls_disabled = false;
 
@@ -75,12 +72,6 @@ function load_map_editing_view( log_switch_view = true ) {
 	/* Load toolbar event listeners */
 	map_toolbar_event_listeners();
 	texture_toolbar_event_listeners();
-
-	if( log_switch_view ) {
-
-		/* Log the undo action */
-		log_undo( "switch_views", selected_map.id, "project", "map" );
-	}
 
 	/* Set the current view */
 	current_view = "map";
@@ -103,9 +94,11 @@ function close_map_editing_view( log_switch_view = true ) {
 	/* Disable sorting on texture list */
 	clear_texture_list_sortable();
 
-	/* Clear variables */
+	/* Close any open textures */
 	selected_texture.texture = false;
 	selected_texture.group = false;
+
+	/* Clear variables */
 	selected_map = false;
 	drawing_functions = false;
 	controls_disabled = false;
