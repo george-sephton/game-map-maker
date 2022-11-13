@@ -87,11 +87,6 @@ function close_project_view( log_switch_view = true ) {
 	/* Close any open sprites */
 	selected_sprite.group = false;
 	selected_sprite.sprite = false;
-	
-	/* Clear the undo tree */
-	undo_list = new Array();
-	undo_list_index = -1;
-	update_undo_panel();
 
 	/* Clear project elements */
 	$( "#container #content #map_list .sortable" ).html( "" );
@@ -180,14 +175,8 @@ function project_toolbar_event_listeners() {
 			var func = $( this ).attr( "func" );
 
 			switch( func ) {
-				case "undo":
-
-					undo();
-					break;
-				case "redo":
-
-					redo();
-					break;
+				case "undo": undo(); break;
+				case "redo": redo(); break;
 				case "close-project":
 					
 					if( changes ) {
@@ -211,8 +200,8 @@ function project_toolbar_event_listeners() {
 								/* Re-enable controls */
 								enable_controls();
 
-								/* Close the project view */
-								close_project_view();
+								/* Close the project view - don't record this to the undo tree */
+								close_project_view( false );
 
 								/* Clear the selected project */
 								project = undefined;
@@ -236,8 +225,8 @@ function project_toolbar_event_listeners() {
 
 					} else {
 
-						/* Close the project view */
-						close_project_view();
+						/* Close the project view - don't record this to the undo tree */
+						close_project_view( false );
 
 						/* Clear the selected project */
 						project = undefined;

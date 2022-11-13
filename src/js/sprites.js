@@ -360,9 +360,12 @@ function sprite_toolbar_event_listeners() {
 
 													/* Add size */
 													new_group.size = selected_sprite.group.size;
+
+													/* Log the undo action */
+													log_undo( "duplicate_sprite_group", false, new_group.gid, new_group );
 												} else {
 
-													/* Create a blank texture to initialise the group */
+													/* Create a blank sprite to initialise the group */
 													var new_sprite = new Object();
 													new_sprite.name = new_name;
 													new_sprite.id = 0;
@@ -372,16 +375,16 @@ function sprite_toolbar_event_listeners() {
 													/* Add size */
 													new_group.size = new_group_size;
 
-													/* Add the blank texture to the array */
+													/* Add the blank sprite to the array */
 													new_group.sprites = new Array();
 													new_group.sprites.push( new_sprite );
+
+													/* Log the undo action */
+													log_undo( "new_sprite_group", false, new_group.gid, new_group );
 												}
 
-												/* Add the new texture into the local array*/
+												/* Add the new sprite into the local array*/
 												project.sprites.push( new_group );
-
-												/* Log the undo action */
-												log_undo( "new_sprite_group", new_group.gid, false, new_group );
 
 												/* Log changes */
 												log_change();
@@ -391,7 +394,7 @@ function sprite_toolbar_event_listeners() {
 
 											} else {
 
-												/* We are creating or duplicating a texture */
+												/* We are creating or duplicating a sprite texture */
 												var new_sprite = new Object();
 												new_sprite.name = new_name;
 
@@ -405,24 +408,29 @@ function sprite_toolbar_event_listeners() {
 												/* Note we sort by order 2nd so the array goes back to the correct order */
 
 												if( func == "duplicate" ) {
-													/* Copy selected texture */
+
+													/* Copy selected sprite */
 													new_sprite.data = new Array();
 													$.extend( true, new_sprite.data, selected_sprite.sprite.data ); /* Clone array */
+
+													/* Log the undo action */
+													log_undo( "duplicate_sprite", selected_sprite.group.gid, new_sprite.id, new_sprite );
 												} else {
+
 													/* Create a blank canvas */
 													new_sprite.data = Array.from( { length: selected_sprite.group.size }, () => Array.from( { length: selected_sprite.group.size }, () => "" ) );
+
+													/* Log the undo action */
+													log_undo( "new_sprite", selected_sprite.group.gid, new_sprite.id, new_sprite );
 												}
 
-												/* Add the new texture into the local array*/
+												/* Add the new sprite into the local array*/
 												selected_sprite.group.sprites.push( new_sprite );
-
-												/* Log the undo action */
-												
 												
 												/* Log changes */
 												log_change();
 
-												/* Select newly created texture */
+												/* Select newly created sprite */
 												selected_sprite.sprite = new_sprite;
 											}
 										}
@@ -506,8 +514,23 @@ function sprite_toolbar_event_listeners() {
 
 						if( selected_sprite.sprite == false ) {
 
+							/* Store the ids and orders for the undo function - otherwise it won't go back in the right order */
+							undo_orders = new Array();
+							$.extend( true, undo_orders, project.sprites ); /* Clone array */
+
+							undo_orders.filter( function( property ) {
+								
+								delete property.name;
+								delete property.sprites;
+								delete property.size;
+								return true;
+							} );
+
+							/* Log the undo action */
+							log_undo( "delete_sprite_group", false, [ selected_sprite.group, undo_orders ], selected_sprite.group.gid );
+
 							/* Delete selected sprite group from local array */
-							project.sprites = project.sprites.filter(obj => obj.gid != selected_sprite.group.gid);
+							project.sprites = project.sprites.filter( obj => obj.gid != selected_sprite.group.gid );
 
 							/* Reorder the groups in local array */
 							var i = 0;
@@ -526,13 +549,27 @@ function sprite_toolbar_event_listeners() {
 
 						} else {
 
+							/* Store the ids and orders for the undo function - otherwise it won't go back in the right order */
+							undo_orders = new Array();
+							$.extend( true, undo_orders, selected_sprite.group.sprites ); /* Clone array */
+
+							undo_orders.filter( function( property ) {
+								
+								delete property.name;
+								delete property.data;
+								return true;
+							} );
+
+							/* Log the undo action */
+							log_undo( "delete_sprite", selected_sprite.group.gid, [ selected_sprite.sprite, undo_orders ], selected_sprite.sprite.id );
+
 							/* Delete selected sprite from local array */
-							selected_sprite.group.sprites = selected_sprite.group.sprites.filter(obj => obj.id != selected_sprite.sprite.id);
+							selected_sprite.group.sprites = selected_sprite.group.sprites.filter( obj => obj.id != selected_sprite.sprite.id );
 
 							if( selected_sprite.group.sprites.length == 0 ) {
 
 								/* We deleted the last sprite in the group, so delete the group too */
-								project.sprites = project.sprites.filter(obj => obj.gid != selected_sprite.group.gid);
+								project.sprites = project.sprites.filter( obj => obj.gid != selected_sprite.group.gid );
 
 								/* Reorder the groups in local array */
 								var i = 0;
