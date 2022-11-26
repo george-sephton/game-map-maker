@@ -50,11 +50,6 @@ function load_project_list() {
 
 	/* Toolbar event listeners */
 	project_list_toolbar_event_listeners();
-	
-	/* Clear the undo tree */
-	undo_list = new Array();
-	undo_list_index = -1;
-	update_undo_panel();
 
 	/* Set the current view */
 	current_view = "home";

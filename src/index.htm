@@ -24,7 +24,6 @@
 		<script type="text/javascript" src="js/data_ps.js"></script>
 		<script type="text/javascript" src="js/sprites.js"></script>
 		<script type="text/javascript" src="js/textures.js"></script>
-		<script type="text/javascript" src="js/undo_redo.js"></script>
 		<script type="text/javascript" src="js/view_home.js"></script>
 		<script type="text/javascript" src="js/view_maps.js"></script>
 		<script type="text/javascript" src="js/view_project.js"></script>
@@ -41,10 +40,6 @@
 					<i class="bi-exclamation-triangle-fill error"></i>
 					<span id="notify_text"></span>
 				</span>
-			</div>
-
-			<div id="undo_panel">
-				<ul id="undo_list"></ul>
 			</div>
 
 			<div id="sidebar">
@@ -89,9 +84,6 @@
 						<div id="controls">
 							<i class="bi-arrow-left project_functions" id="close_project" func="close-project"></i>
 							<i class="bi-arrow-left map_editing_functions" func="close-map"></i>
-							<i class="bi-arrow-counterclockwise" func="undo"></i>
-							<i class="bi-arrow-clockwise" func="redo"></i>
-							<div class="toolbar_separator"></div>
 							<i class="bi-type project_functions" func="rename-project"></i>
 							<i class="bi-trash project_functions" func="trash-project"></i>
 							<div class="toolbar_separator project_functions"></div>

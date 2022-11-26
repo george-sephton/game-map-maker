@@ -360,9 +360,6 @@ function sprite_toolbar_event_listeners() {
 
 													/* Add size */
 													new_group.size = selected_sprite.group.size;
-
-													/* Log the undo action */
-													log_undo( "duplicate_sprite_group", false, new_group.gid, new_group );
 												} else {
 
 													/* Create a blank sprite to initialise the group */
@@ -378,9 +375,6 @@ function sprite_toolbar_event_listeners() {
 													/* Add the blank sprite to the array */
 													new_group.sprites = new Array();
 													new_group.sprites.push( new_sprite );
-
-													/* Log the undo action */
-													log_undo( "new_sprite_group", false, new_group.gid, new_group );
 												}
 
 												/* Add the new sprite into the local array*/
@@ -412,16 +406,10 @@ function sprite_toolbar_event_listeners() {
 													/* Copy selected sprite */
 													new_sprite.data = new Array();
 													$.extend( true, new_sprite.data, selected_sprite.sprite.data ); /* Clone array */
-
-													/* Log the undo action */
-													log_undo( "duplicate_sprite", selected_sprite.group.gid, new_sprite.id, new_sprite );
 												} else {
 
 													/* Create a blank canvas */
 													new_sprite.data = Array.from( { length: selected_sprite.group.size }, () => Array.from( { length: selected_sprite.group.size }, () => "" ) );
-
-													/* Log the undo action */
-													log_undo( "new_sprite", selected_sprite.group.gid, new_sprite.id, new_sprite );
 												}
 
 												/* Add the new sprite into the local array*/
@@ -438,15 +426,9 @@ function sprite_toolbar_event_listeners() {
 										if( func == "rename" ) {
 											if( selected_sprite.sprite == false ) {
 
-												/* Log the undo action */
-												log_undo( "rename_sprite_group", selected_sprite.group.gid, selected_sprite.group.name, new_name );
-
 												/* Rename current group in local array */
 												selected_sprite.group.name = new_name;
 											} else {
-
-												/* Log the undo action */
-												log_undo( "rename_sprite", [ selected_sprite.group.gid, selected_sprite.sprite.id ], selected_sprite.sprite.name, new_name );
 
 												/* Rename current sprite in local array */
 												selected_sprite.sprite.name = new_name;								
@@ -514,21 +496,6 @@ function sprite_toolbar_event_listeners() {
 
 						if( selected_sprite.sprite == false ) {
 
-							/* Store the ids and orders for the undo function - otherwise it won't go back in the right order */
-							undo_orders = new Array();
-							$.extend( true, undo_orders, project.sprites ); /* Clone array */
-
-							undo_orders.filter( function( property ) {
-								
-								delete property.name;
-								delete property.sprites;
-								delete property.size;
-								return true;
-							} );
-
-							/* Log the undo action */
-							log_undo( "delete_sprite_group", false, [ selected_sprite.group, undo_orders ], selected_sprite.group.gid );
-
 							/* Delete selected sprite group from local array */
 							project.sprites = project.sprites.filter( obj => obj.gid != selected_sprite.group.gid );
 
@@ -548,20 +515,6 @@ function sprite_toolbar_event_listeners() {
 							selected_sprite.group = false;
 
 						} else {
-
-							/* Store the ids and orders for the undo function - otherwise it won't go back in the right order */
-							undo_orders = new Array();
-							$.extend( true, undo_orders, selected_sprite.group.sprites ); /* Clone array */
-
-							undo_orders.filter( function( property ) {
-								
-								delete property.name;
-								delete property.data;
-								return true;
-							} );
-
-							/* Log the undo action */
-							log_undo( "delete_sprite", selected_sprite.group.gid, [ selected_sprite.sprite, undo_orders ], selected_sprite.sprite.id );
 
 							/* Delete selected sprite from local array */
 							selected_sprite.group.sprites = selected_sprite.group.sprites.filter( obj => obj.id != selected_sprite.sprite.id );

@@ -77,8 +77,6 @@ $( function() {
 		project = await window.electronAPI.load_project_data( "gba_game" );
 		load_project_view();
 
-		update_undo_panel();
-
 		/* Update cached images */
 		//update_cached_images();
 

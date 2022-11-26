@@ -72,13 +72,6 @@ function load_project_view() {
 
 function close_project_view( log_switch_view = true ) {
 
-	/* Log the undo action */
-	if( log_switch_view ) {
-
-		/* Log the undo action - recreate the selected_sprite object as it's not passed by object */
-		log_undo( "switch_views", selected_map.id, "project", "map" );
-	}
-
 	/* Clear all event listeners */
 	clear_map_list_event_listeners();
 	clear_project_toolbar_event_listeners();

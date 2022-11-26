@@ -79,12 +79,6 @@ function load_map_editing_view() {
 
 function close_map_editing_view( log_switch_view = true ) {
 
-	/* Log the undo action */
-	if( log_switch_view ) {
-
-		log_undo( "switch_views", selected_map.id, "map", "project" );
-	}
-
 	/* Clear all event listeners */
 	clear_map_toolbar_event_listeners();
 	clear_texture_toolbar_event_listeners();
