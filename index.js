@@ -103,7 +103,6 @@ const createWindow = () => {
 
 	mainWindow.once( "ready-to-show", () => {
 		mainWindow.webContents.setZoomFactor( 1.0 );
-		//mainWindow.maximize();
 		mainWindow.show();
 	} );
 
@@ -114,7 +113,7 @@ const createWindow = () => {
 	];
 
     const menu = Menu.buildFromTemplate( menuTemplate );
-    //Menu.setApplicationMenu( menu );
+    Menu.setApplicationMenu( menu );
 }
 
 app.whenReady().then( () => {

@@ -186,7 +186,7 @@ function set_map_cell( selector, tile_info ) {
 	/* Show empty tile */
 	if( texture_obj == undefined ) {
 
-		if( ( controls_disabled == true ) && (  drawing_functions != 2 ) ) {
+		if( ( controls_disabled == true ) && ( drawing_functions != 2 ) && ( drawing_functions != 8 ) ) {
 
 			/* Tile is an empty tile whilst resizing - show as grey */
 			selector.css( "background", "#ccc" );
@@ -1523,11 +1523,6 @@ function map_editor_event_listeners() {
 		} else if( drawing_functions == 8 ) { /* Duplicate tiles stamp */
 
 			/* Update the cells with our duplicate tiles */
-			//tile_info.row
-			//tile_info.col
-			//dupl_selection_size.width = dupl_end_pos.x - dupl_start_pos.x
-
-			/* Copy the cells */
 			for( var _row = 0; _row < dupl_selection_size.height; _row++ ) {
 
 				for( var _col = 0; _col < dupl_selection_size.width; _col++ ) {
