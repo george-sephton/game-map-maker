@@ -830,8 +830,38 @@ function texture_toolbar_event_listeners() {
 
 						if( selected_texture.texture == false ) {
 
-							/* Delete selected texture group from local array */
-							project.textures = project.textures.filter(obj => obj.gid != selected_texture.group.gid);
+							/* Delete selected texture group */
+							project.textures = project.textures.filter( obj => obj.gid != selected_texture.group.gid );
+
+							/* Loop through each map and remove any of these textures */
+							$.each( project.maps, function( k, map ) {
+
+								/* Loop through each row of the map */
+								$.each( map.data, function( i, map_row ) {
+
+									/* Get the tiles with matching texture */
+									var map_tiles = map_row.filter( obj => ( obj.texture_gid == selected_texture.group.gid ) );
+
+									/* Loop through all of those tiles and remove them */
+									$.each( map_tiles, function( i, map_tile ) {
+
+										if( map_tile != undefined ) {
+
+											/* Matching texture, let's remove it */
+											map_tile.can_walk = [true, true, true, true];
+											map_tile.texture_gid = undefined;
+											map_tile.texture_id = undefined;
+											map_tile.texture_reverse_x = false;
+											map_tile.texture_reverse_y = false;
+											map_tile.exit_tile = false;
+											map_tile.exit_map_id = false;
+											map_tile.top_layer = false;
+											map_tile.exit_map_dir = [0, 0];
+											map_tile.exit_map_pos = [0, 0];
+										}
+									} );
+								} );
+							} );
 
 							/* Reorder the groups in local array */
 							var i = 0;
@@ -851,37 +881,42 @@ function texture_toolbar_event_listeners() {
 						} else {
 
 							/* Delete selected texture from texture group array */
-							selected_texture.group.textures = selected_texture.group.textures.filter(obj => obj.id != selected_texture.texture.id);
+							selected_texture.group.textures = selected_texture.group.textures.filter( obj => obj.id != selected_texture.texture.id );
 
 							/* Loop through each map and remove any of these textures */
 							$.each( project.maps, function( k, map ) {
 
 								/* Loop through each row of the map */
-								$.each( map.data, function( k, map_row ) {
+								$.each( map.data, function( i, map_row ) {
 
 									/* Get the tiles with matching texture */
-									var map_tile = map_row.find( obj => ( ( obj.texture_gid == selected_texture.group.gid ) && ( obj.texture_id == selected_texture.texture.id ) ) );
-									if( map_tile != undefined ) {
+									var map_tiles = map_row.filter( obj => ( ( obj.texture_gid == selected_texture.group.gid ) && ( obj.texture_id == selected_texture.texture.id ) ) );
 
-										/* Matching texture, let's remove it */
-										map_tile.can_walk = [true, true, true, true];
-										map_tile.texture_gid = undefined;
-										map_tile.texture_id = undefined;
-										map_tile.texture_reverse_x = false;
-										map_tile.texture_reverse_y = false;
-										map_tile.exit_tile = false;
-										map_tile.exit_map_id = false;
-										map_tile.top_layer = false;
-										map_tile.exit_map_dir = [0, 0];
-										map_tile.exit_map_pos = [0, 0];
-									}
+									/* Loop through all of those tiles and remove them */
+									$.each( map_tiles, function( i, map_tile ) {
+
+										if( map_tile != undefined ) {
+
+											/* Matching texture, let's remove it */
+											map_tile.can_walk = [true, true, true, true];
+											map_tile.texture_gid = undefined;
+											map_tile.texture_id = undefined;
+											map_tile.texture_reverse_x = false;
+											map_tile.texture_reverse_y = false;
+											map_tile.exit_tile = false;
+											map_tile.exit_map_id = false;
+											map_tile.top_layer = false;
+											map_tile.exit_map_dir = [0, 0];
+											map_tile.exit_map_pos = [0, 0];
+										}
+									} );
 								} );
 							} );
 
 							if( selected_texture.group.textures.length == 0 ) {
 
 								/* We deleted the last texture in the group, so delete the group too */
-								project.textures = project.textures.filter(obj => obj.gid != selected_texture.group.gid);
+								project.textures = project.textures.filter( obj => obj.gid != selected_texture.group.gid );
 
 								/* Reorder the groups in local array */
 								var i = 0;

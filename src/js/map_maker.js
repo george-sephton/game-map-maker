@@ -67,6 +67,28 @@ $( function() {
 	load_sprite_editor_colour_pickers();
 
 	load_project_list();
+
+	return;
+
+	/* Debug */
+	$( async () => {
+
+		//$( "#overlay" ).css( "display", "flex" );
+		//$( "#overlay #overlay_text" ).html( "Project Loading" );
+
+		project = await window.electronAPI.load_project_data( "gba_game" );
+		load_project_view();
+
+		/* Update cached images */
+		update_cached_images();
+
+		selected_map = project.maps.find( obj => obj.id == 1 );
+		load_map_editing_view();
+
+		//selected_texture.group = project.textures.find( obj => obj.gid == 2 );
+		//selected_texture.texture = selected_texture.group.textures.find( obj => obj.id == 0 );
+		//load_texture_list();
+	} );
 } );
 
 /* Prevent accidental refreshes */
