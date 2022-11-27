@@ -283,6 +283,10 @@ function set_map_cell( selector, tile_info ) {
 		/* Tile is part of soon to be added row/column whilst resizing - show as grey */
 		selector.css( "background", "#ccc" );
 	}
+
+	/* Keep zoom consistent */
+	selector.find( "img" ).css( "width", ( map_cell_size * 5 ) + "px" );
+	selector.find( "img" ).css( "height", ( map_cell_size * 5 ) + "px" );
 }
 
 function load_map_editor() {
