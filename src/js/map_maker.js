@@ -66,9 +66,9 @@ $( function() {
 	load_texture_editor_colour_pickers();
 	load_sprite_editor_colour_pickers();
 
-	load_project_list();
+	//load_project_list();
 
-	return;
+	//return;
 
 	/* Debug */
 	$( async () => {
@@ -80,7 +80,7 @@ $( function() {
 		load_project_view();
 
 		/* Update cached images */
-		update_cached_images();
+		//update_cached_images();
 
 		selected_map = project.maps.find( obj => obj.id == 1 );
 		load_map_editing_view();
@@ -94,7 +94,7 @@ $( function() {
 /* Prevent accidental refreshes */
 $( window ).on( "beforeunload", function() {
 
-	return false;
+	//return false;
 } );
 
 function sanitise_input( input_text ) {

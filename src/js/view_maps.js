@@ -348,6 +348,9 @@ function load_map_editor() {
 	/* Change editor position */
 	$( "#container #map_editor_container" ).css( "justify-content", "flex-start" );
 	$( "#container #map_editor_container" ).css( "align-items", "flex-start" );
+
+	/* Load map editor event listeners */
+	map_editor_event_listeners();
 }
 
 function map_editor_toolbar_reset() {
@@ -386,9 +389,6 @@ function map_editor_toolbar_reset() {
 
 	/* Hide the tile settings */
 	$( "#container #toolbar #map_paint_settings" ).css( "display", "none" );
-	
-	/* Remove event listener from map editor */
-	clear_map_editor_event_listeners();
 
 	/* Remove hover functionality from map editor */
 	$( "#container #content #map_editor_container #map_editor .map_editor_row .map_editor_cell" ).removeClass( "map_editor_cell_draw" );
@@ -836,9 +836,6 @@ function map_toolbar_event_listeners() {
 						/* Disable all drawing functions */				
 						drawing_functions = false;
 					}
-
-					/* Load map editor event listeners */
-					map_editor_event_listeners();
 					break;
 				case "fill":
 				case "clear":
@@ -1370,7 +1367,27 @@ function map_editor_event_listeners() {
 	/* Remove existing event listeners from map editor */
 	clear_map_editor_event_listeners();
 
-	/* Add map editor event listeners */
+	/* Add hover indicator when not drawing */
+	$( "#container #content #map_editor_container #map_editor .map_editor_row .map_editor_cell" ).hover(
+		function() { /* Hover in */
+
+			if( drawing_functions == false ) {
+
+				/* Show a blue border */
+				$( this ).addClass( "map_noedit_hover" );
+			}
+		}, 
+		function() { /* Hover out */
+
+			if( drawing_functions == false ) {
+
+				/* Hide the blue border and remove the coordinate tooltip */
+				$( this ).removeClass( "map_noedit_hover" );
+				$( "#coordinates_tooltip" ).fadeOut( 120 );
+			}
+		}
+	);
+
 	$( "#container #content #map_editor_container #map_editor .map_editor_row .map_editor_cell" ).on( "click" , function( e ) {
 
 		/* Store tile information */
@@ -1378,212 +1395,227 @@ function map_editor_event_listeners() {
 		tile_info.row = Number( $( this ).parent().attr( "row_id" ) );
 		tile_info.col = Number( $( this ).attr( "col_id" ) );
 
-		if( drawing_functions == 2 ) { /* Clear */
+		if( drawing_functions == false ) {
 
-			/* Update the local array */
-			selected_map.data[ tile_info.row ][ tile_info.col ].texture_gid = undefined;
-			selected_map.data[ tile_info.row ][ tile_info.col ].texture_id = undefined;
-			selected_map.data[ tile_info.row ][ tile_info.col ].texture_reverse_x = false;
-			selected_map.data[ tile_info.row ][ tile_info.col ].texture_reverse_y = false;
-			selected_map.data[ tile_info.row ][ tile_info.col ].can_walk = [true, true, true, true];
-			selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_id = false;
-			selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_dir = [0, 0];
-			selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_pos = [0, 0];
-			selected_map.data[ tile_info.row ][ tile_info.col ].interact_en = false;
-			selected_map.data[ tile_info.row ][ tile_info.col ].interact_id = false;
+			/* Show tile coordinates on click (when not drawing) */
+			var _xpos = $( this ).offset().left;
+			var _ypos = $( this ).offset().top - ( map_cell_size * 5 ) - 8; /* Go back up 1 cell's height and the 8px of padding that the tooltip has */
 
-			/* Log changes */
-			log_change();
-			
-			/* Clear the cell */
-			set_map_cell( $( this ), tile_info );
-
-			/* Set the correct cell size */
-			$( this ).find( "img" ).css( "width", ( map_cell_size * 5 ) + "px" );
-			$( this ).find( "img" ).css( "height", ( map_cell_size * 5 ) + "px" );
-
-		} else if( drawing_functions == 1 ) { /* Paint */
-
-			if( selected_texture.exit_tile ) {
-
-				/* We're setting an exit tile */
-				selected_texture.exit_tile = true;
-				selected_texture.exit_map_id = $( "#container #toolbar #map_paint_settings #exit_tile_map_id" ).val();
-				selected_texture.exit_map_dir = [ parseInt( $( "#container #toolbar #map_paint_settings #exit_tile_map_pos_x" ).val() ), parseInt( $( "#container #toolbar #map_paint_settings #exit_tile_map_pos_y" ).val() ) ];
-				
-				switch( $( "#container #toolbar #map_paint_settings #exit_tile_map_dir" ).val() ) {
-					case "a":  /* Exit any direction */
-						selected_texture.exit_map_dir = [0, 0];
-						break;
-					case "n": /* Exit when walking north */
-						selected_texture.exit_map_dir = [0, 1];
-						break;
-					case "e": /* Exit when walking east */
-						selected_texture.exit_map_dir = [1, 0];
-						break;
-					case "s": /* Exit when walking south */
-						selected_texture.exit_map_dir = [0, -1];
-						break;
-					case "w": /* Exit when walking west */
-						selected_texture.exit_map_dir = [-1, 0];
-						break;
-				}
-			} else {
-				/* Update selected tile data */
-				selected_texture.exit_map_id = false;
-				selected_texture.exit_map_dir = [0, 0];
-				selected_texture.exit_map_pos = [0, 0];
-			}
-
-			/* Update the local array */
-			selected_map.data[ tile_info.row ][ tile_info.col ].texture_gid = selected_texture.group.gid;
-			selected_map.data[ tile_info.row ][ tile_info.col ].texture_id = selected_texture.texture.id;
-
-			selected_map.data[ tile_info.row ][ tile_info.col ].texture_reverse_x = selected_texture.texture_reverse_x;
-			selected_map.data[ tile_info.row ][ tile_info.col ].texture_reverse_y = selected_texture.texture_reverse_y;
-
-			selected_map.data[ tile_info.row ][ tile_info.col ].exit_tile = selected_texture.exit_tile;
-			selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_id = selected_texture.exit_map_id;
-			selected_map.data[ tile_info.row ][ tile_info.col ].top_layer = selected_texture.top_layer;
-			selected_map.data[ tile_info.row ][ tile_info.col ].interact_en = selected_texture.interact_en;
-			selected_map.data[ tile_info.row ][ tile_info.col ].interact_id = selected_texture.interact_id;
-			selected_map.data[ tile_info.row ][ tile_info.col ].npc_en = selected_texture.npc_en;
-			selected_map.data[ tile_info.row ][ tile_info.col ].npc_id = selected_texture.npc_id;
-
-			selected_map.data[ tile_info.row ][ tile_info.col ].can_walk = new Array();
-			$.extend( true, selected_map.data[ tile_info.row ][ tile_info.col ].can_walk, selected_texture.can_walk ); /* Clone array */
-			selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_dir = new Array();
-			$.extend( true, selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_dir, selected_texture.exit_map_dir ); /* Clone array */
-			selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_pos = new Array();
-			$.extend( true, selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_pos, selected_texture.exit_map_pos ); /* Clone array */
-
-			/* Log changes */
-			log_change();
-
-			/* Clear the cell */
-			set_map_cell( $( this ), tile_info );
-
-			/* Set the correct cell size */
-			$( this ).find( "img" ).css( "width", ( map_cell_size * 5 ) + "px" );
-			$( this ).find( "img" ).css( "height", ( map_cell_size * 5 ) + "px" );
-
-			/* Auto increment */
-			if( paint_auto_inc ) {
-				
-				if( selected_texture.texture.order < ( selected_texture.group.textures.length - 1 ) ) {
-
-					/* Switch to the next texture */
-					selected_texture.texture = selected_texture.group.textures.find( obj => obj.order == ( selected_texture.texture.order + 1 ) );
-					load_texture_list();
-				}
-			}
-
-		} else if( drawing_functions == 6 ) { /* Eyedropper */
-
-			/* Get current tile information and switch to paint tool */
-			var tile_info = new Object();
-			tile_info.row = $( this ).parent().attr( "row_id" );
-			tile_info.col = $( this ).attr( "col_id" );
-
-			/* Get texture info */
-			var cell_texture_gid = selected_map.data[tile_info.row][tile_info.col].texture_gid;
-			var cell_texture_id = selected_map.data[tile_info.row][tile_info.col].texture_id;
-
-			if( cell_texture_gid != undefined ) {
-
-				/* Switch to map painting */
-				drawing_functions = 1;
-				map_editor_start_drawing();
-
-				/* Disable the eyedropper icon */
-				$( "#map_toolbar_eyedropper" ).removeClass( "selected_tool" );
-				$( "#map_toolbar_eyedropper" ).addClass( "resize_disabled" );
-
-				/* Highlight the paintbrush icon */
-				$( "#map_toolbar_paint" ).addClass( "selected_tool" );
-				$( "#map_toolbar_paint" ).removeClass( "resize_disabled" );
-
-				/* Enable the flip icons and preview */
-				$( "#map_toolbar_flip_h" ).removeClass( "resize_disabled" );
-				$( "#map_toolbar_flip_v" ).removeClass( "resize_disabled" );
-				$( "#map_paint_preview" ).removeClass( "resize_disabled" );
-
-				/* Update preview and tile settings panel */
-				display_tile_info( tile_info.row, tile_info.col );
-
-				/* Display auto increment option */
-				$( "#container #toolbar #settings #name_input_container #paint_auto_inc_en" ).css( "display", "block" );
-				$( "#container #toolbar #settings #name_input_container label[for='paint_auto_inc_en']" ).css( "display", "block" );
-
-				$( "#container #toolbar #map_paint_settings" ).css( "display", "flex" );
-				load_texture_preview();
-
-				/* Disable groups in texture list */
-				$( "#container #sidebar #texture_list .sortable .ui-group" ).addClass( "resize_disabled" );
-			}
-		} else if( drawing_functions == 7 ) { /* Awaiting duplicate tiles selection */
-
-			/* Do nothing */
-		} else if( drawing_functions == 8 ) { /* Duplicate tiles stamp */
-
-			/* Update the cells with our duplicate tiles */
-			for( var _row = 0; _row < dupl_selection_size.height; _row++ ) {
-
-				for( var _col = 0; _col < dupl_selection_size.width; _col++ ) {
-
-					/* Get the coordinates of the cells */
-					var _loop_cell = new Object();
-					_loop_cell.row = tile_info.row + _row;
-					_loop_cell.col = tile_info.col + _col;
-
-					/* Make sure we're in bounds */
-					if( ( _loop_cell.col < selected_map.width ) && ( _loop_cell.row < selected_map.height ) ) {
-
-						/* Update the local array */
-						selected_map.data[ _loop_cell.row ][ _loop_cell.col ].texture_gid = dupl_tiles[ _row ][ _col ].texture_gid;
-						selected_map.data[ _loop_cell.row ][ _loop_cell.col ].texture_id = dupl_tiles[ _row ][ _col ].texture_id;
-
-						selected_map.data[ _loop_cell.row ][ _loop_cell.col ].texture_reverse_x = dupl_tiles[ _row ][ _col ].texture_reverse_x;
-						selected_map.data[ _loop_cell.row ][ _loop_cell.col ].texture_reverse_y = dupl_tiles[ _row ][ _col ].texture_reverse_y;
-
-						selected_map.data[ _loop_cell.row ][ _loop_cell.col ].exit_tile = dupl_tiles[ _row ][ _col ].exit_tile;
-						selected_map.data[ _loop_cell.row ][ _loop_cell.col ].exit_map_id = dupl_tiles[ _row ][ _col ].exit_map_id;
-						selected_map.data[ _loop_cell.row ][ _loop_cell.col ].top_layer = dupl_tiles[ _row ][ _col ].top_layer;
-						selected_map.data[ _loop_cell.row ][ _loop_cell.col ].interact_en = dupl_tiles[ _row ][ _col ].interact_en;
-						selected_map.data[ _loop_cell.row ][ _loop_cell.col ].interact_id = dupl_tiles[ _row ][ _col ].interact_id;
-						selected_map.data[ _loop_cell.row ][ _loop_cell.col ].npc_en = dupl_tiles[ _row ][ _col ].npc_en;
-						selected_map.data[ _loop_cell.row ][ _loop_cell.col ].npc_id = dupl_tiles[ _row ][ _col ].npc_id;
-
-						selected_map.data[ _loop_cell.row ][ _loop_cell.col ].can_walk = new Array();
-						$.extend( true, selected_map.data[ _loop_cell.row ][ _loop_cell.col ].can_walk, dupl_tiles[ _row ][ _col ].can_walk ); /* Clone array */
-						selected_map.data[ _loop_cell.row ][ _loop_cell.col ].exit_map_dir = new Array();
-						$.extend( true, selected_map.data[ _loop_cell.row ][ _loop_cell.col ].exit_map_dir, dupl_tiles[ _row ][ _col ].exit_map_dir ); /* Clone array */
-						selected_map.data[ _loop_cell.row ][ _loop_cell.col ].exit_map_pos = new Array();
-						$.extend( true, selected_map.data[ _loop_cell.row ][ _loop_cell.col ].exit_map_pos, dupl_tiles[ _row ][ _col ].exit_map_pos ); /* Clone array */
-
-						/* Update the cell */
-						set_map_cell( false, _loop_cell );
-
-						/* Set the correct cell size */
-						$( "#container #content #map_editor_container #map_editor .map_editor_row[row_id=" + _loop_cell.row + "] .map_editor_cell[col_id=" + _loop_cell.col + "] img" ).css( "width", ( map_cell_size * 5 ) + "px" );
-						$( "#container #content #map_editor_container #map_editor .map_editor_row[row_id=" + _loop_cell.row + "] .map_editor_cell[col_id=" + _loop_cell.col + "] img" ).css( "height", ( map_cell_size * 5 ) + "px" );
-					}
-				}
-			}
-
-			/* Log changes */
-			log_change();
-
+			/* Show the coordinates tooltip with the correct coordinates */
+			$( "#coordinates_tooltip" ).css( "left", _xpos );
+			$( "#coordinates_tooltip" ).css( "top", _ypos );
+			$( "#coordinates_tooltip" ).css( "display", "block" );
+			$( "#coordinates_tooltip" ).html( "Coordinates (" + tile_info.col + ", " + tile_info.row + ")" );
 		} else {
 
-			/* Get texture info */
-			var cell_texture_gid = selected_map.data[tile_info.row][tile_info.col].texture_gid;
-			var cell_texture_id = selected_map.data[tile_info.row][tile_info.col].texture_id;
+			/* We're in the drawing functions */
+			if( drawing_functions == 2 ) { /* Clear */
 
-			if( cell_texture_gid != undefined ) {
+				/* Update the local array */
+				selected_map.data[ tile_info.row ][ tile_info.col ].texture_gid = undefined;
+				selected_map.data[ tile_info.row ][ tile_info.col ].texture_id = undefined;
+				selected_map.data[ tile_info.row ][ tile_info.col ].texture_reverse_x = false;
+				selected_map.data[ tile_info.row ][ tile_info.col ].texture_reverse_y = false;
+				selected_map.data[ tile_info.row ][ tile_info.col ].can_walk = [true, true, true, true];
+				selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_id = false;
+				selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_dir = [0, 0];
+				selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_pos = [0, 0];
+				selected_map.data[ tile_info.row ][ tile_info.col ].interact_en = false;
+				selected_map.data[ tile_info.row ][ tile_info.col ].interact_id = false;
+
+				/* Log changes */
+				log_change();
 				
-				/* If we have a texture to examine, load the info */
-				display_tile_info( tile_info.row, tile_info.col );
+				/* Clear the cell */
+				set_map_cell( $( this ), tile_info );
+
+				/* Set the correct cell size */
+				$( this ).find( "img" ).css( "width", ( map_cell_size * 5 ) + "px" );
+				$( this ).find( "img" ).css( "height", ( map_cell_size * 5 ) + "px" );
+
+			} else if( drawing_functions == 1 ) { /* Paint */
+
+				if( selected_texture.exit_tile ) {
+
+					/* We're setting an exit tile */
+					selected_texture.exit_tile = true;
+					selected_texture.exit_map_id = $( "#container #toolbar #map_paint_settings #exit_tile_map_id" ).val();
+					selected_texture.exit_map_dir = [ parseInt( $( "#container #toolbar #map_paint_settings #exit_tile_map_pos_x" ).val() ), parseInt( $( "#container #toolbar #map_paint_settings #exit_tile_map_pos_y" ).val() ) ];
+					
+					switch( $( "#container #toolbar #map_paint_settings #exit_tile_map_dir" ).val() ) {
+						case "a":  /* Exit any direction */
+							selected_texture.exit_map_dir = [0, 0];
+							break;
+						case "n": /* Exit when walking north */
+							selected_texture.exit_map_dir = [0, 1];
+							break;
+						case "e": /* Exit when walking east */
+							selected_texture.exit_map_dir = [1, 0];
+							break;
+						case "s": /* Exit when walking south */
+							selected_texture.exit_map_dir = [0, -1];
+							break;
+						case "w": /* Exit when walking west */
+							selected_texture.exit_map_dir = [-1, 0];
+							break;
+					}
+				} else {
+					/* Update selected tile data */
+					selected_texture.exit_map_id = false;
+					selected_texture.exit_map_dir = [0, 0];
+					selected_texture.exit_map_pos = [0, 0];
+				}
+
+				/* Update the local array */
+				selected_map.data[ tile_info.row ][ tile_info.col ].texture_gid = selected_texture.group.gid;
+				selected_map.data[ tile_info.row ][ tile_info.col ].texture_id = selected_texture.texture.id;
+
+				selected_map.data[ tile_info.row ][ tile_info.col ].texture_reverse_x = selected_texture.texture_reverse_x;
+				selected_map.data[ tile_info.row ][ tile_info.col ].texture_reverse_y = selected_texture.texture_reverse_y;
+
+				selected_map.data[ tile_info.row ][ tile_info.col ].exit_tile = selected_texture.exit_tile;
+				selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_id = selected_texture.exit_map_id;
+				selected_map.data[ tile_info.row ][ tile_info.col ].top_layer = selected_texture.top_layer;
+				selected_map.data[ tile_info.row ][ tile_info.col ].interact_en = selected_texture.interact_en;
+				selected_map.data[ tile_info.row ][ tile_info.col ].interact_id = selected_texture.interact_id;
+				selected_map.data[ tile_info.row ][ tile_info.col ].npc_en = selected_texture.npc_en;
+				selected_map.data[ tile_info.row ][ tile_info.col ].npc_id = selected_texture.npc_id;
+
+				selected_map.data[ tile_info.row ][ tile_info.col ].can_walk = new Array();
+				$.extend( true, selected_map.data[ tile_info.row ][ tile_info.col ].can_walk, selected_texture.can_walk ); /* Clone array */
+				selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_dir = new Array();
+				$.extend( true, selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_dir, selected_texture.exit_map_dir ); /* Clone array */
+				selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_pos = new Array();
+				$.extend( true, selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_pos, selected_texture.exit_map_pos ); /* Clone array */
+
+				/* Log changes */
+				log_change();
+
+				/* Clear the cell */
+				set_map_cell( $( this ), tile_info );
+
+				/* Set the correct cell size */
+				$( this ).find( "img" ).css( "width", ( map_cell_size * 5 ) + "px" );
+				$( this ).find( "img" ).css( "height", ( map_cell_size * 5 ) + "px" );
+
+				/* Auto increment */
+				if( paint_auto_inc ) {
+					
+					if( selected_texture.texture.order < ( selected_texture.group.textures.length - 1 ) ) {
+
+						/* Switch to the next texture */
+						selected_texture.texture = selected_texture.group.textures.find( obj => obj.order == ( selected_texture.texture.order + 1 ) );
+						load_texture_list();
+					}
+				}
+
+			} else if( drawing_functions == 6 ) { /* Eyedropper */
+
+				/* Get current tile information and switch to paint tool */
+				var tile_info = new Object();
+				tile_info.row = $( this ).parent().attr( "row_id" );
+				tile_info.col = $( this ).attr( "col_id" );
+
+				/* Get texture info */
+				var cell_texture_gid = selected_map.data[tile_info.row][tile_info.col].texture_gid;
+				var cell_texture_id = selected_map.data[tile_info.row][tile_info.col].texture_id;
+
+				if( cell_texture_gid != undefined ) {
+
+					/* Switch to map painting */
+					drawing_functions = 1;
+					map_editor_start_drawing();
+
+					/* Disable the eyedropper icon */
+					$( "#map_toolbar_eyedropper" ).removeClass( "selected_tool" );
+					$( "#map_toolbar_eyedropper" ).addClass( "resize_disabled" );
+
+					/* Highlight the paintbrush icon */
+					$( "#map_toolbar_paint" ).addClass( "selected_tool" );
+					$( "#map_toolbar_paint" ).removeClass( "resize_disabled" );
+
+					/* Enable the flip icons and preview */
+					$( "#map_toolbar_flip_h" ).removeClass( "resize_disabled" );
+					$( "#map_toolbar_flip_v" ).removeClass( "resize_disabled" );
+					$( "#map_paint_preview" ).removeClass( "resize_disabled" );
+
+					/* Update preview and tile settings panel */
+					display_tile_info( tile_info.row, tile_info.col );
+
+					/* Display auto increment option */
+					$( "#container #toolbar #settings #name_input_container #paint_auto_inc_en" ).css( "display", "block" );
+					$( "#container #toolbar #settings #name_input_container label[for='paint_auto_inc_en']" ).css( "display", "block" );
+
+					$( "#container #toolbar #map_paint_settings" ).css( "display", "flex" );
+					load_texture_preview();
+
+					/* Disable groups in texture list */
+					$( "#container #sidebar #texture_list .sortable .ui-group" ).addClass( "resize_disabled" );
+				}
+			} else if( drawing_functions == 7 ) { /* Awaiting duplicate tiles selection */
+
+				/* Do nothing */
+			} else if( drawing_functions == 8 ) { /* Duplicate tiles stamp */
+
+				/* Update the cells with our duplicate tiles */
+				for( var _row = 0; _row < dupl_selection_size.height; _row++ ) {
+
+					for( var _col = 0; _col < dupl_selection_size.width; _col++ ) {
+
+						/* Get the coordinates of the cells */
+						var _loop_cell = new Object();
+						_loop_cell.row = tile_info.row + _row;
+						_loop_cell.col = tile_info.col + _col;
+
+						/* Make sure we're in bounds */
+						if( ( _loop_cell.col < selected_map.width ) && ( _loop_cell.row < selected_map.height ) ) {
+
+							/* Update the local array */
+							selected_map.data[ _loop_cell.row ][ _loop_cell.col ].texture_gid = dupl_tiles[ _row ][ _col ].texture_gid;
+							selected_map.data[ _loop_cell.row ][ _loop_cell.col ].texture_id = dupl_tiles[ _row ][ _col ].texture_id;
+
+							selected_map.data[ _loop_cell.row ][ _loop_cell.col ].texture_reverse_x = dupl_tiles[ _row ][ _col ].texture_reverse_x;
+							selected_map.data[ _loop_cell.row ][ _loop_cell.col ].texture_reverse_y = dupl_tiles[ _row ][ _col ].texture_reverse_y;
+
+							selected_map.data[ _loop_cell.row ][ _loop_cell.col ].exit_tile = dupl_tiles[ _row ][ _col ].exit_tile;
+							selected_map.data[ _loop_cell.row ][ _loop_cell.col ].exit_map_id = dupl_tiles[ _row ][ _col ].exit_map_id;
+							selected_map.data[ _loop_cell.row ][ _loop_cell.col ].top_layer = dupl_tiles[ _row ][ _col ].top_layer;
+							selected_map.data[ _loop_cell.row ][ _loop_cell.col ].interact_en = dupl_tiles[ _row ][ _col ].interact_en;
+							selected_map.data[ _loop_cell.row ][ _loop_cell.col ].interact_id = dupl_tiles[ _row ][ _col ].interact_id;
+							selected_map.data[ _loop_cell.row ][ _loop_cell.col ].npc_en = dupl_tiles[ _row ][ _col ].npc_en;
+							selected_map.data[ _loop_cell.row ][ _loop_cell.col ].npc_id = dupl_tiles[ _row ][ _col ].npc_id;
+
+							selected_map.data[ _loop_cell.row ][ _loop_cell.col ].can_walk = new Array();
+							$.extend( true, selected_map.data[ _loop_cell.row ][ _loop_cell.col ].can_walk, dupl_tiles[ _row ][ _col ].can_walk ); /* Clone array */
+							selected_map.data[ _loop_cell.row ][ _loop_cell.col ].exit_map_dir = new Array();
+							$.extend( true, selected_map.data[ _loop_cell.row ][ _loop_cell.col ].exit_map_dir, dupl_tiles[ _row ][ _col ].exit_map_dir ); /* Clone array */
+							selected_map.data[ _loop_cell.row ][ _loop_cell.col ].exit_map_pos = new Array();
+							$.extend( true, selected_map.data[ _loop_cell.row ][ _loop_cell.col ].exit_map_pos, dupl_tiles[ _row ][ _col ].exit_map_pos ); /* Clone array */
+
+							/* Update the cell */
+							set_map_cell( false, _loop_cell );
+
+							/* Set the correct cell size */
+							$( "#container #content #map_editor_container #map_editor .map_editor_row[row_id=" + _loop_cell.row + "] .map_editor_cell[col_id=" + _loop_cell.col + "] img" ).css( "width", ( map_cell_size * 5 ) + "px" );
+							$( "#container #content #map_editor_container #map_editor .map_editor_row[row_id=" + _loop_cell.row + "] .map_editor_cell[col_id=" + _loop_cell.col + "] img" ).css( "height", ( map_cell_size * 5 ) + "px" );
+						}
+					}
+				}
+
+				/* Log changes */
+				log_change();
+
+			} else {
+
+				/* Get texture info */
+				var cell_texture_gid = selected_map.data[tile_info.row][tile_info.col].texture_gid;
+				var cell_texture_id = selected_map.data[tile_info.row][tile_info.col].texture_id;
+
+				if( cell_texture_gid != undefined ) {
+					
+					/* If we have a texture to examine, load the info */
+					display_tile_info( tile_info.row, tile_info.col );
+				}
 			}
 		}
 	} );

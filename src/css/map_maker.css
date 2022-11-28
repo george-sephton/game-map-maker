@@ -7,6 +7,23 @@ body {
 
 }
 
+.map_noedit_hover {
+	border-color: #327da8 !important;
+}
+
+#coordinates_tooltip { 
+	position: absolute;
+	z-index: 1;
+	left: 0;
+	top: 0;
+	padding: 8px;
+	background-color: #333;
+	border: 1px solid #999;
+	color: #fff;
+	border-radius: 4px;
+	box-sizing: border-box;
+	display: none;
+}
 #overlay {
 	position: fixed;
 	z-index: 2;

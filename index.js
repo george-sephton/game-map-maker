@@ -113,7 +113,7 @@ const createWindow = () => {
 	];
 
     const menu = Menu.buildFromTemplate( menuTemplate );
-    Menu.setApplicationMenu( menu );
+    //Menu.setApplicationMenu( menu );
 }
 
 app.whenReady().then( () => {
