@@ -241,6 +241,7 @@ function sprite_toolbar_event_listeners() {
 						$( document ).on( "keyup", function( e ) {
 							
 							if( e.key == "Escape" ) {
+								
 								/* Exit new group confirmation */
 								$( "#container #content #project_view #sprite_list_container #sprite_editor_toolbar_new_group" ).css( "display", "none" );
 								$( "#container #content #project_view #sprite_list_container #sprite_list_toolbar" ).css( "display", "flex" );
@@ -304,7 +305,7 @@ function sprite_toolbar_event_listeners() {
 						if(( selected_sprite.sprite != false ) || ( func == "new" ) ) $( "#container #content #project_view #sprite_editor_container #sprite_editor_toolbar_rename #texture_rename" ).attr( "placeholder", "New sprite name" );
 						else $( "#container #content #project_view #sprite_editor_container #sprite_editor_toolbar_rename #texture_rename" ).attr( "placeholder", "New group name" );
 					}
-							
+
 					/* Unbind exisiting event listeners */
 					$( "#container #content #project_view #sprite_editor_container #sprite_editor_toolbar_rename #texture_rename, #container #content #project_view #sprite_list_container #sprite_editor_toolbar_new_group_name #texture_group_name" ).unbind( "keyup blur" );
 					

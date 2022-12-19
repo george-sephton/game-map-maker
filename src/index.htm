@@ -22,6 +22,7 @@
 
 		<script type="text/javascript" src="js/data_gba.js"></script>
 		<script type="text/javascript" src="js/data_ps.js"></script>
+		<script type="text/javascript" src="js/map_settings.js"></script>
 		<script type="text/javascript" src="js/sprites.js"></script>
 		<script type="text/javascript" src="js/textures.js"></script>
 		<script type="text/javascript" src="js/view_home.js"></script>
@@ -34,15 +35,15 @@
 		<div id="overlay">
 			<div id="overlay_text"></div>
 		</div>
-		<div id="container">
-			<div id="notify_container">
-				<span id="notify">
-					<i class="bi-info-circle-fill info"></i>
-					<i class="bi-exclamation-triangle-fill error"></i>
-					<span id="notify_text"></span>
-				</span>
-			</div>
+		<div id="notify_container">
+			<span id="notify">
+				<i class="bi-info-circle-fill info"></i>
+				<i class="bi-exclamation-triangle-fill error"></i>
+				<span id="notify_text"></span>
+			</span>
+		</div>
 
+		<div id="container">
 			<div id="sidebar">
 				<div id="texture_editor">
 				</div>
@@ -126,13 +127,6 @@
 							<input type="button" id="map_export_ps" value="PicoSystem"  />
 							<input type="button" id="map_export_json" value="JSON"  />
 							<input type="button" id="map_export_cancel" value="Cancel"  />
-						</div>
-					</div>
-					<div id="map_settings">
-						<div id="map_settings_heading">Map Settings</div>
-						<div id="map_settings_options">
-							<label for="map_running_en">Allow Running</label>
-							<input type="checkbox" id="map_running_en" name="map_running_en" class="checkbox-input" />
 						</div>
 					</div>
 					<div id="map_paint_preview"></div>
@@ -286,6 +280,44 @@
 				</div>
 				<div id="project_upload">
 					<textarea id="upload_input"></textarea>
+				</div>
+			</div>
+
+			<div id="map_settings">
+				<div id="map_settings_heading">Map Settings</div>
+				<div id="map_settings_toolbar">
+					<i class="bi-plus-square-fill" id="settings_toolbar_new" func="new-option"></i>
+					<i class="bi-trash" id="settings_toolbar_delete" func="delete-option"></i>
+				</div>
+				<div id="map_settings_toolbar_new_option">
+					<input type="button" id="setting_new_option_bool" value="Bool" />
+					<input type="button" id="setting_new_option_int" value="Int" />
+					<input type="button" id="setting_new_option_string" value="String" />
+					<input type="button" id="setting_new_option_cancel" value="Cancel" />
+				</div>
+				<div id="map_settings_content">
+					<div id="map_settings_options">
+						<div class="settings_row">
+							<div class="settings_name">
+								<input type="text" class="text-input" placeholder="Test" />
+							</div>
+							<div class="settings_value">
+								<input type="checkbox" class="checkbox-input" />
+							</div>
+						</div>
+						<div class="settings_row">
+							<div class="settings_name">
+								<input type="text" class="text-input" placeholder="Test" />
+							</div>
+							<div class="settings_value">
+								<input type="text" class="text-input" placeholder="Value" />
+							</div>
+						</div>
+						<div class="settings_row">
+							<div class="settings_name">Test</div>
+							<div class="settings_value">Here</div>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

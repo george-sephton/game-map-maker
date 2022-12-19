@@ -83,8 +83,19 @@ $( function() {
 		//update_cached_images();
 
 		selected_map = project.maps.find( obj => obj.id == 1 );
-		load_map_editing_view();
 
+		/* Add test map settings */
+		project.map_settings = new Array();
+
+		var test_obj = new Object();
+		test_obj.option = "can_run";
+		test_obj.type = "bool";
+
+		project.map_settings[0] = test_obj;
+
+
+		load_map_editing_view();
+		
 		//selected_texture.group = project.textures.find( obj => obj.gid == 2 );
 		//selected_texture.texture = selected_texture.group.textures.find( obj => obj.id == 0 );
 		//load_texture_list();
@@ -107,34 +118,44 @@ var notify_timeout;
 function show_alert( text ) {
 
 	clearTimeout( notify_timeout );
-	$( "#container #notify_container" ).css( "display", "none" );
+	$( "#notify_container" ).css( "display", "none" );
 
-	$( "#container #notify_container" ).css( "display", "flex" ).hide().fadeIn( 500 );
+	$( "#notify_container" ).css( "display", "flex" ).hide().fadeIn( 500 );
 
-	$( "#container #notify_container .error" ).css( "display", "none" );
-	$( "#container #notify_container .info" ).css( "display", "block" );
-	$( "#container #notify_container #notify_text" ).html( text );
+	$( "#notify_container .error" ).css( "display", "none" );
+	$( "#notify_container .info" ).css( "display", "block" );
+	$( "#notify_container #notify_text" ).html( text );
 	
 	notify_timeout = setTimeout( function() {
-		$( "#container #notify_container" ).fadeOut( 500 );
+		$( "#notify_container" ).fadeOut( 500 );
 	}, 3000 );
 }
 
 function show_error( text ) {
 
 	clearTimeout( notify_timeout );
-	$( "#container #notify_container" ).css( "display", "none" );
+	$( "#notify_container" ).css( "display", "none" );
 
-	$( "#container #notify_container" ).css( "display", "flex" ).hide().fadeIn( 500 );
+	$( "#notify_container" ).css( "display", "flex" ).hide().fadeIn( 500 );
 
-	$( "#container #notify_container .error" ).css( "display", "block" );
-	$( "#container #notify_container .info" ).css( "display", "none" );
-	$( "#container #notify_container #notify_text" ).html( text );
+	$( "#notify_container .error" ).css( "display", "block" );
+	$( "#notify_container .info" ).css( "display", "none" );
+	$( "#notify_container #notify_text" ).html( text );
 	
 	notify_timeout = setTimeout( function() {
-		$( "#container #notify_container" ).fadeOut( 500 );
+		$( "#notify_container" ).fadeOut( 500 );
 	}, 3000 );
 }
+
+$( function() {
+
+	/* Click event handler for notification bar */
+	$( "#notify_container" ).on( "click", function( e ) {
+
+		/* Clear the notification bar quickly if clicked */
+		$( this ).fadeOut( 100 );
+	} );
+} );
 
 function clear_changes() {
 
@@ -156,6 +177,8 @@ function disable_controls( hide_name_input = true ) {
 	$( "#toolbar #settings #controls i" ).addClass( "resize_disabled" );
 	$( "#container #content #project_view #map_list_container #map_list_toolbar i" ).addClass( "resize_disabled" );
 	$( "#project_view #map_list .sortable li" ).addClass( "resize_disabled" );
+	
+	$( "#container #map_settings #map_setting_toolbar i" ).addClass( "resize_disabled" );
 
 	$( "#sidebar #texture_list_toolbar i:not( #colour_ind )" ).addClass( "resize_disabled" );
 	$( "#sidebar #texture_list .sortable li" ).addClass( "resize_disabled" );
@@ -203,6 +226,8 @@ function enable_controls() {
 	$( "#container #content #project_view #map_list_container #map_list_toolbar i" ).removeClass( "resize_disabled" );
 	$( "#project_view #map_list .sortable li" ).removeClass( "resize_disabled" );
 	
+	$( "#container #map_settings #map_setting_toolbar i" ).removeClass( "resize_disabled" );
+
 	$( "#sidebar #texture_list_toolbar i" ).removeClass( "resize_disabled" );
 	$( "#sidebar #texture_list .sortable li" ).removeClass( "resize_disabled" );
 

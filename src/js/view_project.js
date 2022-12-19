@@ -16,7 +16,8 @@ function load_project_view() {
 	$( "#container #content #toolbar #settings #name_input_container #paint_auto_inc_en" ).css( "display", "none" );
 	$( "#container #content #toolbar #settings #name_input_container label[for='paint_auto_inc_en']" ).css( "display", "none" );
 
-	$( "#container #toolbar #map_settings" ).css( "display", "none" );
+	$( "#container #map_settings" ).css( "display", "none" );
+	$( "#container #map_settings #map_settings_toolbar_new_option" ).css( "display", "none" );
 
 	$( "#container #content #toolbar" ).css( "display", "flex" );
 	$( "#container #content #toolbar #settings #controls" ).css( "display", "flex" );

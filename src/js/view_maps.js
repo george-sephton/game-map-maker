@@ -1,3 +1,12 @@
+function set_map_editor_width() {
+
+	/* content div width has to be adjusted manually else it won't allow the overflow to work correctly */
+	if( $( "#container #map_settings" ).css( "display" ) == "flex" ) 
+		$( "#container #content" ).css( "max-width", "calc(100vw - 350px - 370px - 40px)" );
+	else 
+		$( "#container #content" ).css( "max-width", "calc(100vw - 350px - 30px)" );
+}
+
 function load_map_editing_view() {
 
 	/* Show project view elements */
@@ -5,7 +14,11 @@ function load_map_editing_view() {
 	$( "#container #sidebar #texture_list_toolbar_rename" ).css( "display", "none" );
 	$( "#container #sidebar #texture_list_toolbar_delete" ).css( "display", "none" );
 
-	$( "#container #content" ).css( "max-width", "calc(100vw - 380px)" );
+	/* Load the map settings panel */
+	$( "#container #map_settings" ).css( "display", "none" );
+	set_map_editor_width();
+
+	load_map_settings();
 
 	$( "#container #content #toolbar #upload_settings" ).css( "display", "none" );
 	$( "#container #content #toolbar #settings" ).css( "display", "flex" );
@@ -21,14 +34,6 @@ function load_map_editing_view() {
 		$( "#container #toolbar #settings #name_input_container #paint_auto_inc_en" ).prop( "checked", true );
 	else 
 		$( "#container #toolbar #settings #name_input_container #paint_auto_inc_en" ).prop( "checked", false );
-
-	$( "#container #toolbar #map_settings" ).css( "display", "flex" );
-
-	/* Set the Allow Running checbox */
-	if( selected_map.can_run )
-		$( "#container #toolbar #map_settings #map_settings_options #map_running_en" ).prop( "checked", true );
-	else
-		$( "#container #toolbar #map_settings #map_settings_options #map_running_en" ).prop( "checked", false );
 
 	$( "#container #content #toolbar #settings #controls" ).css( "display", "flex" );
 	$( "#container #content #toolbar #settings #map_confirm" ).css( "display", "none" );
@@ -380,8 +385,10 @@ function map_editor_toolbar_reset() {
 
 	if( selected_texture.group == false ) {
 
-		$( "#container #toolbar #map_settings" ).css( "display", "flex" );
+		$( "#container #map_settings" ).css( "display", "flex" );
 		$( "#container #toolbar #map_paint_preview" ).css( "display", "block" );
+
+		set_map_editor_width();
 	}
 
 	/* Re-add sorting to the texture list */
@@ -415,7 +422,6 @@ function map_editor_toolbar_reset() {
 function clear_map_toolbar_event_listeners() {
 	
 	$( "#container #toolbar #settings #controls i" ).unbind( "click" );
-	$( "#container #toolbar #map_settings #map_settings_options #map_running_en" ).unbind( "change" );
 	$( "#container #toolbar #settings #name_input_container #paint_auto_inc_en" ).unbind( "change" );
 }
 
@@ -425,12 +431,12 @@ function map_toolbar_event_listeners() {
 	clear_map_toolbar_event_listeners();
 
 	/* Map toolbar event listeners */
-	$( "#container #toolbar #settings #name_input_container #paint_auto_inc_en" ).click(function() {
+	$( "#container #toolbar #settings #name_input_container #paint_auto_inc_en" ).click( function() {
 
 		paint_auto_inc = $( this ).prop( "checked" );
 	} );
 
-	$( "#container #toolbar #settings #controls i" ).click(function() {
+	$( "#container #toolbar #settings #controls i" ).click( function() {
 		
 		var func = $( this ).attr( "func" );
 		
@@ -1049,16 +1055,6 @@ function map_toolbar_event_listeners() {
 	/* Remove map settings event listeners */
 	$( "#container #toolbar #map_paint_settings" ).unbind( "change" );
 
-	/* Map settings event listeners */
-	$( "#container #toolbar #map_settings #map_settings_options #map_running_en" ).on( "change", function( e ) {
-
-		/* Set the allow running setting */
-		selected_map.can_run = $( this ).prop( "checked" );
-
-		/* Log changes */
-		log_change();
-	} );
-
 	/* Remove map paint settings event listeners */
 	$( "#container #toolbar #map_paint_settings" ).unbind( "keyup change" );
 
@@ -1347,7 +1343,8 @@ function map_editor_start_drawing() {
 	$( ".sprite_picker" ).addClass( "auto_cursor" );
 	$( ".texture_picker" ).addClass( "auto_cursor" );
 
-	$( "#container #toolbar #map_settings" ).css( "display", "none" );
+	$( "#container #map_settings" ).css( "display", "none" );
+	set_map_editor_width();
 
 	/* Disable sorting on texture list */
 	clear_texture_list_sortable();
