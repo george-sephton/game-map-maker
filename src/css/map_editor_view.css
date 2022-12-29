@@ -605,8 +605,9 @@
 	justify-content: center;
 	align-items: flex-start;
 	overflow: hidden;
+	cursor: pointer;
 }
-#container #map_settings #map_settings_content #map_settings_options .text-input {
+#container #map_settings #map_settings_content #map_settings_options .text-input, #container #map_settings #map_settings_content #map_settings_options .number-input {
 	box-sizing: border-box;
 	width: 100%;
 	font-size: 14px;

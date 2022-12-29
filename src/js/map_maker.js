@@ -104,9 +104,7 @@ $( function() {
 			test_map_obj.option = "test_option ";
 			test_map_obj.value = 32;
 
-			selected_map.map_settings.push( test_map_obj )
-
-			console.log( project.maps );
+			selected_map.map_settings.push( test_map_obj );
 
 		/* Temporary dev code - END */
 

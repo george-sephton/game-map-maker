@@ -32,10 +32,18 @@ function load_map_settings( delete_option = false ) {
 						show_value = "<em><b>empty</b></em>";
 					else
 						show_value = "<b>" + option_obj.value + "</b>";
-				} else {
+				} else if( value.type == "int" ) {
 
-					/* Ints and bools */
-					show_value = "<b>" + option_obj.value + "</b>"
+					/* Integers */
+					show_value = "<b>" + option_obj.value + "</b>";
+				} else if( value.type == "bool" ) {
+
+					/* Booleans */
+					if( option_obj.value ) {
+						show_value = '<input type="checkbox" class="checkbox-input" checked="checked" />';
+					} else {
+						show_value = '<input type="checkbox" class="checkbox-input" />';
+					}
 				}
 			} else {
 
@@ -43,12 +51,18 @@ function load_map_settings( delete_option = false ) {
 
 					case "string":  show_value = "<em>empty</em>"; break;
 					case "int":     show_value = "<em>0</em>"; break;
-					case "bool":    show_value = "<em>false</em>"; break;
+					case "bool":    show_value = '<input type="checkbox" class="checkbox-input" />'; break;
 				}
 			}
 		}
+
+		var store_value = "";
+
+		if(( value.type == "int" ) || ( value.type == "string" ) )
+			store_value = ' old_value="' + show_value + '"';
+
 		/* Add the rows */
-		$( "#container #map_settings #map_settings_content #map_settings_options" ).append( '<div class="settings_row" option_name="' + value.option + '"><div class="settings_name">' + value.option + '</div><div class="settings_value">' + show_value + '</div></div>' );
+		$( "#container #map_settings #map_settings_content #map_settings_options" ).append( '<div class="settings_row" option_name="' + value.option + '"><div class="settings_name">' + value.option + '</div><div class="settings_value"' + store_value + '>' + show_value + '</div></div>' );
 	} );
 
 	/* Load event listeners */
@@ -256,10 +270,11 @@ function map_settings_toolbar_event_listeners() {
 		}
 	} );
 }
-
 function clear_map_settings_value_event_listeners() {
 
-	$( "#container #map_settings #map_settings_content #map_settings_options .settings_row .settings_value" ).unbind( "dblclick" );
+	$( "#container #map_settings #map_settings_content #map_settings_options .settings_row .settings_value:not(input)" ).unbind( "mousedown" );
+	$( "#container #map_settings #map_settings_content #map_settings_options .settings_row .settings_value:not(input)" ).unbind( "dblclick" );
+	$( "#container #map_settings #map_settings_content #map_settings_options .settings_row .settings_value input[type=checkbox]" ).unbind( "change" );
 }
 
 function map_settings_value_event_listeners() {
@@ -267,10 +282,149 @@ function map_settings_value_event_listeners() {
 	/* Remove all event listeners */
 	clear_map_settings_value_event_listeners();
 
-	/* Map settings toolbar event listeners */
-	$( "#container #map_settings #map_settings_content #map_settings_options .settings_row .settings_value" ).dblclick( function() {
+	/* Prevent text highlight on double click */
+	$( "#container #map_settings #map_settings_content #map_settings_options .settings_row .settings_value:not(input)" ).mousedown( function() { return false; } );
 
-		console.log( $( this ).parent().attr( "option_name" ) );
+	/* Boolean event listeners */
+	$( "#container #map_settings #map_settings_content #map_settings_options .settings_row .settings_value input[type=checkbox]" ).on( "change", function() {
+
+		/* Get the variables for the option value we're editing and the value */
+		var option_name = $( this ).parent().parent().attr( "option_name" );
+		var option_value = $( this ).is( ":checked" );
+
+		/* Save the value */
+		var map_option_obj = selected_map.map_settings.find( obj => obj.option == option_name );
+		map_option_obj.value = option_value;
+
+		/* Log changes */
+		log_change();
+	} );
+
+	/* String and Integer event listeners */
+	$( "#container #map_settings #map_settings_content #map_settings_options .settings_row .settings_value:not(input)" ).dblclick( function() {
+
+		/* Get the variables for the option value we're editing */
+		var option_name = $( this ).parent().attr( "option_name" );
+		var option_value = "";
+
+		var option_obj = project.map_settings.find( obj => obj.option == option_name );
+		var map_option_obj = selected_map.map_settings.find( obj => obj.option == option_name );
+
+		/* Ignore any booleans, this is only for strings and ints */
+		if( option_obj.type != "bool" ) {
+
+			/* Get the actual value */
+			if( ( map_option_obj == "" ) || ( map_option_obj == undefined ) ) {
+
+				/* Option not found, default to empty */
+				switch( option_obj.type ) {
+
+					case "string":  option_value = ""; break;
+					case "int":     option_value = 0; break;
+				}
+			} else {
+
+				/* Option already has a value assigned */
+				option_value = map_option_obj.value;
+			}
+
+			/* Change the value to an input */
+			var input_html = "";
+
+			switch( option_obj.type ) {
+
+				case "int": /* Option is an int, show a textbox */
+					
+					input_html = '<input type="text" class="number-input" placeholder="' + option_value + '" />';
+					break;
+				case "string": /* Option is a string, show a textbox */
+					
+					input_html = '<input type="text" class="text-input" placeholder="' + option_value + '" />';
+					break;
+			}
+
+			/* Change the HTML to our input and focus */
+			$( this ).html( input_html );
+			$( this ).find( "input" ).focus();
+
+			/* Ensure only numbers are allowed in int fields */
+			if( option_obj.type == "int" ) {
+
+				/* Remove any existing bindings */
+				$( ".number-input" ).unbind( "input" );
+
+				$( ".number-input" ).on( "input", function( e ) {
+					
+					$( this ).val( $( this ).val().replace( /\D/g, "" ) );
+					
+					if( ( e.which < 48 || e.which > 57) ) {
+						e.preventDefault();
+					}
+				} );
+			}
+		
+			/* Store the current selector */
+			var val_selector = $( this );
+
+			/* Add event listeners to allow saving */
+			$( this ).find( "input" ).on( "keyup blur", function( e ) {
+								
+				/* Save the new option */
+				if( e.key == "Enter" ) {
+
+					/* Get entered name */
+					var new_value = sanitise_input( $( this ).val() );
+
+					if( ( ( new_value == "" ) || ( new_value == undefined ) ) && ( option_obj.type == "int" ) ) {
+
+						/* User entered a blank value for an integer, change it to a 0 */
+						new_value = 0;
+					}
+
+					/* Save the value */
+					if( ( map_option_obj == "" ) || ( map_option_obj == undefined ) ) {
+
+						/* The current map doesn't have anything assigned for this option */
+						var new_option_obj = new Object();
+						new_option_obj.option = option_name;
+						new_option_obj.value = new_value;
+
+						/* Add in our new value */
+						selected_map.map_settings.push( new_option_obj );
+					} else {
+
+						/* Update the exisiting option */
+						map_option_obj.value = new_value;
+					}
+
+					/* Revert the table back to normal */
+					if( ( ( new_value == "" ) || ( new_value == undefined ) ) && ( option_obj.type == "string" ) ) {
+
+						/* The new value is blank, let's show this as empty */
+						val_selector.html( "<em><b>empty</b></em>" );
+
+					} else {
+
+						/* Draw the entered value */
+						val_selector.html( "<b>" + new_value + "</b>" );
+					}
+
+					/* Store the new old value */
+					val_selector.attr( "old_value", val_selector.html() );
+
+					/* Log changes */
+					log_change();	
+				}
+
+				/* Discard the new option */
+				if( ( e.key == "Escape" ) || ( e.type == "blur" ) ) {
+				
+					val_selector.html( val_selector.attr( "old_value" ) );
+				}
+			} );
+
+			return false;
+		}
 	} );
 }
 
