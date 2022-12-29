@@ -54,8 +54,15 @@ function load_map_settings( delete_option = false ) {
 	/* Load event listeners */
 	map_settings_toolbar_event_listeners();
 
-	if( delete_option )
+	if( delete_option ) {
+		
+		/* Add event listeners to the delete icons */
 		map_settings_delete_option_event_listeners();
+	} else {
+
+		/* Add event listeners to the values to allow editing */
+		map_settings_value_event_listeners();
+	}
 }
 
 function clear_map_settings_toolbar_event_listeners() {
@@ -250,6 +257,23 @@ function map_settings_toolbar_event_listeners() {
 	} );
 }
 
+function clear_map_settings_value_event_listeners() {
+
+	$( "#container #map_settings #map_settings_content #map_settings_options .settings_row .settings_value" ).unbind( "dblclick" );
+}
+
+function map_settings_value_event_listeners() {
+
+	/* Remove all event listeners */
+	clear_map_settings_value_event_listeners();
+
+	/* Map settings toolbar event listeners */
+	$( "#container #map_settings #map_settings_content #map_settings_options .settings_row .settings_value" ).dblclick( function() {
+
+		console.log( $( this ).parent().attr( "option_name" ) );
+	} );
+}
+
 function clear_map_settings_delete_option_event_listeners() {
 	
 	$( "#container #map_settings #map_settings_content #map_settings_options .settings_row .settings_value #delete_option" ).unbind( "click" );
@@ -290,22 +314,20 @@ function map_settings_delete_option_event_listeners() {
 
 			if( $( this ).attr( "id" ) == "setting_delete_option_confirm" ) {
 
+				/* Create a global variable so we can pass it to functions later on */
+				var delete_option = $( this ).attr( "delete_option" );
+
 				/* Remove the option from the project map settings list */
-				project.map_settings = project.map_settings.filter( obj => obj.option != $( this ).attr( "delete_option" ) );
+				project.map_settings = project.map_settings.filter( obj => obj.option != delete_option );
 
 				/* Sort the map settings array alphabetically by option name */
 				sort_map_settings_by_name();
 
-				/* Remove the option from the current map settings list */
-
-
-
-
-
-
-
-
-
+				/* Remove the option from all map settings lists */
+				$.each( project.maps, function( key, map ) {
+					
+					map.map_settings = map.map_settings.filter( obj => obj.option != delete_option );
+				} );
 
 				/* Exit delete option confirmation */
 				$( "#container #map_settings #map_settings_toolbar_delete_option" ).css( "display", "none" );
