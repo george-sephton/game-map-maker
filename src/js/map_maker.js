@@ -84,15 +84,17 @@ $( function() {
 
 		selected_map = project.maps.find( obj => obj.id == 1 );
 
-		/* Add test map settings */
-		project.map_settings = new Array();
+		/* Temporary dev code - START */
 
-		var test_obj = new Object();
-		test_obj.option = "can_run";
-		test_obj.type = "bool";
+			var test_obj = new Object();
+			test_obj.option = "unassigned_object_lots_of_text ";
+			test_obj.type = "string";
 
-		project.map_settings[0] = test_obj;
+			project.map_settings[1] = test_obj;
 
+			console.log( project.maps );
+
+		/* Temporary dev code - END */
 
 		load_map_editing_view();
 		
@@ -186,6 +188,8 @@ function disable_controls( hide_name_input = true ) {
 	$( "#project_view #sprite_list_toolbar i" ).addClass( "resize_disabled" );
 	$( "#project_view #sprite_list .sortable li" ).addClass( "resize_disabled" );
 
+	$( "#container #map_settings #map_settings_toolbar i" ).addClass( "resize_disabled" );
+
 	$( ".sprite_picker" ).addClass( "auto_cursor" );
 	$( ".texture_picker" ).addClass( "auto_cursor" );
 
@@ -234,6 +238,8 @@ function enable_controls() {
 	$( "#project_view #sprite_list_toolbar i" ).removeClass( "resize_disabled" );
 	$( "#project_view #sprite_list .sortable li" ).removeClass( "resize_disabled" );
 	$( "#project_view #sprite_editor_toolbar i" ).removeClass( "resize_disabled" );
+
+	$( "#container #map_settings #map_settings_toolbar i" ).removeClass( "resize_disabled" );
 
 	$( ".sprite_picker" ).removeClass( "auto_cursor" );
 	$( ".texture_picker" ).removeClass( "auto_cursor" );

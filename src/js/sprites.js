@@ -731,7 +731,7 @@ function sprite_list_sortable() {
 
 		/* Log changes */
 		log_change();
-					
+
 		/* Reload sprite list */
 		load_sprite_list();
 
