@@ -70,9 +70,9 @@ $( function() {
 	/* Load map settings panel event listener, only called once */
 	map_settings_panel_event_listeners();
 
-	//load_project_list();
+	load_project_list();
 
-	//return;
+	return;
 
 	/* Debug */
 	$( async () => {
@@ -94,12 +94,6 @@ $( function() {
 		//selected_texture.texture = selected_texture.group.textures.find( obj => obj.id == 0 );
 		//load_texture_list();
 	} );
-} );
-
-/* Prevent accidental refreshes */
-$( window ).on( "beforeunload", function() {
-
-	//return false;
 } );
 
 function sanitise_input( input_text ) {
