@@ -83,7 +83,7 @@ const createWindow = () => {
 		width: mainWindowStateKeeper.width,
 		height: mainWindowStateKeeper.height,
 		minWidth: 1360,
-		minHeight: 666,
+		minHeight: 662,
 		fullscreenable: false,
 		menuBarVisible: false,
 		autoHideMenuBar: true,

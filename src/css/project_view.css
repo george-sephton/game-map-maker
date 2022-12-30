@@ -314,8 +314,8 @@
 	width: 100%;
 	background:#fff;
 	box-sizing: border-box;
-	padding: 8px;
-	height: 46px;
+	padding: 6px;
+	height: 42px;
 
 	display: none;
 	flex-direction: row;
@@ -326,8 +326,8 @@
 	width: 100%;
 	background:#fff;
 	box-sizing: border-box;
-	padding: 8px;
-	height: 46px;
+	padding: 6px;
+	height: 42px;
 	display: none;
 }
 #container #content #project_view #sprite_editor_container #sprite_editor_toolbar_rename input {
@@ -341,8 +341,8 @@
 	width: 100%;
 	background:#fff;
 	box-sizing: border-box;
-	padding: 8px;
-	height: 46px;
+	padding: 6px;
+	height: 42px;
 	display: none;
 	justify-content: center;
 	align-items: center;
@@ -375,8 +375,8 @@
 }
 #container #content #project_view #sprite_editor_container #sprite_editor_toolbar i {
 	color: #333;
-	font-size: 24px;
-	margin: 0 8px 0 0;
+	font-size: 22px;
+	margin: 0 6px 0 0;
 }
 #container #content #project_view #sprite_editor_container #sprite_editor_toolbar i:hover:not( #colour_ind ) {
 	color: #8bb1c7;
