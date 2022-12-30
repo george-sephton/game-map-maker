@@ -1,6 +1,6 @@
 #container #sidebar {
-	min-width: 350px;
-	width: 350px;
+	min-width: 330px;
+	width: 330px;
 	height: 100%;
 	box-sizing: border-box;
 	gap: 10px;
@@ -10,7 +10,7 @@
 }
 #container #sidebar #texture_editor {
 	width: 100%;
-	min-height: 380px;
+	min-height: 340px;
 	background:#fff;
 	box-sizing: border-box;
 	padding: 10px;
@@ -20,7 +20,7 @@
 }
 #container #sidebar #texture_editor_empty {
 	width: 100%;
-	min-height: 380px;
+	min-height: 340px;
 	background:#fff;
 	box-sizing: border-box;
 	padding: 10px;

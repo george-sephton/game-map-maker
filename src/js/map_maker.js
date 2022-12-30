@@ -71,7 +71,6 @@ $( function() {
 	map_settings_panel_event_listeners();
 
 	load_project_list();
-
 	return;
 
 	/* Debug */
@@ -80,14 +79,13 @@ $( function() {
 		//$( "#overlay" ).css( "display", "flex" );
 		//$( "#overlay #overlay_text" ).html( "Project Loading" );
 
-		project = await window.electronAPI.load_project_data( "gba_game" );
-		load_project_view();
+		//project = await window.electronAPI.load_project_data( "gba_game" );
+		//load_project_view();
 
 		/* Update cached images */
 		//update_cached_images();
 
 		//selected_map = project.maps.find( obj => obj.id == 1 );
-
 		//load_map_editing_view();
 		
 		//selected_texture.group = project.textures.find( obj => obj.gid == 2 );
@@ -246,6 +244,9 @@ function enable_controls() {
 		
 		$( "#container #toolbar #map_settings" ).css( "display", "flex" );
 		$( "#container #toolbar #map_paint_preview" ).css( "display", "block" );
+
+		/* Re-enable the map settings panel */
+		map_settings_panel_enable();
 	}
 
 	/* Hide auto increment option */

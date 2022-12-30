@@ -103,6 +103,9 @@ function close_map_editing_view( log_switch_view = true ) {
 	drawing_functions = false;
 	controls_disabled = false;
 
+	/* Re-enable the map settings panel */
+	map_settings_panel_enable();
+
 	/* Clear map editing elements */
 	$( "#container #sidebar #texture_list .sortable" ).html( "" );
 	$( "#container #content #map_editor_container #map_editor" ).html( "" );
@@ -1344,6 +1347,9 @@ function map_editor_start_drawing() {
 
 	/* Add hover functionality to map editor */
 	$( "#container #map_editor_container #map_editor .map_editor_row .map_editor_cell" ).addClass( "map_editor_cell_draw" );
+
+	/* Hide the map settings panel once we select the eyedropper, eraser or duplicator tool */
+	map_settings_panel_hide( true );
 }
 
 function clear_map_editor_event_listeners() {

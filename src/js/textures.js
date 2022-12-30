@@ -144,6 +144,9 @@ function texture_list_event_listeners() {
 					load_texture_list();
 				}
 			}
+
+			/* Hide the map settings panel once a texture or group has been selected */
+			map_settings_panel_hide( true );
 		}
 	});
 }
@@ -552,6 +555,9 @@ function texture_toolbar_event_listeners() {
 					
 					/* Reload texture list */
 					load_texture_list();
+
+					/* Re-enable the map settings panel */
+					map_settings_panel_enable();
 					break;
 				case "texture-erase": /* Erase pixels */
 

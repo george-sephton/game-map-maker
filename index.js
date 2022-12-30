@@ -82,7 +82,7 @@ const createWindow = () => {
 		y: mainWindowStateKeeper.y,
 		width: mainWindowStateKeeper.width,
 		height: mainWindowStateKeeper.height,
-		minWidth: 800,
+		minWidth: 1360,
 		minHeight: 700,
 		fullscreenable: false,
 		menuBarVisible: false,
@@ -114,6 +114,8 @@ const createWindow = () => {
 
     const menu = Menu.buildFromTemplate( menuTemplate );
     Menu.setApplicationMenu( menu );
+
+	//console.log('size:', mainWindow.getSize());
 }
 
 app.whenReady().then( () => {

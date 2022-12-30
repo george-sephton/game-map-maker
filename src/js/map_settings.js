@@ -87,26 +87,44 @@ function load_map_settings( delete_option = false ) {
 
 function map_settings_panel_show() {
 
-	$( "#container #map_settings" ).css( "display", "flex" );
-	$( "#container #map_settings_hidden" ).css( "display", "none" );
+	/* Don't show when there's a texture selected */
+	if( ( selected_texture.group == false ) && ( drawing_functions == false ) ) {
 
-	/* content div width has to be adjusted manually else it won't allow the overflow to work correctly */
-	$( "#container #content" ).css( "max-width", "calc(100vw - 350px - 370px - 40px)" );
+		$( "#container #map_settings" ).css( "display", "flex" );
+		$( "#container #map_settings_hidden" ).css( "display", "none" );
 
-	/* Store the state for later */
-	map_settings_show = true;
+		/* content div width has to be adjusted manually else it won't allow the overflow to work correctly */
+		$( "#container #content" ).css( "max-width", "calc(100vw - 330px - 370px - 40px)" );
+
+		/* Store the state for later */
+		map_settings_show = true;
+	}
 }
 
-function map_settings_panel_hide() {
+function map_settings_panel_hide( disable_panel = false ) {
 	
 	$( "#container #map_settings" ).css( "display", "none" );
 	$( "#container #map_settings_hidden" ).css( "display", "flex" );
 	
 	/* content div width has to be adjusted manually else it won't allow the overflow to work correctly */
-	$( "#container #content" ).css( "max-width", "calc(100vw - 350px - 30px - 50px)" );
+	$( "#container #content" ).css( "max-width", "calc(100vw - 330px - 30px - 50px)" );
 
 	/* Store the state for later */
 	map_settings_show = false;
+
+	/* Also disable the panel if requested */
+	if( disable_panel )
+		map_settings_panel_disable();
+}
+
+function map_settings_panel_enable() {
+
+	$( "#container #map_settings_hidden i" ).removeClass( "resize_disabled" );
+}
+
+function map_settings_panel_disable() {
+
+	$( "#container #map_settings_hidden i" ).addClass( "resize_disabled" );
 }
 
 function map_settings_panel_event_listeners() {

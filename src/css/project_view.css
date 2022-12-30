@@ -279,8 +279,8 @@
 
 
 #container #content #project_view #sprite_editor_container {
-	min-width: 600px;
-	max-width: 600px;
+	min-width: 450px;
+	max-width: 450px;
 	box-sizing: border-box;
 	overflow: auto;
 	gap: 10px;
@@ -290,8 +290,8 @@
 }
 #container #content #project_view #sprite_editor_container #sprite_editor {
 	width: 100%;
-	min-height: 600px;
-	max-height: 600px;
+	min-height: 450px;
+	max-height: 450px;
 	background: #fff;
 	box-sizing: border-box;
 	padding: 10px;
@@ -387,8 +387,8 @@
 }
 #container #content #project_view #sprite_editor_container #sprite_editor_empty {
 	width: 100%;
-	min-height: 600px;
-	max-height: 600px;
+	min-height: 450px;
+	max-height: 450px;
 	background: #fff;
 	box-sizing: border-box;
 	padding: 10px;
