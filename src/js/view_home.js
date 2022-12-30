@@ -146,24 +146,18 @@ function update_cached_images() {
 		_image_cache_count = 0;
 		_image_cache_count_errors = 0;
 
-		/* First delete all old cached images */
-		//if( await window.electronAPI.delete_all_cached_images( project.name.toLowerCase().replace( / /g, "_" ) ) ) {
+		/* Loop through each texture group */
+		$.each( project.textures , function( gi, g_texture ) {
 
-			/* Then loop through each sprite group */
-			$.each( project.textures , function( gi, g_texture ) {
+			sort_textures_by_order( g_texture.gid );
 
-				sort_textures_by_order( g_texture.gid );
+			/* Loop through each texture in the group */
+			$.each( g_texture.textures, function( ti, texture ) {
 
-				/* Loop through each sprite in the group */
-				$.each( g_texture.textures, function( ti, texture ) {
-
-					window.electronAPI.update_cached_image( project.name.toLowerCase().replace( / /g, "_" ), "textures", 8, ( g_texture.name + "_" + ti ).toLowerCase().replace( / /g, "_" ), texture );
-				} );
-			} );			
-		//} else {
-
-		//	show_error( "Error caching project textures." );
-		//}
+				/* Update the cache */
+				window.electronAPI.update_cached_image( project.name.toLowerCase().replace( / /g, "_" ), "textures", 8, ( g_texture.name + "_" + ti ).toLowerCase().replace( / /g, "_" ), texture );
+			} );
+		} );
 	} );
 }
 

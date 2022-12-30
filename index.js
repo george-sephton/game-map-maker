@@ -99,7 +99,7 @@ const createWindow = () => {
 
 	// and load the index.html of the app.
 	mainWindow.loadFile( "src/index.htm" );
-	mainWindow.webContents.openDevTools();
+	//mainWindow.webContents.openDevTools();
 
 	mainWindow.once( "ready-to-show", () => {
 		mainWindow.webContents.setZoomFactor( 1.0 );
@@ -113,7 +113,7 @@ const createWindow = () => {
 	];
 
     const menu = Menu.buildFromTemplate( menuTemplate );
-    //Menu.setApplicationMenu( menu );
+    Menu.setApplicationMenu( menu );
 
 	//console.log('size:', mainWindow.getSize());
 }
@@ -132,7 +132,6 @@ app.whenReady().then( () => {
 	ipcMain.handle( "rename_project", rename_project );
 	ipcMain.handle( "import_project", import_project );
 
-	ipcMain.handle( "delete_all_cached_images", delete_all_cached_images );
 	ipcMain.on( "update_cached_image", update_cached_image );
 
 	/* Create the window */
@@ -466,19 +465,6 @@ async function import_project( e ) {
 	}
 
 	return { cancelled: canceled, data: data };
-}
-
-function delete_all_cached_images( e, project_name ) {
-
-	/* Recursively delete the project directory */
-	try {
-
-		//fs.rmSync( path.join( __dirname, "projects", project_name, "cache" ), { recursive: true, force: true } );
-		return true;
-	} catch ( e ) {
-	
-		return false;
-	}
 }
 
 function update_cached_image( e, project_name, image_type, image_size, image_name, image_data ) {

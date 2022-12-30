@@ -76,14 +76,14 @@ $( function() {
 	/* Debug */
 	$( async () => {
 
-		//$( "#overlay" ).css( "display", "flex" );
-		//$( "#overlay #overlay_text" ).html( "Project Loading" );
+		$( "#overlay" ).css( "display", "flex" );
+		$( "#overlay #overlay_text" ).html( "Project Loading" );
 
-		//project = await window.electronAPI.load_project_data( "small" );
-		//load_project_view();
+		project = await window.electronAPI.load_project_data( "gba_game" );
+		load_project_view();
 
 		/* Update cached images */
-		//update_cached_images();
+		update_cached_images();
 
 		//selected_map = project.maps.find( obj => obj.id == 1 );
 		//load_map_editing_view();
