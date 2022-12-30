@@ -438,6 +438,29 @@
 	border-color: #00f !important;
 }
 
+#container #map_settings_hidden {
+	min-width: 40px;
+	width: 40px;
+	height: 100%;
+	box-sizing: border-box;
+	padding: 7px;
+	background: #fff;
+
+	display: none;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: center;
+}
+#container #map_settings_hidden i {
+	color: #333;
+	font-size: 20px;
+	margin: 3px 0 0 0;
+}
+#container #map_settings_hidden i:hover {
+	color: #8bb1c7;
+	cursor: pointer;
+}
+
 #container #map_settings {
 	min-width: 370px;
 	width: 370px;
@@ -457,6 +480,17 @@
 	display: flex;
 	flex-direction: row;
 	font-size: 18px;
+	justify-content: space-between;
+	align-items: center;
+}
+#container #map_settings #map_settings_heading i {
+	color: #333;
+	font-size: 20px;
+	margin: 3px 0 0 0;
+}
+#container #map_settings #map_settings_heading i:hover {
+	color: #8bb1c7;
+	cursor: pointer;
 }
 #container #map_settings #map_settings_toolbar {
 	width: 100%;

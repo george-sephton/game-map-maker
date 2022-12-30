@@ -1,12 +1,3 @@
-function set_map_editor_width() {
-
-	/* content div width has to be adjusted manually else it won't allow the overflow to work correctly */
-	if( $( "#container #map_settings" ).css( "display" ) == "flex" ) 
-		$( "#container #content" ).css( "max-width", "calc(100vw - 350px - 370px - 40px)" );
-	else 
-		$( "#container #content" ).css( "max-width", "calc(100vw - 350px - 30px)" );
-}
-
 function load_map_editing_view() {
 
 	/* Show project view elements */
@@ -15,9 +6,7 @@ function load_map_editing_view() {
 	$( "#container #sidebar #texture_list_toolbar_delete" ).css( "display", "none" );
 
 	/* Load the map settings panel */
-	$( "#container #map_settings" ).css( "display", "none" );
-	set_map_editor_width();
-
+	map_settings_panel_hide();
 	load_map_settings();
 
 	$( "#container #content #toolbar #upload_settings" ).css( "display", "none" );
@@ -60,6 +49,10 @@ function load_map_editing_view() {
 	/* Show project icons */
 	$( ".project_functions" ).css( "display", "none" );
 	$( ".map_editing_functions" ).css( "display", "block" );
+
+	/* Set the zoom */
+	map_cell_size = 6;
+	map_border_size = 1;
 
 	/* Set variables */
 	drawing_functions = false;
@@ -383,13 +376,8 @@ function map_editor_toolbar_reset() {
 	$( "#container #toolbar #map_paint_settings #exit_tile_map_pos_y" ).val( "" );
 	$( "#container #toolbar #map_paint_settings #exit_tile_map_pos_y" ).css( "background", "#fff" );
 
-	if( selected_texture.group == false ) {
-
-		$( "#container #map_settings" ).css( "display", "flex" );
+	if( selected_texture.group == false )		
 		$( "#container #toolbar #map_paint_preview" ).css( "display", "block" );
-
-		set_map_editor_width();
-	}
 
 	/* Re-add sorting to the texture list */
 	texture_list_sortable();
@@ -1342,9 +1330,6 @@ function map_editor_start_drawing() {
 	/* Disable colour picker */
 	$( ".sprite_picker" ).addClass( "auto_cursor" );
 	$( ".texture_picker" ).addClass( "auto_cursor" );
-
-	$( "#container #map_settings" ).css( "display", "none" );
-	set_map_editor_width();
 
 	/* Disable sorting on texture list */
 	clear_texture_list_sortable();

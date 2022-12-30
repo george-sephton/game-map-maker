@@ -66,6 +66,9 @@ $( function() {
 	load_texture_editor_colour_pickers();
 	load_sprite_editor_colour_pickers();
 
+	/* Load map settings panel event listener, only called once */
+	map_settings_panel_event_listeners();
+
 	//load_project_list();
 
 	//return;

@@ -85,6 +85,38 @@ function load_map_settings( delete_option = false ) {
 	}
 }
 
+function map_settings_panel_show() {
+
+	$( "#container #map_settings" ).css( "display", "flex" );
+	$( "#container #map_settings_hidden" ).css( "display", "none" );
+
+	/* content div width has to be adjusted manually else it won't allow the overflow to work correctly */
+	$( "#container #content" ).css( "max-width", "calc(100vw - 350px - 370px - 40px)" );
+}
+
+function map_settings_panel_hide() {
+	
+	$( "#container #map_settings" ).css( "display", "none" );
+	$( "#container #map_settings_hidden" ).css( "display", "flex" );
+	
+	/* content div width has to be adjusted manually else it won't allow the overflow to work correctly */
+	$( "#container #content" ).css( "max-width", "calc(100vw - 350px - 30px - 50px)" );
+}
+
+function map_settings_panel_event_listeners() {
+
+	$( "#container #map_settings #map_settings_heading i, #container #map_settings_hidden i" ).click( function() {
+
+		if( $( "#container #map_settings" ).css( "display" ) == "flex" ) {
+
+			map_settings_panel_hide();
+		} else {
+
+			map_settings_panel_show();
+		}
+	} );
+}
+
 function clear_map_settings_toolbar_event_listeners() {
 	
 	$( "#container #map_settings #map_settings_toolbar i" ).unbind( "click" );

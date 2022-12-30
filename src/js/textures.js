@@ -36,10 +36,7 @@ function load_texture_list() {
 		$( "#texture_list_toolbar #toolbar_left #toolbar_back" ).css( "display", "none" );
 		$( "#texture_list_toolbar #toolbar_right" ).css( "display", "none" );
 
-		/* Show the map settings */
-		$( "#container #map_settings" ).css( "display", "flex" );
-		set_map_editor_width();
-
+		/* Load the texture preview */
 		load_texture_preview( true );
 
 	} else {
@@ -83,12 +80,6 @@ function load_texture_list() {
 		$( "#texture_list_toolbar #toolbar_left #toolbar_new_texture" ).css( "display", "block" );
 		$( "#texture_list_toolbar #toolbar_left #toolbar_back" ).css( "display", "block" );
 		$( "#texture_list_toolbar #toolbar_right" ).css( "display", "flex" );
-
-		/* Hide the map settings */
-		$( "#container #map_settings" ).css( "display", "none" );
-		$( "#container #toolbar #map_paint_preview" ).css( "display", "none" );
-		
-		set_map_editor_width();
 	}
 
 	/* Add event listeners to the list */
@@ -169,12 +160,6 @@ function load_texture_preview( bg_texture = false ) {
 	/* Setup the texture paint preview */
 	$( "#container #toolbar #map_paint_preview" ).css( "display", "block" );
 	$( "#container #toolbar #map_paint_preview" ).html( "<table></table>" );
-
-	if( !bg_texture ) {
-
-		$( "#container #map_settings" ).css( "display", "none" );
-		set_map_editor_width();
-	}
 	
 	/* Add 8 rows */
 	for(i=0; i<8; i++)
