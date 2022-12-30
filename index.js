@@ -473,7 +473,7 @@ function delete_all_cached_images( e, project_name ) {
 	/* Recursively delete the project directory */
 	try {
 
-		fs.rmSync( path.join( __dirname, "projects", project_name, "cache" ), { recursive: true, force: true } );
+		//fs.rmSync( path.join( __dirname, "projects", project_name, "cache" ), { recursive: true, force: true } );
 		return true;
 	} catch ( e ) {
 	
@@ -483,51 +483,136 @@ function delete_all_cached_images( e, project_name ) {
 
 function update_cached_image( e, project_name, image_type, image_size, image_name, image_data ) {
 
-	/* Create a new blank image */
-	let image = new Jimp( image_size, image_size, function ( err, image ) {
-		
-		if( !err ) {
+	/* First see if the directories exists */
+	if( !fs.existsSync( path.join(  __dirname, "projects", project_name, "cache" ) ) ) {
 
-			/* Map the pixels correct */
-			var _image_data = Array.from( { length: image_size }, () => Array.from( { length: image_size }, () => undefined ) );
+		/* Cache folder doesn't exist, let's create it */
+		try {
 
-			for( var row_sel = 0; row_sel < image_size; row_sel++ )
-				for( var col_sel = 0; col_sel < image_size; col_sel++ )
-					_image_data[ col_sel ][ row_sel ]  = image_data.data[ row_sel ][ col_sel ];
+			fs.mkdirSync( path.join(  __dirname, "projects", project_name, "cache" ) );
 
-			/* Loop through each pixel to add to the image */
-			_image_data.forEach( ( row, y ) => {
+			if( !fs.existsSync( path.join(  __dirname, "projects", project_name, "cache", image_type ) ) ) {
 
-				row.forEach( ( colour, x ) => {
+				/* Image Type folder doesn't exist, let's create it */
+				try {
 
-					/* If we have a transparent pixel, don't add it to the image */
-					if( ( colour == "" ) || ( colour == null ) )
-						image.setPixelColor( Jimp.rgbaToInt( 0, 0, 0, 0 ), parseInt( x ), parseInt( y ) );
-					else 
-						image.setPixelColor( Jimp.cssColorToHex( "#" + colour ), parseInt( x ), parseInt( y ) );
-				} );
-			} );
-
-			/* Resize to a nice large size */
-			image.resize( 512, 512 , Jimp.RESIZE_NEAREST_NEIGHBOR );
-
-			/* Save the image to project directory */
-			image.write( path.join(  __dirname, "projects", project_name, "cache", image_type, image_name + ".png" ), ( err ) => {
-			
-				if( !err ) {
-					
-					mainWindow.webContents.send( "update_cached_image_callback", true );
-					return;
-				} else {
-
-					mainWindow.webContents.send( "update_cached_image_callback", false );
-					return;
+					fs.mkdirSync( path.join(  __dirname, "projects", project_name, "cache", image_type ) );
+				} catch ( e ) {
+				
+					/* Error creating cache directory */
+					console.log( "Error creating " + image_type + " directory" );
+					return false;
 				}
-			} );
-		} else {
+			}
+		} catch ( e ) {
+		
+			/* Error creating cache directory */
+			console.log( "Error creating cache directory" );
+			return false;
+		}
+	}
 
+	/* Map the pixels correct */
+	var _image_data = Array.from( { length: image_size }, () => Array.from( { length: image_size }, () => undefined ) );
+
+	for( var row_sel = 0; row_sel < image_size; row_sel++ )
+		for( var col_sel = 0; col_sel < image_size; col_sel++ )
+			_image_data[ col_sel ][ row_sel ]  = image_data.data[ row_sel ][ col_sel ];
+
+	var data_changed = false;
+
+	/* Let's first see if that image has changed or not */
+	if( fs.existsSync( path.join(  __dirname, "projects", project_name, "cache", image_type, image_name + ".json" ) ) ) {
+
+		/* Load our existing image json file */
+		try {
+			
+			const data = fs.readFileSync( path.join(  __dirname, "projects", project_name, "cache", image_type, image_name + ".json" ), { encoding:'utf8', flag:'r' } );
+
+			if( ( data != false ) && ( data != undefined ) ) {
+
+				/* Let's compare the old and new data */
+				if( data.localeCompare( JSON.stringify( _image_data ) ) != 0 ) {
+
+					data_changed = true;
+				}
+			} else {
+
+				/* no data in existing image JSON file */
+				data_changed = true;
+			}
+		} catch( e ) {
+
+			/* Error reading image JSON file */
 			mainWindow.webContents.send( "update_cached_image_callback", false );
 			return;
 		}
-	} );
+	} else {
+
+		/* We don't have an exisiting JSON file */
+		data_changed = true;
+	}
+
+	/* Only update the cache if the image has changed since it was last cached */
+	if( data_changed ) {
+
+		/* Create a new blank image */
+		let image = new Jimp( image_size, image_size, function ( err, image ) {
+			
+			if( !err ) {
+
+				/* Loop through each pixel to add to the image */
+				_image_data.forEach( ( row, y ) => {
+
+					row.forEach( ( colour, x ) => {
+
+						/* If we have a transparent pixel, don't add it to the image */
+						if( ( colour == "" ) || ( colour == null ) )
+							image.setPixelColor( Jimp.rgbaToInt( 0, 0, 0, 0 ), parseInt( x ), parseInt( y ) );
+						else 
+							image.setPixelColor( Jimp.cssColorToHex( "#" + colour ), parseInt( x ), parseInt( y ) );
+					} );
+				} );
+
+				/* Resize to a nice large size */
+				image.resize( 512, 512 , Jimp.RESIZE_NEAREST_NEIGHBOR );
+
+				/* Save the image to project directory */
+				image.write( path.join(  __dirname, "projects", project_name, "cache", image_type, image_name + ".png" ), ( err ) => {
+				
+					if( !err ) {
+
+						/* Image created successfully, let's update the .json file */
+						try {
+							
+							/* Write our JSON file */
+							fs.writeFileSync( path.join(  __dirname, "projects", project_name, "cache", image_type, image_name + ".json" ), JSON.stringify( _image_data ), { encoding: "utf8", flag: 'w' } );
+							
+						} catch( e ) {
+
+							/* Error writing image JSON file */
+							mainWindow.webContents.send( "update_cached_image_callback", false );
+							return;
+						}
+						
+						mainWindow.webContents.send( "update_cached_image_callback", true );
+						return;
+					} else {
+
+						mainWindow.webContents.send( "update_cached_image_callback", false );
+						return;
+					}
+				} );
+			} else {
+
+				mainWindow.webContents.send( "update_cached_image_callback", false );
+				return;
+			}
+		} );
+	} else {
+
+		/* We can return true if the image doesn't need updating */
+		mainWindow.webContents.send( "update_cached_image_callback", true );
+		return;
+	}
 }

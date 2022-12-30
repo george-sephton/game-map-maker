@@ -31,7 +31,7 @@ selected_sprite.group = false;
 var selected_map = false;
 var map_cell_size = 6;
 var map_border_size = 1;
-var map_settings_show = true;
+var map_settings_show = false;
 
 /* Store drawing information */
 var drawing_functions = false;
@@ -70,8 +70,8 @@ $( function() {
 	/* Load map settings panel event listener, only called once */
 	map_settings_panel_event_listeners();
 
-	//load_project_list();
-	//return;
+	load_project_list();
+	return;
 
 	/* Debug */
 	$( async () => {
@@ -79,14 +79,14 @@ $( function() {
 		//$( "#overlay" ).css( "display", "flex" );
 		//$( "#overlay #overlay_text" ).html( "Project Loading" );
 
-		project = await window.electronAPI.load_project_data( "small" );
-		load_project_view();
+		//project = await window.electronAPI.load_project_data( "small" );
+		//load_project_view();
 
 		/* Update cached images */
 		//update_cached_images();
 
-		selected_map = project.maps.find( obj => obj.id == 1 );
-		load_map_editing_view();
+		//selected_map = project.maps.find( obj => obj.id == 1 );
+		//load_map_editing_view();
 		
 		//selected_texture.group = project.textures.find( obj => obj.gid == 2 );
 		//selected_texture.texture = selected_texture.group.textures.find( obj => obj.id == 0 );

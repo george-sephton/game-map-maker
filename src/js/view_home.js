@@ -147,7 +147,7 @@ function update_cached_images() {
 		_image_cache_count_errors = 0;
 
 		/* First delete all old cached images */
-		if( await window.electronAPI.delete_all_cached_images( project.name.toLowerCase().replace( / /g, "_" ) ) ) {
+		//if( await window.electronAPI.delete_all_cached_images( project.name.toLowerCase().replace( / /g, "_" ) ) ) {
 
 			/* Then loop through each sprite group */
 			$.each( project.textures , function( gi, g_texture ) {
@@ -160,10 +160,10 @@ function update_cached_images() {
 					window.electronAPI.update_cached_image( project.name.toLowerCase().replace( / /g, "_" ), "textures", 8, ( g_texture.name + "_" + ti ).toLowerCase().replace( / /g, "_" ), texture );
 				} );
 			} );			
-		} else {
+		//} else {
 
-			show_error( "Error caching project textures." );
-		}
+		//	show_error( "Error caching project textures." );
+		//}
 	} );
 }
 
