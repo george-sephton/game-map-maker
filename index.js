@@ -45,7 +45,7 @@ function windowStateKeeper( windowName ) {
 		if( !windowState.isMaximized ) {
 			windowState = window.getBounds();
 		}
-		
+
 		windowState.isMaximized = window.isMaximized();
 		appConfig.setSync( `windowState.${windowName}`, windowState );
 	}
@@ -94,6 +94,9 @@ const createWindow = () => {
 			preload: path.join( __dirname, 'preload.js' )
 		}
 	} );
+	
+	if( mainWindowStateKeeper.isMaximized )
+		mainWindow.maximize();
 
 	mainWindowStateKeeper.track( mainWindow );
 
@@ -102,7 +105,10 @@ const createWindow = () => {
 	//mainWindow.webContents.openDevTools();
 
 	mainWindow.once( "ready-to-show", () => {
+
 		mainWindow.webContents.setZoomFactor( 1.0 );
+		
+		
 		mainWindow.show();
 	} );
 
