@@ -84,30 +84,6 @@ $( function() {
 
 		selected_map = project.maps.find( obj => obj.id == 1 );
 
-		/* Temporary dev code - START */
-
-			/* Create some extra project map settings */
-			var test_obj1 = new Object();
-			test_obj1.option = "test_option ";
-			test_obj1.type = "int";
-
-			project.map_settings[1] = test_obj1;
-
-			var test_obj2 = new Object();
-			test_obj2.option = "unassigned_object_lots_of_text ";
-			test_obj2.type = "string";
-
-			project.map_settings[2] = test_obj2;
-
-			/* Add an extra option to the current map */
-			var test_map_obj = new Object();
-			test_map_obj.option = "test_option ";
-			test_map_obj.value = 32;
-
-			selected_map.map_settings.push( test_map_obj );
-
-		/* Temporary dev code - END */
-
 		load_map_editing_view();
 		
 		//selected_texture.group = project.textures.find( obj => obj.gid == 2 );

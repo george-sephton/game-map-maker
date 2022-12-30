@@ -58,15 +58,18 @@ function load_map_settings( delete_option = false ) {
 
 		var store_value = "";
 
-		if(( value.type == "int" ) || ( value.type == "string" ) )
+		if( ( ( value.type == "int" ) || ( value.type == "string" ) ) && ( !delete_option ) )
 			store_value = ' old_value="' + show_value + '"';
 
 		/* Add the rows */
-		$( "#container #map_settings #map_settings_content #map_settings_options" ).append( '<div class="settings_row" option_name="' + value.option + '"><div class="settings_name">' + value.option + '</div><div class="settings_value"' + store_value + '>' + show_value + '</div></div>' );
+		$( "#container #map_settings #map_settings_content #map_settings_options" ).append( '<div class="settings_row" option_name="' + value.option + '"><div class="settings_name' + ( delete_option ? "" : " name_editing" ) + '">' + value.option + '</div><div class="settings_value"' + store_value + '>' + show_value + '</div></div>' );
 	} );
 
 	/* Load event listeners */
 	map_settings_toolbar_event_listeners();
+
+	/* Clear name editing event listeners */
+	clear_map_settings_value_event_listeners();
 
 	if( delete_option ) {
 		
@@ -76,6 +79,9 @@ function load_map_settings( delete_option = false ) {
 
 		/* Add event listeners to the values to allow editing */
 		map_settings_value_event_listeners();
+
+		/* Add event listeners to the name to allow editing */
+		map_settings_name_event_listeners();
 	}
 }
 
@@ -205,6 +211,7 @@ function map_settings_toolbar_event_listeners() {
 
 									/* Get entered name */
 									var new_name = sanitise_input( $( this ).val() );
+
 									if( new_name.match( /^\d/ ) ) {
 										
 										show_error( "Option name cannot start with a number" );
@@ -270,6 +277,106 @@ function map_settings_toolbar_event_listeners() {
 		}
 	} );
 }
+
+function clear_map_settings_name_event_listeners() {
+
+	$( "#container #map_settings #map_settings_content #map_settings_options .settings_row .settings_name" ).unbind( "mousedown" );
+	$( "#container #map_settings #map_settings_content #map_settings_options .settings_row .settings_name" ).unbind( "dblclick" );
+}
+
+function map_settings_name_event_listeners() {
+
+	/* Remove all event listeners */
+	clear_map_settings_name_event_listeners();
+
+	/* Prevent text highlight on double click */
+	$( "#container #map_settings #map_settings_content #map_settings_options .settings_row .settings_name" ).mousedown( function() { return false; } );
+
+	/* Name change event listener */
+	$( "#container #map_settings #map_settings_content #map_settings_options .settings_row .settings_name" ).dblclick( function() {
+
+		var option_name = $( this ).parent().attr( "option_name" );
+		var option_obj = project.map_settings.find( obj => obj.option == option_name );
+
+		/* Change the value to an input and focus */
+		$( this ).html( '<input type="text" class="text-input" placeholder="' + option_name + '" />' );
+		$( this ).find( "input" ).focus();
+		
+		/* Store the current selector */
+		var val_selector = $( this );
+
+		/* Add event listeners to allow saving */
+		var input_selector = $( this ).find( "input" );
+
+		input_selector.on( "keyup blur", function( e ) {
+
+			/* Save the new option */
+			if( e.key == "Enter" ) {
+
+				/* Get entered name */
+				var new_name = sanitise_input( $( this ).val() );
+
+				if( new_name.match( /^\d/ ) ) {
+										
+					show_error( "Option name cannot start with a number" );
+				} else {
+
+					/* Check if name already exists */
+					var check_name = new_name.toLowerCase().replace( / /g, "_" );
+					var check_array = project.map_settings.map( function( val ) {
+						return val.option.toLowerCase().replace( / /g, "_" );
+					} );
+
+					/* Check to see if the name already exists */
+					if( ( check_array.indexOf( check_name ) !== -1 ) && ( check_name != option_name ) ) {
+						
+						show_error( "Option name already exists." );
+					} else {
+
+						/* All good, let's save the name */
+						option_obj.option = check_name;
+
+						/* Sort the map settings array alphabetically by option name */
+						sort_map_settings_by_name();
+
+						/* Update all the maps */
+						$.each( project.maps, function( key, map ) {
+							
+							/* Get the option object for each map */
+							var map_settings_option_obj = map.map_settings.find( obj => obj.option == option_name );
+
+							/* And update */
+							if( map_settings_option_obj != undefined ) {
+
+								map_settings_option_obj.option = check_name;
+							}
+						} );
+
+						/* Log changes */
+						log_change();
+
+						/* Unbind event listeners */
+						input_selector.unbind( "keyup blur" );
+
+						/* Reload the map settings panel */
+						load_map_settings();
+					}
+				}
+			}
+
+			/* Discard the new option */
+			if( ( e.key == "Escape" ) || ( e.type == "blur" ) ) {
+			
+				val_selector.html( option_name );
+
+				/* Unbind event listeners */
+				input_selector.unbind( "keyup blur" );
+			}
+		} );
+
+	} );
+}
+
 function clear_map_settings_value_event_listeners() {
 
 	$( "#container #map_settings #map_settings_content #map_settings_options .settings_row .settings_value:not(input)" ).unbind( "mousedown" );
@@ -278,9 +385,6 @@ function clear_map_settings_value_event_listeners() {
 }
 
 function map_settings_value_event_listeners() {
-
-	/* Remove all event listeners */
-	clear_map_settings_value_event_listeners();
 
 	/* Prevent text highlight on double click */
 	$( "#container #map_settings #map_settings_content #map_settings_options .settings_row .settings_value:not(input)" ).mousedown( function() { return false; } );
@@ -358,6 +462,8 @@ function map_settings_value_event_listeners() {
 					$( this ).val( $( this ).val().replace( /\D/g, "" ) );
 					
 					if( ( e.which < 48 || e.which > 57) ) {
+						
+						/* Disallow typing numbers */
 						e.preventDefault();
 					}
 				} );
@@ -367,7 +473,9 @@ function map_settings_value_event_listeners() {
 			var val_selector = $( this );
 
 			/* Add event listeners to allow saving */
-			$( this ).find( "input" ).on( "keyup blur", function( e ) {
+			var input_selector = $( this ).find( "input" );
+
+			input_selector.on( "keyup blur", function( e ) {
 								
 				/* Save the new option */
 				if( e.key == "Enter" ) {
@@ -412,14 +520,20 @@ function map_settings_value_event_listeners() {
 					/* Store the new old value */
 					val_selector.attr( "old_value", val_selector.html() );
 
+					/* Unbind event listeners */
+					input_selector.unbind( "keyup blur" );
+
 					/* Log changes */
-					log_change();	
+					log_change();
 				}
 
 				/* Discard the new option */
 				if( ( e.key == "Escape" ) || ( e.type == "blur" ) ) {
 				
 					val_selector.html( val_selector.attr( "old_value" ) );
+
+					/* Unbind event listeners */
+					input_selector.unbind( "keyup blur" );
 				}
 			} );
 

@@ -586,6 +586,9 @@
 	align-items: flex-start;
 	overflow: hidden;
 }
+#container #map_settings #map_settings_content #map_settings_options .name_editing {
+	cursor: pointer;
+}
 #container #map_settings #map_settings_content #map_settings_options .settings_value #delete_option {
 	color: #333;
 	font-size: 16px;
