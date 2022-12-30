@@ -31,6 +31,7 @@ selected_sprite.group = false;
 var selected_map = false;
 var map_cell_size = 6;
 var map_border_size = 1;
+var map_settings_show = false;
 
 /* Store drawing information */
 var drawing_functions = false;

@@ -92,6 +92,9 @@ function map_settings_panel_show() {
 
 	/* content div width has to be adjusted manually else it won't allow the overflow to work correctly */
 	$( "#container #content" ).css( "max-width", "calc(100vw - 350px - 370px - 40px)" );
+
+	/* Store the state for later */
+	map_settings_show = true;
 }
 
 function map_settings_panel_hide() {
@@ -101,6 +104,9 @@ function map_settings_panel_hide() {
 	
 	/* content div width has to be adjusted manually else it won't allow the overflow to work correctly */
 	$( "#container #content" ).css( "max-width", "calc(100vw - 350px - 30px - 50px)" );
+
+	/* Store the state for later */
+	map_settings_show = false;
 }
 
 function map_settings_panel_event_listeners() {
@@ -430,7 +436,21 @@ function map_settings_value_event_listeners() {
 
 		/* Save the value */
 		var map_option_obj = selected_map.map_settings.find( obj => obj.option == option_name );
-		map_option_obj.value = option_value;
+
+		if( ( map_option_obj == "" ) || ( map_option_obj == undefined ) ) {
+
+			/* The current map doesn't have anything assigned for this option */
+			var new_option_obj = new Object();
+			new_option_obj.option = option_name;
+			new_option_obj.value = option_value;
+
+			/* Add in our new value */
+			selected_map.map_settings.push( new_option_obj );
+		} else {
+
+			/* Update the exisiting option */
+			map_option_obj.value = option_value;
+		}
 
 		/* Log changes */
 		log_change();

@@ -6,8 +6,12 @@ function load_map_editing_view() {
 	$( "#container #sidebar #texture_list_toolbar_delete" ).css( "display", "none" );
 
 	/* Load the map settings panel */
-	map_settings_panel_hide();
 	load_map_settings();
+
+	if( map_settings_show )
+		map_settings_panel_show();
+	else
+		map_settings_panel_hide();
 
 	$( "#container #content #toolbar #upload_settings" ).css( "display", "none" );
 	$( "#container #content #toolbar #settings" ).css( "display", "flex" );
