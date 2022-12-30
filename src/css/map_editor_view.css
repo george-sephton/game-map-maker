@@ -592,7 +592,6 @@
 #container #map_settings #map_settings_content #map_settings_options .settings_row_heading {
 	display: flex;
 	flex-direction: row;
-	border-bottom: 1px solid #333;
 	height: 36px;
 	box-sizing: border-box;
 	background: #ccc;
@@ -600,7 +599,6 @@
 #container #map_settings #map_settings_content #map_settings_options .settings_row {
 	display: flex;
 	flex-direction: row;
-	border-bottom: 1px solid #333;
 	height: 36px;
 	box-sizing: border-box;
 }
