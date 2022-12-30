@@ -90,6 +90,10 @@ function close_map_editing_view( log_switch_view = true ) {
 	/* Disable sorting on texture list */
 	clear_texture_list_sortable();
 
+	/* Hide the map settings panel completely */
+	$( "#container #map_settings" ).css( "display", "none" );
+	$( "#container #map_settings_hidden" ).css( "display", "none" );
+
 	/* Close any open textures */
 	selected_texture.texture = false;
 	selected_texture.group = false;

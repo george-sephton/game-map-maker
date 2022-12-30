@@ -86,9 +86,9 @@ $( function() {
 		/* Update cached images */
 		//update_cached_images();
 
-		selected_map = project.maps.find( obj => obj.id == 1 );
+		//selected_map = project.maps.find( obj => obj.id == 1 );
 
-		load_map_editing_view();
+		//load_map_editing_view();
 		
 		//selected_texture.group = project.textures.find( obj => obj.gid == 2 );
 		//selected_texture.texture = selected_texture.group.textures.find( obj => obj.id == 0 );
