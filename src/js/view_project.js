@@ -294,7 +294,7 @@ function project_toolbar_event_listeners() {
 
 										new_map.width = 8;
 										new_map.height = 8;
-										new_map.can_run = false;
+										new_map.map_settings = new Array();
 										new_map.bg_texture = new Object();
 										new_map.bg_texture.gid = undefined;
 										new_map.bg_texture.id = undefined;

@@ -99,7 +99,7 @@ const createWindow = () => {
 
 	// and load the index.html of the app.
 	mainWindow.loadFile( "src/index.htm" );
-	//mainWindow.webContents.openDevTools();
+	mainWindow.webContents.openDevTools();
 
 	mainWindow.once( "ready-to-show", () => {
 		mainWindow.webContents.setZoomFactor( 1.0 );
@@ -113,7 +113,7 @@ const createWindow = () => {
 	];
 
     const menu = Menu.buildFromTemplate( menuTemplate );
-    Menu.setApplicationMenu( menu );
+    //Menu.setApplicationMenu( menu );
 
 	//console.log('size:', mainWindow.getSize());
 }

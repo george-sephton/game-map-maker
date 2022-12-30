@@ -85,11 +85,15 @@ function project_list_event_listeners() {
 
 					project = data;
 
-					$( "#overlay #overlay_text" ).html( "Project Loading" );
-					$( "#overlay" ).css( "display", "flex" );
+					/* Updating image cache will fail if there's no textures to cache */
+					if( project.textures.length != 0 ) {
 
-					/* Update cached images */
-					update_cached_images();
+						$( "#overlay #overlay_text" ).html( "Project Loading" );
+						$( "#overlay" ).css( "display", "flex" );
+
+						/* Update cached images */
+						update_cached_images();
+					}
 
 					/* Clear changes */
 					clear_changes();
@@ -228,6 +232,7 @@ function project_list_toolbar_event_listeners() {
 										empty_project.textures = new Array();
 										empty_project.sprites = new Array();
 										empty_project.maps = new Array();
+										empty_project.map_settings = new Array();
 
 										if( await window.electronAPI.save_project( check_name, JSON.stringify( empty_project ) ) ) {
 
