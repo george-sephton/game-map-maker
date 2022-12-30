@@ -496,48 +496,46 @@ function export_data_gba() {
   		/* Add the map settings */
   		output += "const struct map_settings " + map_name_conv + "_settings = { ";
 
-  		/* Loop through all the map settings in the project */
-  		$.each( project.map_settings , function( i, option ) {
+		/* Loop through all the map settings in the project */
+		$.each( project.map_settings , function( i, option ) {
 
-  			/* Get the value of the current option */
-  			var map_settings_option_obj = map.map_settings.find( obj => obj.option == option.option );
+			/* Get the value of the current option */
+			var map_settings_option_obj = map.map_settings.find( obj => obj.option == option.option );
 
-  			var show_value = "";
-  			if( map_settings_option_obj == undefined ) {
+			var show_value = "";
+			if( map_settings_option_obj == undefined ) {
 
-  				/* This map has no value for this option, set it as the default */
-  				switch( option.type ) {
+				/* This map has no value for this option, set it as the default */
+				switch( option.type ) {
 
-  					case "string":  show_value = ""; break;
+					case "string":  show_value = ""; break;
 					case "int":     show_value = "0"; break;
 					case "bool":    show_value = "false"; break;
-  				}
-  			} else {
+				}
+			} else {
 
-  				/* Copy the value */
-  				show_value = map_settings_option_obj.value;
-  			}
+				/* Copy the value */
+				show_value = map_settings_option_obj.value;
+			}
 
-  			/* Add the value to the output */
-  			switch( option.type ) {
+			/* Add the value to the output */
+			switch( option.type ) {
 
-  				case "string":  output += "\"" + show_value + "\""; break;
+				case "string":  output += "\"" + show_value + "\""; break;
 				case "int":     output += Number(show_value); break;
 				case "bool":    output += show_value; break;
-  			}
+			}
 
-  			/* Add a delimiter if not on the last element */
+			/* Add a delimiter if not on the last element */
 			if( i < ( project.map_settings.length - 1 ) )
 				output += ", ";
-  		} );
+		} );
 
-
-  		output += " };\n\n"
+		output += " };\n\n"
 
 	} );
 
 	/* Finally add the map list and map settings list */
-
 	output += "struct map map_list[" + project.maps.length + "] = {\n";
 
 	/* Loop through each map */

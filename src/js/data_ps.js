@@ -102,8 +102,14 @@ function export_data_ps() {
 			/* Loop through each row of the texture */
 			$.each( convert_texture, function( ri, texture_row ) {
 
+				/* If the row is completely blank, it won't export correctly so we need to pass a blank array */
+				var converted_row = Array.from( { length: 8 }, () => null ); 
+
+				if( texture_row.length != 0 )
+					converted_row = texture_row;
+
 				/* Loop through each pixel */
-				$.each( texture_row, function( ci, texture_cell ) {
+				$.each( converted_row, function( ci, texture_cell ) {
 
 					/* Check for transparent pixels */
 					if( ( texture_cell == "" ) || ( texture_cell == undefined ) ) {
@@ -133,6 +139,7 @@ function export_data_ps() {
 			var texture_array = convert_texture.toString();
 			texture_array = texture_array.replace( /,/g, ", " );
 			texture_array = texture_array.replace( /((?:.*?\s){7}.*?)\s/g, "$1\n    " )
+
 			output += "    " + texture_array + ",\n";
 		} );
 
@@ -153,12 +160,69 @@ function export_data_ps() {
 
 	output += "  };\n\n";
 
+	/* Next let's export the map settings */
+	output += "  /*********************************************************************************\n";
+	output += "    Map Settings\n";
+	output += "  *********************************************************************************/\n";
+
+	/* Sort the map settings array alphabetically by option name */
+	sort_map_settings_by_name();
+
+	/* Loop through each map setting */
+	output += "  struct map_settings {\n";
+
+	$.each( project.map_settings , function( i, setting ) {
+
+		var var_type = "";
+		switch( setting.type ) {
+
+			case "string":  var_type = "char"; break;
+			case "int":     var_type = "uint16_t"; break;
+			case "bool":    var_type = "bool"; break;
+		}
+
+		/* Add the string length if needed */
+		var var_string = "";
+		if( setting.type == "string" ) {
+
+			/* We first need to calculate the size of the longest string */
+			var longest_string = 0;
+			
+			/* Loop through each map and find the longest string we have */
+			$.each( project.maps , function( i, map ) {
+
+				var map_settings_option_obj = map.map_settings.find( obj => obj.option == setting.option );
+
+				if( map_settings_option_obj != undefined ) {
+
+					/* Is this longer than we've seen before? */
+					if( map_settings_option_obj.value.length > longest_string )
+						longest_string = map_settings_option_obj.value.length;
+				}
+			} );
+
+			/* Add an extra byte to the length to account for the null character */
+			longest_string += 1;
+
+			/* Format for the output */
+			var_string = "[" + longest_string + "]";
+		}
+
+		/* Add to the output */
+		output += "    " + var_type + " " + setting.option + var_string + ";\n";
+	} );
+
+	output += "  };\n\n";	
+
 	/* Next let's export the maps */
 	output += "  /*********************************************************************************\n";
 	output += "    Maps\n";
 	output += "  *********************************************************************************/\n";
 
 	sort_maps_by_order();
+
+	/* Used as the index for the map settings list */
+	var map_count = 0;
 
 	/* Loop through each map */
 	$.each( project.maps , function( i, map ) {
@@ -217,10 +281,52 @@ function export_data_ps() {
 			var map_output_bg_texture_id = -1
 		}
 
-  		output += "  struct map " + map_name_conv + " = { " + Number(map.id) + ", *_" + map_name_conv + ", " + Number(map.height) + ", " + Number(map.width) + ", " + Number(map.can_run) + ", " + Number(map_output_bg_texture_gid.gorder) + ", " + Number(map_output_bg_texture_id.order) + " };\n\n"
+  		output += "  const struct map " + map_name_conv + " = { " + Number(map.id) + ", *_" + map_name_conv + ", " + Number(map.height) + ", " + Number(map.width) + ", " + Number(map_output_bg_texture_gid.gorder) + ", " + Number(map_output_bg_texture_id.order) + ", " + Number(map_count) + " };\n"
+  		map_count++;
+
+  		/* Add the map settings */
+  		output += "  const struct map_settings " + map_name_conv + "_settings = { ";
+
+		/* Loop through all the map settings in the project */
+		$.each( project.map_settings , function( i, option ) {
+
+			/* Get the value of the current option */
+			var map_settings_option_obj = map.map_settings.find( obj => obj.option == option.option );
+
+			var show_value = "";
+			if( map_settings_option_obj == undefined ) {
+
+				/* This map has no value for this option, set it as the default */
+				switch( option.type ) {
+
+					case "string":  show_value = ""; break;
+					case "int":     show_value = "0"; break;
+					case "bool":    show_value = "false"; break;
+				}
+			} else {
+
+				/* Copy the value */
+				show_value = map_settings_option_obj.value;
+			}
+
+			/* Add the value to the output */
+			switch( option.type ) {
+
+				case "string":  output += "\"" + show_value + "\""; break;
+				case "int":     output += Number(show_value); break;
+				case "bool":    output += show_value; break;
+			}
+
+			/* Add a delimiter if not on the last element */
+			if( i < ( project.map_settings.length - 1 ) )
+				output += ", ";
+		} );
+
+		output += " };\n\n"
 
 	} );
 
+	/* Finally add the map list and map settings list */
 	output += "  map map_list[" + project.maps.length + "] = {\n";
 
 	/* Loop through each map */
@@ -230,6 +336,17 @@ function export_data_ps() {
 	} );
 
 	output += "  };\n\n";
+
+	output += "  map_settings map_settings_list[" + project.maps.length + "] = {\n";
+
+	/* Loop through each map */
+	$.each( project.maps , function( i, map ) {
+
+		output += "    " + map.name.toLowerCase().replace( / /g, "_" ) + "_settings, // " + i + "\n";
+	} );
+
+	output += "  };\n\n";
+
 	output += "}";
 
 	return output;
