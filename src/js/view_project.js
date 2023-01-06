@@ -458,8 +458,7 @@ function project_toolbar_event_listeners() {
 												show_alert( "Project renamed successfully." );
 
 												/* Reload the project */
-
-												var data = await window.electronAPI.load_project_data( project_name_value );
+												var data = await window.electronAPI.load_project_data( project_name_value.toLowerCase().replace( / /g, "_" ) );
 
 												/* Set the project and load up the project view */
 												if( data != false ) {

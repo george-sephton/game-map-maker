@@ -70,8 +70,8 @@ $( function() {
 	/* Load map settings panel event listener, only called once */
 	map_settings_panel_event_listeners();
 
-	//load_project_list();
-	//return;
+	load_project_list();
+	return;
 
 	/* Debug */
 	$( async () => {
