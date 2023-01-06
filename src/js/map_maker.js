@@ -36,6 +36,7 @@ var map_settings_show = false;
 /* Store drawing information */
 var drawing_functions = false;
 var paint_auto_inc = false;
+var current_layer_fg = true; // Set the foreground as the current layer
 
 /* Variables for tile duplication function */
 var dupl_tiles = new Array();

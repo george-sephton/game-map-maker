@@ -62,6 +62,11 @@ function load_map_editing_view() {
 	drawing_functions = false;
 	controls_disabled = false;
 
+	/* Set the foreground as the current layer */
+	current_layer_fg = true;
+	$( "#map_toolbar_layer_switch" ).addClass( "bi-layers-fill" );
+	$( "#map_toolbar_layer_switch" ).removeClass( "bi-layers-half" );
+
 	/* Load map editor */
 	load_map_editor();
 
@@ -140,25 +145,39 @@ function set_map_cell( selector, tile_info ) {
 	selector.css( "border-bottom", map_border_size + "px solid #999" );
 	selector.css( "border-left", map_border_size + "px solid #999" );
 
-	/* Get the texture flip info */
+	/* Get the foreground and background texture flip info */
 	if( ( tile_info.col >= selected_map.width ) || ( tile_info.row >= selected_map.height ) ) {
 		tile_info.texture_reverse_x = false;
 		tile_info.texture_reverse_y = false;
+
+		tile_info.bg_texture_reverse_x = false;
+		tile_info.bg_texture_reverse_y = false;
 	} else {
 		tile_info.texture_reverse_x = selected_map.data[ tile_info.row ][ tile_info.col ].texture_reverse_x;
 		tile_info.texture_reverse_y = selected_map.data[ tile_info.row ][ tile_info.col ].texture_reverse_y;
+
+		tile_info.bg_texture_reverse_x = selected_map.data[ tile_info.row ][ tile_info.col ].bg_texture_reverse_x;
+		tile_info.bg_texture_reverse_y = selected_map.data[ tile_info.row ][ tile_info.col ].bg_texture_reverse_y;	
 	}
 
 	/* If we are looking for a newly added row, outside of the exisiting map bounds, return an empty tile */
-	if( ( tile_info.col >= selected_map.width ) || ( tile_info.row >= selected_map.height ) ) tile_info.texture_gid = -1;
-	else tile_info.texture_gid = selected_map.data[tile_info.row][tile_info.col].texture_gid;
-	/* If we are looking for a newly added column, outside of the exisiting map bounds, return an empty tile */
-	if( ( tile_info.col >= selected_map.width ) || ( tile_info.row >= selected_map.height ) ) tile_info.texture_gid = -1;
-	else tile_info.texture_id = selected_map.data[tile_info.row][tile_info.col].texture_id;
+	if( ( tile_info.col >= selected_map.width ) || ( tile_info.row >= selected_map.height ) ) {
+
+		tile_info.texture_gid = -1;
+		tile_info.bg_texture_gid = -1;
+	} else {
+		tile_info.texture_gid = selected_map.data[tile_info.row][tile_info.col].texture_gid;
+		tile_info.texture_id = selected_map.data[tile_info.row][tile_info.col].texture_id;
+
+
+		tile_info.bg_texture_gid = selected_map.data[tile_info.row][tile_info.col].bg_texture_gid;
+		tile_info.bg_texture_id = selected_map.data[tile_info.row][tile_info.col].bg_texture_id;
+	}
 
 	var texture_obj = undefined;
+	var bg_texture_obj = undefined;
 
-	/* Get the texture
+	/* Get the foreground and background textures
 		- if the tile is empty, the texture gid and id is undefined
 		- when adding rows/columns during resizing, newly added tiles' texture gid and id is -1
 		- tiles with texture added, have texture gid and id set accordingly, regardless of resizing
@@ -185,108 +204,152 @@ function set_map_cell( selector, tile_info ) {
 			/* Empty tile */
 			texture_obj = undefined;
 		}
+
+		if( tile_info.bg_texture_gid != undefined ) {
+
+			/* Normal tile, let's get the texture object */
+			var bg_group_obj = project.textures.find( obj => obj.gid == tile_info.bg_texture_gid );
+			
+			if( bg_group_obj != undefined ) {
+
+				/* Set the texture object */
+				bg_texture_obj = bg_group_obj.textures.find( obj => obj.id == tile_info.bg_texture_id );
+			} else {
+
+				/* Texture couldn't be found, show as empty */
+				bg_group_obj = undefined;
+			}
+		} else {
+
+			/* Empty tile */
+			bg_texture_obj = undefined;
+		}
 	} else {
 
 		/* Resizing tile - show as grey */
 		texture_obj = -1;
+		bg_texture_obj = -1;
 	}
 
-	/* Show empty tile */
-	if( texture_obj == undefined ) {
+	/* Process foreground layer */
+	if( current_layer_fg ) {
 
-		if( ( controls_disabled == true ) && ( drawing_functions != 2 ) && ( drawing_functions != 8 ) ) {
+		/* Show empty tiles */
+		if( texture_obj == undefined ) {
 
-			/* Tile is an empty tile whilst resizing - show as grey */
+			if( ( controls_disabled == true ) && ( drawing_functions != 2 ) && ( drawing_functions != 8 ) ) {
+
+				/* Tile is an empty tile whilst resizing - show as grey */
+				selector.css( "background", "#ccc" );
+			} else {
+
+				/* Tile has no texture, show as transparent - saves a bit of resource */
+				selector.html( "<img src=\"" + "images/transparent.png" + "\" />" );
+			}
+		}
+
+		if( ( texture_obj != undefined ) && ( texture_obj != -1 ) ) {
+
+			/* Whilst resizing, don't render the texture */
+			if( ( controls_disabled == true ) && ( drawing_functions != 1 ) && ( drawing_functions != 8 ) ) {
+
+				/* Tile is an normal tile whilst resizing - show as blue */
+				selector.css( "background", "#327da8" );
+			} else {
+
+				selector.html( "<img style=\"transform: " + ( tile_info.texture_reverse_x ? " rotateY(180deg)" : "" ) + ( tile_info.texture_reverse_y ? " rotateX(180deg)" : "" ) + ";\" src=\"\" />" );
+
+				/* Set the image and ensure we are retrieving the most recent version */
+				var img_src = "../projects/" + project.name.toLowerCase().replace( / /g, "_" ) + "/cache/textures/" + ( group_obj.name + "_" + texture_obj.order ).toLowerCase().replace( / /g, "_" ) + ".png";
+				
+				d = new Date();
+				selector.find( "img" ).attr( "src", img_src + "?" + d.getTime() );
+
+				if( selected_map.data[tile_info.row][tile_info.col].exit_tile ) {
+
+					/* Update CSS for exit tiles */
+					switch( selected_map.data[tile_info.row][tile_info.col].exit_map_dir.join() ) {
+						case "0,0":  /* Exit any direction */
+							selector.css( "border-top", map_border_size + "px solid #ff0" );
+							selector.css( "border-right", map_border_size + "px solid #ff0" );
+							selector.css( "border-bottom", map_border_size + "px solid #ff0" );
+							selector.css( "border-left", map_border_size + "px solid #ff0" );
+							break;
+						case "0,1": /* Exit when walking north */
+							selector.css( "border-top", map_border_size + "px solid #ff0" );
+							break;
+						case "1,0": /* Exit when walking east */
+							selector.css( "border-right", map_border_size + "px solid #ff0" );
+							break;
+						case "0,-1": /* Exit when walking south */
+							selector.css( "border-bottom", map_border_size + "px solid #ff0" );
+							break;
+						case "-1,0": /* Exit when walking west */
+							selector.css( "border-left", map_border_size + "px solid #ff0" );
+							break;
+					}
+				} else if( selected_map.data[tile_info.row][tile_info.col].interact_en ) {
+
+					/* Update CSS based on interact_en */
+					selector.css( "border-top", map_border_size + "px solid #0ff" );
+					selector.css( "border-right", map_border_size + "px solid #0ff" );
+					selector.css( "border-bottom", map_border_size + "px solid #0ff" );
+					selector.css( "border-left", map_border_size + "px solid #0ff" );
+
+				} else if( selected_map.data[tile_info.row][tile_info.col].npc_en ) {
+
+					/* Update CSS based on npc_en */
+					selector.css( "border-top", map_border_size + "px solid #f0f" );
+					selector.css( "border-right", map_border_size + "px solid #f0f" );
+					selector.css( "border-bottom", map_border_size + "px solid #f0f" );
+					selector.css( "border-left", map_border_size + "px solid #f0f" );
+
+
+				} else if( selected_map.data[tile_info.row][tile_info.col].top_layer ) {
+
+					/* Update CSS based on top_layer */
+					selector.css( "border-top", map_border_size + "px solid #0f0" );
+					selector.css( "border-right", map_border_size + "px solid #0f0" );
+					selector.css( "border-bottom", map_border_size + "px solid #0f0" );
+					selector.css( "border-left", map_border_size + "px solid #0f0" );
+
+					if( !selected_map.data[tile_info.row][tile_info.col].can_walk[0] ) selector.css( "border-top", map_border_size + "px solid #fc8805" );
+					if( !selected_map.data[tile_info.row][tile_info.col].can_walk[1] ) selector.css( "border-right", map_border_size + "px solid #fc8805" );
+					if( !selected_map.data[tile_info.row][tile_info.col].can_walk[2] ) selector.css( "border-bottom", map_border_size + "px solid #fc8805" );
+					if( !selected_map.data[tile_info.row][tile_info.col].can_walk[3] ) selector.css( "border-left", map_border_size + "px solid #fc8805" );
+				} else {
+
+					/* Update CSS based on can_walk */
+					if( !selected_map.data[tile_info.row][tile_info.col].can_walk[0] ) selector.css( "border-top", map_border_size + "px solid #f00" );
+					if( !selected_map.data[tile_info.row][tile_info.col].can_walk[1] ) selector.css( "border-right", map_border_size + "px solid #f00" );
+					if( !selected_map.data[tile_info.row][tile_info.col].can_walk[2] ) selector.css( "border-bottom", map_border_size + "px solid #f00" );
+					if( !selected_map.data[tile_info.row][tile_info.col].can_walk[3] ) selector.css( "border-left", map_border_size + "px solid #f00" );
+				}
+			}
+		} else if( texture_obj == -1 ) {
+
+			/* Tile is part of soon to be added row/column whilst resizing - show as grey */
 			selector.css( "background", "#ccc" );
-		} else {
+		}
+	} else {
+
+		/* Process background layer - note there's resizing on the background layer so we can ignore all of this */
+		if( bg_texture_obj == undefined ) {
 
 			/* Tile has no texture, show as transparent - saves a bit of resource */
 			selector.html( "<img src=\"" + "images/transparent.png" + "\" />" );
 		}
-	}
 
-	if( ( texture_obj != undefined ) && ( texture_obj != -1 ) ) {
+		if( ( bg_texture_obj != undefined ) && ( bg_texture_obj != -1 ) ) {
 
-		/* Whilst resizing, don't render the texture */
-		if( ( controls_disabled == true ) && ( drawing_functions != 1 ) && ( drawing_functions != 8 ) ) {
-
-			/* Tile is an normal tile whilst resizing - show as blue */
-			selector.css( "background", "#327da8" );
-		} else {
-
-			selector.html( "<img style=\"transform: " + ( tile_info.texture_reverse_x ? " rotateY(180deg)" : "" ) + ( tile_info.texture_reverse_y ? " rotateX(180deg)" : "" ) + ";\" src=\"\" />" );
+			selector.html( "<img style=\"transform: " + ( tile_info.bg_texture_reverse_x ? " rotateY(180deg)" : "" ) + ( tile_info.bg_texture_reverse_y ? " rotateX(180deg)" : "" ) + ";\" src=\"\" />" );
 
 			/* Set the image and ensure we are retrieving the most recent version */
-			var img_src = "../projects/" + project.name.toLowerCase().replace( / /g, "_" ) + "/cache/textures/" + ( group_obj.name + "_" + texture_obj.order ).toLowerCase().replace( / /g, "_" ) + ".png";
+			var img_src = "../projects/" + project.name.toLowerCase().replace( / /g, "_" ) + "/cache/textures/" + ( bg_group_obj.name + "_" + bg_texture_obj.order ).toLowerCase().replace( / /g, "_" ) + ".png";
 			
 			d = new Date();
 			selector.find( "img" ).attr( "src", img_src + "?" + d.getTime() );
-
-			if( selected_map.data[tile_info.row][tile_info.col].exit_tile ) {
-
-				/* Update CSS for exit tiles */
-				switch( selected_map.data[tile_info.row][tile_info.col].exit_map_dir.join() ) {
-					case "0,0":  /* Exit any direction */
-						selector.css( "border-top", map_border_size + "px solid #ff0" );
-						selector.css( "border-right", map_border_size + "px solid #ff0" );
-						selector.css( "border-bottom", map_border_size + "px solid #ff0" );
-						selector.css( "border-left", map_border_size + "px solid #ff0" );
-						break;
-					case "0,1": /* Exit when walking north */
-						selector.css( "border-top", map_border_size + "px solid #ff0" );
-						break;
-					case "1,0": /* Exit when walking east */
-						selector.css( "border-right", map_border_size + "px solid #ff0" );
-						break;
-					case "0,-1": /* Exit when walking south */
-						selector.css( "border-bottom", map_border_size + "px solid #ff0" );
-						break;
-					case "-1,0": /* Exit when walking west */
-						selector.css( "border-left", map_border_size + "px solid #ff0" );
-						break;
-				}
-			} else if( selected_map.data[tile_info.row][tile_info.col].interact_en ) {
-
-				/* Update CSS based on interact_en */
-				selector.css( "border-top", map_border_size + "px solid #0ff" );
-				selector.css( "border-right", map_border_size + "px solid #0ff" );
-				selector.css( "border-bottom", map_border_size + "px solid #0ff" );
-				selector.css( "border-left", map_border_size + "px solid #0ff" );
-
-			} else if( selected_map.data[tile_info.row][tile_info.col].npc_en ) {
-
-				/* Update CSS based on npc_en */
-				selector.css( "border-top", map_border_size + "px solid #f0f" );
-				selector.css( "border-right", map_border_size + "px solid #f0f" );
-				selector.css( "border-bottom", map_border_size + "px solid #f0f" );
-				selector.css( "border-left", map_border_size + "px solid #f0f" );
-
-
-			} else if( selected_map.data[tile_info.row][tile_info.col].top_layer ) {
-
-				/* Update CSS based on top_layer */
-				selector.css( "border-top", map_border_size + "px solid #0f0" );
-				selector.css( "border-right", map_border_size + "px solid #0f0" );
-				selector.css( "border-bottom", map_border_size + "px solid #0f0" );
-				selector.css( "border-left", map_border_size + "px solid #0f0" );
-
-				if( !selected_map.data[tile_info.row][tile_info.col].can_walk[0] ) selector.css( "border-top", map_border_size + "px solid #fc8805" );
-				if( !selected_map.data[tile_info.row][tile_info.col].can_walk[1] ) selector.css( "border-right", map_border_size + "px solid #fc8805" );
-				if( !selected_map.data[tile_info.row][tile_info.col].can_walk[2] ) selector.css( "border-bottom", map_border_size + "px solid #fc8805" );
-				if( !selected_map.data[tile_info.row][tile_info.col].can_walk[3] ) selector.css( "border-left", map_border_size + "px solid #fc8805" );
-			} else {
-
-				/* Update CSS based on can_walk */
-				if( !selected_map.data[tile_info.row][tile_info.col].can_walk[0] ) selector.css( "border-top", map_border_size + "px solid #f00" );
-				if( !selected_map.data[tile_info.row][tile_info.col].can_walk[1] ) selector.css( "border-right", map_border_size + "px solid #f00" );
-				if( !selected_map.data[tile_info.row][tile_info.col].can_walk[2] ) selector.css( "border-bottom", map_border_size + "px solid #f00" );
-				if( !selected_map.data[tile_info.row][tile_info.col].can_walk[3] ) selector.css( "border-left", map_border_size + "px solid #f00" );
-			}
 		}
-	} else if( texture_obj == -1 ) {
-
-		/* Tile is part of soon to be added row/column whilst resizing - show as grey */
-		selector.css( "background", "#ccc" );
 	}
 
 	/* Keep zoom consistent */
@@ -329,8 +392,8 @@ function load_map_editor() {
 		
 		/* Store tile information */
 		var tile_info = new Object();
-		tile_info.row = $( this ).parent().attr( "row_id" );
-		tile_info.col = $( this ).attr( "col_id" );
+		tile_info.row = Number( $( this ).parent().attr( "row_id" ) );
+		tile_info.col = Number( $( this ).attr( "col_id" ) );
 
 		set_map_cell( $( this ), tile_info );
 	} );
@@ -455,6 +518,26 @@ function map_toolbar_event_listeners() {
 					/* Load project view */
 					load_project_view();
 
+					break;
+				case "switch-layers":
+
+					/* Switch between background and foreground layers */
+					current_layer_fg = !current_layer_fg;
+
+					if( current_layer_fg ) {
+
+						/* Foreground is the active layer */
+						$( "#map_toolbar_layer_switch" ).addClass( "bi-layers-fill" );
+						$( "#map_toolbar_layer_switch" ).removeClass( "bi-layers-half" );
+					} else {
+
+						/* Background is the active layer */
+						$( "#map_toolbar_layer_switch" ).addClass( "bi-layers-half" );
+						$( "#map_toolbar_layer_switch" ).removeClass( "bi-layers-fill" );
+					}
+
+					/* Reload map editor */
+					load_map_editor();
 					break;
 				case "rename-map":
 				case "duplicate-map":
