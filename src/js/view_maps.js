@@ -64,8 +64,7 @@ function load_map_editing_view() {
 
 	/* Set the foreground as the current layer */
 	current_layer_fg = true;
-	$( "#map_toolbar_layer_switch" ).addClass( "bi-layers-fill" );
-	$( "#map_toolbar_layer_switch" ).removeClass( "bi-layers-half" );
+	set_layer();
 
 	/* Load map editor */
 	load_map_editor();
@@ -477,6 +476,25 @@ function map_editor_toolbar_reset() {
 	}
 }
 
+function set_layer() {
+
+	if( current_layer_fg ) {
+
+		/* Foreground is the active layer */
+		$( "#map_toolbar_layer_switch" ).addClass( "bi-layers-fill" );
+		$( "#map_toolbar_layer_switch" ).removeClass( "bi-layers-half" );
+
+		$( "#container #toolbar #settings #controls #map_toolbar_resize_canvas" ).removeClass( "resize_disabled" );
+	} else {
+
+		/* Background is the active layer */
+		$( "#map_toolbar_layer_switch" ).addClass( "bi-layers-half" );
+		$( "#map_toolbar_layer_switch" ).removeClass( "bi-layers-fill" );
+
+		$( "#container #toolbar #settings #controls #map_toolbar_resize_canvas" ).addClass( "resize_disabled" );
+	}
+}
+
 function clear_map_toolbar_event_listeners() {
 	
 	$( "#container #toolbar #settings #controls i" ).unbind( "click" );
@@ -524,17 +542,8 @@ function map_toolbar_event_listeners() {
 					/* Switch between background and foreground layers */
 					current_layer_fg = !current_layer_fg;
 
-					if( current_layer_fg ) {
-
-						/* Foreground is the active layer */
-						$( "#map_toolbar_layer_switch" ).addClass( "bi-layers-fill" );
-						$( "#map_toolbar_layer_switch" ).removeClass( "bi-layers-half" );
-					} else {
-
-						/* Background is the active layer */
-						$( "#map_toolbar_layer_switch" ).addClass( "bi-layers-half" );
-						$( "#map_toolbar_layer_switch" ).removeClass( "bi-layers-fill" );
-					}
+					/* Update the icons etc */
+					set_layer();
 
 					/* Reload map editor */
 					load_map_editor();
@@ -801,27 +810,38 @@ function map_toolbar_event_listeners() {
 										_dupl_cell.row = dupl_start_pos.y + _row;
 										_dupl_cell.col = dupl_start_pos.x + _col;
 
-										/* Update the local array */
-										dupl_tiles[ _row ][ _col ].texture_gid = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].texture_gid;
-										dupl_tiles[ _row ][ _col ].texture_id = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].texture_id;
+										if( current_layer_fg ) {
+											
+											/* Copy the foreground data */
+											dupl_tiles[ _row ][ _col ].texture_gid = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].texture_gid;
+											dupl_tiles[ _row ][ _col ].texture_id = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].texture_id;
 
-										dupl_tiles[ _row ][ _col ].texture_reverse_x = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].texture_reverse_x;
-										dupl_tiles[ _row ][ _col ].texture_reverse_y = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].texture_reverse_y;
+											dupl_tiles[ _row ][ _col ].texture_reverse_x = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].texture_reverse_x;
+											dupl_tiles[ _row ][ _col ].texture_reverse_y = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].texture_reverse_y;
 
-										dupl_tiles[ _row ][ _col ].exit_tile = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].exit_tile;
-										dupl_tiles[ _row ][ _col ].exit_map_id = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].exit_map_id;
-										dupl_tiles[ _row ][ _col ].top_layer = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].top_layer;
-										dupl_tiles[ _row ][ _col ].interact_en = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].interact_en;
-										dupl_tiles[ _row ][ _col ].interact_id = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].interact_id;
-										dupl_tiles[ _row ][ _col ].npc_en = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].npc_en;
-										dupl_tiles[ _row ][ _col ].npc_id = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].npc_id;
+											dupl_tiles[ _row ][ _col ].exit_tile = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].exit_tile;
+											dupl_tiles[ _row ][ _col ].exit_map_id = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].exit_map_id;
+											dupl_tiles[ _row ][ _col ].top_layer = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].top_layer;
+											dupl_tiles[ _row ][ _col ].interact_en = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].interact_en;
+											dupl_tiles[ _row ][ _col ].interact_id = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].interact_id;
+											dupl_tiles[ _row ][ _col ].npc_en = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].npc_en;
+											dupl_tiles[ _row ][ _col ].npc_id = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].npc_id;
 
-										dupl_tiles[ _row ][ _col ].can_walk = new Array();
-										$.extend( true, dupl_tiles[ _row ][ _col ].can_walk, selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].can_walk ); /* Clone array */
-										dupl_tiles[ _row ][ _col ].exit_map_dir = new Array();
-										$.extend( true, dupl_tiles[ _row ][ _col ].exit_map_dir, selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].exit_map_dir ); /* Clone array */
-										dupl_tiles[ _row ][ _col ].exit_map_pos = new Array();
-										$.extend( true, dupl_tiles[ _row ][ _col ].exit_map_pos, selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].exit_map_pos ); /* Clone array */
+											dupl_tiles[ _row ][ _col ].can_walk = new Array();
+											$.extend( true, dupl_tiles[ _row ][ _col ].can_walk, selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].can_walk ); /* Clone array */
+											dupl_tiles[ _row ][ _col ].exit_map_dir = new Array();
+											$.extend( true, dupl_tiles[ _row ][ _col ].exit_map_dir, selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].exit_map_dir ); /* Clone array */
+											dupl_tiles[ _row ][ _col ].exit_map_pos = new Array();
+											$.extend( true, dupl_tiles[ _row ][ _col ].exit_map_pos, selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].exit_map_pos ); /* Clone array */
+										} else {
+											
+											/* Copy the background data */
+											dupl_tiles[ _row ][ _col ].bg_texture_gid = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].bg_texture_gid;
+											dupl_tiles[ _row ][ _col ].bg_texture_id = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].bg_texture_id;
+
+											dupl_tiles[ _row ][ _col ].bg_texture_reverse_x = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].bg_texture_reverse_x;
+											dupl_tiles[ _row ][ _col ].bg_texture_reverse_y = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].bg_texture_reverse_y;
+										}
 									}
 								}
 
@@ -861,7 +881,9 @@ function map_toolbar_event_listeners() {
 						selected_texture.exit_map_dir = [0, 0];
 						selected_texture.exit_map_pos = [0, 0];
 
-						$( "#container #toolbar #map_paint_settings" ).css( "display", "flex" );
+						/* Only show the paint settings if we're drawing on the foreground layer */
+						if( current_layer_fg )
+							$( "#container #toolbar #map_paint_settings" ).css( "display", "flex" );
 						load_texture_preview();
 
 						/* Disable groups in texture list */
@@ -884,10 +906,7 @@ function map_toolbar_event_listeners() {
 						/* Clear the map editor if we've been duplicating */
 						$( "#container #content #map_editor_container #map_editor .map_editor_row .map_editor_cell" ).each( function( i, cell ) {
 
-							$( this ).removeClass( "dupl_hover" );
-							$( this ).removeClass( "ui-selectee" );
-							$( this ).removeClass( "ui-selected" );
-							$( this ).removeClass( "dup_selected" );
+							$( this ).removeClass( "dup_selected dupl_hover ui-selectee ui-selected" );
 						} );
 
 						if( $( "#container #content #map_editor_container #map_editor" ).hasClass( "ui-selectable" ) ) {
@@ -902,7 +921,7 @@ function map_toolbar_event_listeners() {
 						/* Re-add sorting to texture list */
 						texture_list_sortable();
 
-						/* Disable all drawing functions */				
+						/* Disable all drawing functions */
 						drawing_functions = false;
 					}
 					break;
@@ -913,8 +932,8 @@ function map_toolbar_event_listeners() {
 					disable_controls();
 					
 					/* Show the confirmation prompt */
-					if( func == "clear") $( "#container #toolbar #settings #map_confirm #map_confirm_prompt" ).html( "Clear the whole map?" );
-					else $( "#container #toolbar #settings #map_confirm #map_confirm_prompt" ).html( "Paint the whole map?" );
+					if( func == "clear") $( "#container #toolbar #settings #map_confirm #map_confirm_prompt" ).html( "Clear the whole layer?" );
+					else $( "#container #toolbar #settings #map_confirm #map_confirm_prompt" ).html( "Paint the whole layer?" );
 
 					$( "#container #toolbar #settings #map_confirm input[type=button]" ).css( "display", "block" );
 					$( "#container #toolbar #settings #map_confirm #map_done" ).css( "display", "none" );
@@ -925,34 +944,57 @@ function map_toolbar_event_listeners() {
 					$( "#container #toolbar #settings #map_confirm input[type=button]" ).on( "click" , function( e ) {
 						
 						if( $( this ).attr( "id" ) == "map_confirm_y" ) {
-							/* Fill her up! */
 
-							/* Create tile info */
-							var fill_tile = new Object();
-							fill_tile.can_walk = [true, true, true, true];
-							if( func == "clear" ) {
-								fill_tile.texture_gid = undefined;
-								fill_tile.texture_id = undefined;
-								fill_tile.texture_reverse_x = false;
-								fill_tile.texture_reverse_y = false;
-							} else {
-								fill_tile.texture_gid = selected_texture.group.gid;
-								fill_tile.texture_id = selected_texture.texture.id;
-								fill_tile.texture_reverse_x = selected_texture.texture_reverse_x;
-								fill_tile.texture_reverse_y = selected_texture.texture_reverse_y;
-							}
-							fill_tile.exit_tile = false;
-							fill_tile.exit_map_id = false;
-							fill_tile.top_layer = false;
-							fill_tile.interact_en = false;
-							fill_tile.interact_id = false;
-							fill_tile.npc_en = false;
-							fill_tile.npc_id = false;
-							fill_tile.exit_map_dir = [0, 0];
-							fill_tile.exit_map_pos = [0, 0];
+							$.each( selected_map.data, function( key, map_row ) {
 
-							/* Fill the map */
-							selected_map.data = Array.from( { length: selected_map.height }, () => Array.from( { length: selected_map.width }, () => Object.assign( {}, fill_tile ) ) );
+								$.each( map_row, function( key, map_tile ) {
+
+									if( current_layer_fg ) {
+								
+										/* Create tile info */
+										map_tile.can_walk = [true, true, true, true];
+
+										if( func == "clear" ) {
+
+											map_tile.texture_gid = undefined;
+											map_tile.texture_id = undefined;
+											map_tile.texture_reverse_x = false;
+											map_tile.texture_reverse_y = false;
+										} else {
+
+											map_tile.texture_gid = selected_texture.group.gid;
+											map_tile.texture_id = selected_texture.texture.id;
+											map_tile.texture_reverse_x = selected_texture.texture_reverse_x;
+											map_tile.texture_reverse_y = selected_texture.texture_reverse_y;
+										}
+
+										map_tile.exit_tile = false;
+										map_tile.exit_map_id = false;
+										map_tile.top_layer = false;
+										map_tile.interact_en = false;
+										map_tile.interact_id = false;
+										map_tile.npc_en = false;
+										map_tile.npc_id = false;
+										map_tile.exit_map_dir = [0, 0];
+										map_tile.exit_map_pos = [0, 0];
+									} else {
+
+										if( func == "clear" ) {
+
+											map_tile.bg_texture_gid = undefined;
+											map_tile.bg_texture_id = undefined;
+											map_tile.bg_texture_reverse_x = false;
+											map_tile.bg_texture_reverse_y = false;
+										} else {
+
+											map_tile.bg_texture_gid = selected_texture.group.gid;
+											map_tile.bg_texture_id = selected_texture.texture.id;
+											map_tile.bg_texture_reverse_x = selected_texture.texture_reverse_x;
+											map_tile.bg_texture_reverse_y = selected_texture.texture_reverse_y;
+										}
+									}
+								} );
+							} );
 
 							/* Log changes */
 							log_change();
@@ -979,7 +1021,7 @@ function map_toolbar_event_listeners() {
 					break;
 				case "resize-canvas":
 
-					if( controls_disabled == false ) {
+					if( ( controls_disabled == false ) && ( current_layer_fg ) ) {
 						
 						/* Enable resizing mode */
 						map_resizing.new_width = selected_map.width;
@@ -1024,16 +1066,30 @@ function map_toolbar_event_listeners() {
 
 							/* Now create a new map, start with all blank tiles */
 							var blank_tile = new Object();
-							blank_tile.can_walk = [true, true, true, true];
+
 							blank_tile.texture_gid = undefined;
 							blank_tile.texture_id = undefined;
 							blank_tile.texture_reverse_x = false;
 							blank_tile.texture_reverse_y = false;
+
+							blank_tile.bg_texture_gid = undefined;
+							blank_tile.bg_texture_id = undefined;
+							blank_tile.bg_texture_reverse_x = false;
+							blank_tile.bg_texture_reverse_y = false;
+
+							blank_tile.can_walk = [true, true, true, true];
+							blank_tile.top_layer = false;
+
 							blank_tile.exit_tile = false;
 							blank_tile.exit_map_id = false;
-							blank_tile.top_layer = false;
 							blank_tile.exit_map_dir = [0, 0];
 							blank_tile.exit_map_pos = [0, 0];
+
+							blank_tile.interact_en = false;
+							blank_tile.interact_id = false;
+
+							blank_tile.npc_en = false;
+							blank_tile.npc_id = false;
 
 							/* Fill a temporary array with our blank tiles */
 							temporary_map = Array.from( { length: map_resizing.new_height }, () => Array.from( { length: map_resizing.new_width }, () => Object.assign( {}, blank_tile ) ) );
@@ -1081,12 +1137,16 @@ function map_toolbar_event_listeners() {
 					}
 					break;
 				case "flip-h":
+
 					selected_texture.texture_reverse_y = !selected_texture.texture_reverse_y;
+					
 					/* Reload preview */
 					load_texture_preview();
 					break
 				case "flip-v":
+
 					selected_texture.texture_reverse_x = !selected_texture.texture_reverse_x;
+					
 					/* Reload preview */
 					load_texture_preview();
 					break;
@@ -1471,17 +1531,26 @@ function map_editor_event_listeners() {
 			/* We're in the drawing functions */
 			if( drawing_functions == 2 ) { /* Clear */
 
-				/* Update the local array */
-				selected_map.data[ tile_info.row ][ tile_info.col ].texture_gid = undefined;
-				selected_map.data[ tile_info.row ][ tile_info.col ].texture_id = undefined;
-				selected_map.data[ tile_info.row ][ tile_info.col ].texture_reverse_x = false;
-				selected_map.data[ tile_info.row ][ tile_info.col ].texture_reverse_y = false;
-				selected_map.data[ tile_info.row ][ tile_info.col ].can_walk = [true, true, true, true];
-				selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_id = false;
-				selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_dir = [0, 0];
-				selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_pos = [0, 0];
-				selected_map.data[ tile_info.row ][ tile_info.col ].interact_en = false;
-				selected_map.data[ tile_info.row ][ tile_info.col ].interact_id = false;
+				/* Update the local array for foreground or background */
+				if( current_layer_fg ) {
+
+					selected_map.data[ tile_info.row ][ tile_info.col ].texture_gid = undefined;
+					selected_map.data[ tile_info.row ][ tile_info.col ].texture_id = undefined;
+					selected_map.data[ tile_info.row ][ tile_info.col ].texture_reverse_x = false;
+					selected_map.data[ tile_info.row ][ tile_info.col ].texture_reverse_y = false;
+					selected_map.data[ tile_info.row ][ tile_info.col ].can_walk = [true, true, true, true];
+					selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_id = false;
+					selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_dir = [0, 0];
+					selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_pos = [0, 0];
+					selected_map.data[ tile_info.row ][ tile_info.col ].interact_en = false;
+					selected_map.data[ tile_info.row ][ tile_info.col ].interact_id = false;
+				} else {
+					
+					selected_map.data[ tile_info.row ][ tile_info.col ].bg_texture_gid = undefined;
+					selected_map.data[ tile_info.row ][ tile_info.col ].bg_texture_id = undefined;
+					selected_map.data[ tile_info.row ][ tile_info.col ].bg_texture_reverse_x = false;
+					selected_map.data[ tile_info.row ][ tile_info.col ].bg_texture_reverse_y = false;
+				}
 
 				/* Log changes */
 				log_change();
@@ -1495,58 +1564,72 @@ function map_editor_event_listeners() {
 
 			} else if( drawing_functions == 1 ) { /* Paint */
 
-				if( selected_texture.exit_tile ) {
+				if( current_layer_fg ) {
 
-					/* We're setting an exit tile */
-					selected_texture.exit_tile = true;
-					selected_texture.exit_map_id = $( "#container #toolbar #map_paint_settings #exit_tile_map_id" ).val();
-					selected_texture.exit_map_dir = [ parseInt( $( "#container #toolbar #map_paint_settings #exit_tile_map_pos_x" ).val() ), parseInt( $( "#container #toolbar #map_paint_settings #exit_tile_map_pos_y" ).val() ) ];
-					
-					switch( $( "#container #toolbar #map_paint_settings #exit_tile_map_dir" ).val() ) {
-						case "a":  /* Exit any direction */
-							selected_texture.exit_map_dir = [0, 0];
-							break;
-						case "n": /* Exit when walking north */
-							selected_texture.exit_map_dir = [0, 1];
-							break;
-						case "e": /* Exit when walking east */
-							selected_texture.exit_map_dir = [1, 0];
-							break;
-						case "s": /* Exit when walking south */
-							selected_texture.exit_map_dir = [0, -1];
-							break;
-						case "w": /* Exit when walking west */
-							selected_texture.exit_map_dir = [-1, 0];
-							break;
+					/* Foreground painting */
+					if( selected_texture.exit_tile ) {
+
+						/* We're setting an exit tile */
+						selected_texture.exit_tile = true;
+						selected_texture.exit_map_id = $( "#container #toolbar #map_paint_settings #exit_tile_map_id" ).val();
+						selected_texture.exit_map_dir = [ parseInt( $( "#container #toolbar #map_paint_settings #exit_tile_map_pos_x" ).val() ), parseInt( $( "#container #toolbar #map_paint_settings #exit_tile_map_pos_y" ).val() ) ];
+						
+						switch( $( "#container #toolbar #map_paint_settings #exit_tile_map_dir" ).val() ) {
+							case "a":  /* Exit any direction */
+								selected_texture.exit_map_dir = [0, 0];
+								break;
+							case "n": /* Exit when walking north */
+								selected_texture.exit_map_dir = [0, 1];
+								break;
+							case "e": /* Exit when walking east */
+								selected_texture.exit_map_dir = [1, 0];
+								break;
+							case "s": /* Exit when walking south */
+								selected_texture.exit_map_dir = [0, -1];
+								break;
+							case "w": /* Exit when walking west */
+								selected_texture.exit_map_dir = [-1, 0];
+								break;
+						}
+					} else {
+
+						/* Update selected tile data */
+						selected_texture.exit_map_id = false;
+						selected_texture.exit_map_dir = [0, 0];
+						selected_texture.exit_map_pos = [0, 0];
 					}
+
+					/* Update the local array */
+					selected_map.data[ tile_info.row ][ tile_info.col ].texture_gid = selected_texture.group.gid;
+					selected_map.data[ tile_info.row ][ tile_info.col ].texture_id = selected_texture.texture.id;
+
+					selected_map.data[ tile_info.row ][ tile_info.col ].texture_reverse_x = selected_texture.texture_reverse_x;
+					selected_map.data[ tile_info.row ][ tile_info.col ].texture_reverse_y = selected_texture.texture_reverse_y;
+
+					selected_map.data[ tile_info.row ][ tile_info.col ].exit_tile = selected_texture.exit_tile;
+					selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_id = selected_texture.exit_map_id;
+					selected_map.data[ tile_info.row ][ tile_info.col ].top_layer = selected_texture.top_layer;
+					selected_map.data[ tile_info.row ][ tile_info.col ].interact_en = selected_texture.interact_en;
+					selected_map.data[ tile_info.row ][ tile_info.col ].interact_id = selected_texture.interact_id;
+					selected_map.data[ tile_info.row ][ tile_info.col ].npc_en = selected_texture.npc_en;
+					selected_map.data[ tile_info.row ][ tile_info.col ].npc_id = selected_texture.npc_id;
+
+					selected_map.data[ tile_info.row ][ tile_info.col ].can_walk = new Array();
+					$.extend( true, selected_map.data[ tile_info.row ][ tile_info.col ].can_walk, selected_texture.can_walk ); /* Clone array */
+					selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_dir = new Array();
+					$.extend( true, selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_dir, selected_texture.exit_map_dir ); /* Clone array */
+					selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_pos = new Array();
+					$.extend( true, selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_pos, selected_texture.exit_map_pos ); /* Clone array */
 				} else {
-					/* Update selected tile data */
-					selected_texture.exit_map_id = false;
-					selected_texture.exit_map_dir = [0, 0];
-					selected_texture.exit_map_pos = [0, 0];
+
+					/* Background painting */
+					selected_map.data[ tile_info.row ][ tile_info.col ].bg_texture_gid = selected_texture.group.gid;
+					selected_map.data[ tile_info.row ][ tile_info.col ].bg_texture_id = selected_texture.texture.id;
+
+					selected_map.data[ tile_info.row ][ tile_info.col ].bg_texture_reverse_x = selected_texture.texture_reverse_x;
+					selected_map.data[ tile_info.row ][ tile_info.col ].bg_texture_reverse_y = selected_texture.texture_reverse_y;
 				}
 
-				/* Update the local array */
-				selected_map.data[ tile_info.row ][ tile_info.col ].texture_gid = selected_texture.group.gid;
-				selected_map.data[ tile_info.row ][ tile_info.col ].texture_id = selected_texture.texture.id;
-
-				selected_map.data[ tile_info.row ][ tile_info.col ].texture_reverse_x = selected_texture.texture_reverse_x;
-				selected_map.data[ tile_info.row ][ tile_info.col ].texture_reverse_y = selected_texture.texture_reverse_y;
-
-				selected_map.data[ tile_info.row ][ tile_info.col ].exit_tile = selected_texture.exit_tile;
-				selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_id = selected_texture.exit_map_id;
-				selected_map.data[ tile_info.row ][ tile_info.col ].top_layer = selected_texture.top_layer;
-				selected_map.data[ tile_info.row ][ tile_info.col ].interact_en = selected_texture.interact_en;
-				selected_map.data[ tile_info.row ][ tile_info.col ].interact_id = selected_texture.interact_id;
-				selected_map.data[ tile_info.row ][ tile_info.col ].npc_en = selected_texture.npc_en;
-				selected_map.data[ tile_info.row ][ tile_info.col ].npc_id = selected_texture.npc_id;
-
-				selected_map.data[ tile_info.row ][ tile_info.col ].can_walk = new Array();
-				$.extend( true, selected_map.data[ tile_info.row ][ tile_info.col ].can_walk, selected_texture.can_walk ); /* Clone array */
-				selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_dir = new Array();
-				$.extend( true, selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_dir, selected_texture.exit_map_dir ); /* Clone array */
-				selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_pos = new Array();
-				$.extend( true, selected_map.data[ tile_info.row ][ tile_info.col ].exit_map_pos, selected_texture.exit_map_pos ); /* Clone array */
 
 				/* Log changes */
 				log_change();
@@ -1587,9 +1670,20 @@ function map_editor_event_listeners() {
 				tile_info.row = $( this ).parent().attr( "row_id" );
 				tile_info.col = $( this ).attr( "col_id" );
 
-				/* Get texture info */
-				var cell_texture_gid = selected_map.data[tile_info.row][tile_info.col].texture_gid;
-				var cell_texture_id = selected_map.data[tile_info.row][tile_info.col].texture_id;
+				var cell_texture_gid = undefined;
+				var cell_texture_id = undefined;
+
+				if( current_layer_fg ) {
+					
+					/* Get foreground texture info */
+					cell_texture_gid = selected_map.data[tile_info.row][tile_info.col].texture_gid;
+					cell_texture_id = selected_map.data[tile_info.row][tile_info.col].texture_id;
+				} else {
+
+					/* Get background texture info */
+					cell_texture_gid = selected_map.data[tile_info.row][tile_info.col].bg_texture_gid;
+					cell_texture_id = selected_map.data[tile_info.row][tile_info.col].bg_texture_id;
+				}
 
 				if( cell_texture_gid != undefined ) {
 
@@ -1617,7 +1711,10 @@ function map_editor_event_listeners() {
 					$( "#container #toolbar #settings #name_input_container #paint_auto_inc_en" ).css( "display", "block" );
 					$( "#container #toolbar #settings #name_input_container label[for='paint_auto_inc_en']" ).css( "display", "block" );
 
-					$( "#container #toolbar #map_paint_settings" ).css( "display", "flex" );
+					/* Only show the paint settings if we're drawing on the foreground layer */
+					if( current_layer_fg )
+						$( "#container #toolbar #map_paint_settings" ).css( "display", "flex" );
+
 					load_texture_preview();
 
 					/* Disable groups in texture list */
@@ -1641,27 +1738,38 @@ function map_editor_event_listeners() {
 						/* Make sure we're in bounds */
 						if( ( _loop_cell.col < selected_map.width ) && ( _loop_cell.row < selected_map.height ) ) {
 
-							/* Update the local array */
-							selected_map.data[ _loop_cell.row ][ _loop_cell.col ].texture_gid = dupl_tiles[ _row ][ _col ].texture_gid;
-							selected_map.data[ _loop_cell.row ][ _loop_cell.col ].texture_id = dupl_tiles[ _row ][ _col ].texture_id;
+							if( current_layer_fg ) {
 
-							selected_map.data[ _loop_cell.row ][ _loop_cell.col ].texture_reverse_x = dupl_tiles[ _row ][ _col ].texture_reverse_x;
-							selected_map.data[ _loop_cell.row ][ _loop_cell.col ].texture_reverse_y = dupl_tiles[ _row ][ _col ].texture_reverse_y;
+								/* Update the foreground */
+								selected_map.data[ _loop_cell.row ][ _loop_cell.col ].texture_gid = dupl_tiles[ _row ][ _col ].texture_gid;
+								selected_map.data[ _loop_cell.row ][ _loop_cell.col ].texture_id = dupl_tiles[ _row ][ _col ].texture_id;
 
-							selected_map.data[ _loop_cell.row ][ _loop_cell.col ].exit_tile = dupl_tiles[ _row ][ _col ].exit_tile;
-							selected_map.data[ _loop_cell.row ][ _loop_cell.col ].exit_map_id = dupl_tiles[ _row ][ _col ].exit_map_id;
-							selected_map.data[ _loop_cell.row ][ _loop_cell.col ].top_layer = dupl_tiles[ _row ][ _col ].top_layer;
-							selected_map.data[ _loop_cell.row ][ _loop_cell.col ].interact_en = dupl_tiles[ _row ][ _col ].interact_en;
-							selected_map.data[ _loop_cell.row ][ _loop_cell.col ].interact_id = dupl_tiles[ _row ][ _col ].interact_id;
-							selected_map.data[ _loop_cell.row ][ _loop_cell.col ].npc_en = dupl_tiles[ _row ][ _col ].npc_en;
-							selected_map.data[ _loop_cell.row ][ _loop_cell.col ].npc_id = dupl_tiles[ _row ][ _col ].npc_id;
+								selected_map.data[ _loop_cell.row ][ _loop_cell.col ].texture_reverse_x = dupl_tiles[ _row ][ _col ].texture_reverse_x;
+								selected_map.data[ _loop_cell.row ][ _loop_cell.col ].texture_reverse_y = dupl_tiles[ _row ][ _col ].texture_reverse_y;
 
-							selected_map.data[ _loop_cell.row ][ _loop_cell.col ].can_walk = new Array();
-							$.extend( true, selected_map.data[ _loop_cell.row ][ _loop_cell.col ].can_walk, dupl_tiles[ _row ][ _col ].can_walk ); /* Clone array */
-							selected_map.data[ _loop_cell.row ][ _loop_cell.col ].exit_map_dir = new Array();
-							$.extend( true, selected_map.data[ _loop_cell.row ][ _loop_cell.col ].exit_map_dir, dupl_tiles[ _row ][ _col ].exit_map_dir ); /* Clone array */
-							selected_map.data[ _loop_cell.row ][ _loop_cell.col ].exit_map_pos = new Array();
-							$.extend( true, selected_map.data[ _loop_cell.row ][ _loop_cell.col ].exit_map_pos, dupl_tiles[ _row ][ _col ].exit_map_pos ); /* Clone array */
+								selected_map.data[ _loop_cell.row ][ _loop_cell.col ].exit_tile = dupl_tiles[ _row ][ _col ].exit_tile;
+								selected_map.data[ _loop_cell.row ][ _loop_cell.col ].exit_map_id = dupl_tiles[ _row ][ _col ].exit_map_id;
+								selected_map.data[ _loop_cell.row ][ _loop_cell.col ].top_layer = dupl_tiles[ _row ][ _col ].top_layer;
+								selected_map.data[ _loop_cell.row ][ _loop_cell.col ].interact_en = dupl_tiles[ _row ][ _col ].interact_en;
+								selected_map.data[ _loop_cell.row ][ _loop_cell.col ].interact_id = dupl_tiles[ _row ][ _col ].interact_id;
+								selected_map.data[ _loop_cell.row ][ _loop_cell.col ].npc_en = dupl_tiles[ _row ][ _col ].npc_en;
+								selected_map.data[ _loop_cell.row ][ _loop_cell.col ].npc_id = dupl_tiles[ _row ][ _col ].npc_id;
+
+								selected_map.data[ _loop_cell.row ][ _loop_cell.col ].can_walk = new Array();
+								$.extend( true, selected_map.data[ _loop_cell.row ][ _loop_cell.col ].can_walk, dupl_tiles[ _row ][ _col ].can_walk ); /* Clone array */
+								selected_map.data[ _loop_cell.row ][ _loop_cell.col ].exit_map_dir = new Array();
+								$.extend( true, selected_map.data[ _loop_cell.row ][ _loop_cell.col ].exit_map_dir, dupl_tiles[ _row ][ _col ].exit_map_dir ); /* Clone array */
+								selected_map.data[ _loop_cell.row ][ _loop_cell.col ].exit_map_pos = new Array();
+								$.extend( true, selected_map.data[ _loop_cell.row ][ _loop_cell.col ].exit_map_pos, dupl_tiles[ _row ][ _col ].exit_map_pos ); /* Clone array */
+							} else {
+
+								/* Update the background */
+								selected_map.data[ _loop_cell.row ][ _loop_cell.col ].bg_texture_gid = dupl_tiles[ _row ][ _col ].bg_texture_gid;
+								selected_map.data[ _loop_cell.row ][ _loop_cell.col ].bg_texture_id = dupl_tiles[ _row ][ _col ].bg_texture_id;
+
+								selected_map.data[ _loop_cell.row ][ _loop_cell.col ].bg_texture_reverse_x = dupl_tiles[ _row ][ _col ].bg_texture_reverse_x;
+								selected_map.data[ _loop_cell.row ][ _loop_cell.col ].bg_texture_reverse_y = dupl_tiles[ _row ][ _col ].bg_texture_reverse_y;
+							}
 
 							/* Update the cell */
 							set_map_cell( false, _loop_cell );
@@ -1746,7 +1854,7 @@ function map_editor_event_listeners() {
 			drawing_functions = 7;
 
 			/* Reset the hover css */
-			$( "#container #content #map_editor_container #map_editor .map_editor_row .map_editor_cell" ).removeClass( "dup_selected dupl_hover" );
+			$( "#container #content #map_editor_container #map_editor .map_editor_row .map_editor_cell" ).removeClass( "dup_selected dupl_hover ui-selectee ui-selected" );
 
 			/* Add in selector functions for the map */
 			$( "#container #content #map_editor_container #map_editor" ).selectable( {
@@ -1792,27 +1900,38 @@ function map_editor_event_listeners() {
 							_dupl_cell.row = dupl_start_pos.y + _row;
 							_dupl_cell.col = dupl_start_pos.x + _col;
 
-							/* Update the local array */
-							dupl_tiles[ _row ][ _col ].texture_gid = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].texture_gid;
-							dupl_tiles[ _row ][ _col ].texture_id = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].texture_id;
+							if( current_layer_fg ) {
+											
+								/* Copy the foreground data */
+								dupl_tiles[ _row ][ _col ].texture_gid = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].texture_gid;
+								dupl_tiles[ _row ][ _col ].texture_id = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].texture_id;
 
-							dupl_tiles[ _row ][ _col ].texture_reverse_x = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].texture_reverse_x;
-							dupl_tiles[ _row ][ _col ].texture_reverse_y = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].texture_reverse_y;
+								dupl_tiles[ _row ][ _col ].texture_reverse_x = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].texture_reverse_x;
+								dupl_tiles[ _row ][ _col ].texture_reverse_y = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].texture_reverse_y;
 
-							dupl_tiles[ _row ][ _col ].exit_tile = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].exit_tile;
-							dupl_tiles[ _row ][ _col ].exit_map_id = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].exit_map_id;
-							dupl_tiles[ _row ][ _col ].top_layer = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].top_layer;
-							dupl_tiles[ _row ][ _col ].interact_en = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].interact_en;
-							dupl_tiles[ _row ][ _col ].interact_id = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].interact_id;
-							dupl_tiles[ _row ][ _col ].npc_en = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].npc_en;
-							dupl_tiles[ _row ][ _col ].npc_id = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].npc_id;
+								dupl_tiles[ _row ][ _col ].exit_tile = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].exit_tile;
+								dupl_tiles[ _row ][ _col ].exit_map_id = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].exit_map_id;
+								dupl_tiles[ _row ][ _col ].top_layer = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].top_layer;
+								dupl_tiles[ _row ][ _col ].interact_en = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].interact_en;
+								dupl_tiles[ _row ][ _col ].interact_id = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].interact_id;
+								dupl_tiles[ _row ][ _col ].npc_en = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].npc_en;
+								dupl_tiles[ _row ][ _col ].npc_id = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].npc_id;
 
-							dupl_tiles[ _row ][ _col ].can_walk = new Array();
-							$.extend( true, dupl_tiles[ _row ][ _col ].can_walk, selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].can_walk ); /* Clone array */
-							dupl_tiles[ _row ][ _col ].exit_map_dir = new Array();
-							$.extend( true, dupl_tiles[ _row ][ _col ].exit_map_dir, selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].exit_map_dir ); /* Clone array */
-							dupl_tiles[ _row ][ _col ].exit_map_pos = new Array();
-							$.extend( true, dupl_tiles[ _row ][ _col ].exit_map_pos, selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].exit_map_pos ); /* Clone array */
+								dupl_tiles[ _row ][ _col ].can_walk = new Array();
+								$.extend( true, dupl_tiles[ _row ][ _col ].can_walk, selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].can_walk ); /* Clone array */
+								dupl_tiles[ _row ][ _col ].exit_map_dir = new Array();
+								$.extend( true, dupl_tiles[ _row ][ _col ].exit_map_dir, selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].exit_map_dir ); /* Clone array */
+								dupl_tiles[ _row ][ _col ].exit_map_pos = new Array();
+								$.extend( true, dupl_tiles[ _row ][ _col ].exit_map_pos, selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].exit_map_pos ); /* Clone array */
+							} else {
+								
+								/* Copy the background data */
+								dupl_tiles[ _row ][ _col ].bg_texture_gid = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].bg_texture_gid;
+								dupl_tiles[ _row ][ _col ].bg_texture_id = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].bg_texture_id;
+
+								dupl_tiles[ _row ][ _col ].bg_texture_reverse_x = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].bg_texture_reverse_x;
+								dupl_tiles[ _row ][ _col ].bg_texture_reverse_y = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].bg_texture_reverse_y;
+							}
 						}
 					}
 
@@ -2068,8 +2187,19 @@ function set_map_tile_settings_styles( direct_update = false ) {
 function display_tile_info( tile_row, tile_col ) {
 
 	/* Update the local array */
-	var cell_texture_gid = selected_map.data[tile_row][tile_col].texture_gid;
-	var cell_texture_id = selected_map.data[tile_row][tile_col].texture_id;
+	var cell_texture_gid = undefined;
+	var cell_texture_id = undefined;
+
+	/* Get the tile's texture depending on which layer we're working on */
+	if( current_layer_fg ) {
+		
+		cell_texture_gid = selected_map.data[tile_row][tile_col].texture_gid;
+		cell_texture_id = selected_map.data[tile_row][tile_col].texture_id;
+	} else {
+		
+		cell_texture_gid = selected_map.data[tile_row][tile_col].bg_texture_gid;
+		cell_texture_id = selected_map.data[tile_row][tile_col].bg_texture_id;
+	}
 
 	/* Copy group and texture data to selected texture */
 	selected_texture.group = project.textures.find( obj => obj.gid == cell_texture_gid );
@@ -2084,31 +2214,41 @@ function display_tile_info( tile_row, tile_col ) {
 		$( "#exit_tile_map_id" ).append( '<option value="' + value.id + '">' + value.name + '</option>' );
 	} );
 
-	/* Copy tile info */
-	selected_texture.exit_tile = selected_map.data[tile_row][tile_col].exit_tile;
-	selected_texture.exit_map_id = selected_map.data[tile_row][tile_col].exit_map_id;
+	/* Copy tile info - if foreground */
+	if( current_layer_fg ) {
 
-	selected_texture.interact_en = selected_map.data[tile_row][tile_col].interact_en;
-	selected_texture.interact_id = selected_map.data[tile_row][tile_col].interact_id;
+		selected_texture.exit_tile = selected_map.data[tile_row][tile_col].exit_tile;
+		selected_texture.exit_map_id = selected_map.data[tile_row][tile_col].exit_map_id;
 
-	selected_texture.npc_en = selected_map.data[tile_row][tile_col].npc_en;
-	selected_texture.npc_id = selected_map.data[tile_row][tile_col].npc_id;
+		selected_texture.interact_en = selected_map.data[tile_row][tile_col].interact_en;
+		selected_texture.interact_id = selected_map.data[tile_row][tile_col].interact_id;
 
-	selected_texture.top_layer = selected_map.data[tile_row][tile_col].top_layer;
+		selected_texture.npc_en = selected_map.data[tile_row][tile_col].npc_en;
+		selected_texture.npc_id = selected_map.data[tile_row][tile_col].npc_id;
 
-	selected_texture.exit_map_dir = new Array();
-	$.extend( true, selected_texture.exit_map_dir, selected_map.data[tile_row][tile_col].exit_map_dir ); /* Clone array */
-	selected_texture.exit_map_pos = new Array();
-	$.extend( true, selected_texture.exit_map_pos, selected_map.data[tile_row][tile_col].exit_map_pos ); /* Clone array */
-	selected_texture.can_walk = new Array();
-	$.extend( true, selected_texture.can_walk, selected_map.data[tile_row][tile_col].can_walk ); /* Clone array */
+		selected_texture.top_layer = selected_map.data[tile_row][tile_col].top_layer;
+
+		selected_texture.exit_map_dir = new Array();
+		$.extend( true, selected_texture.exit_map_dir, selected_map.data[tile_row][tile_col].exit_map_dir ); /* Clone array */
+		selected_texture.exit_map_pos = new Array();
+		$.extend( true, selected_texture.exit_map_pos, selected_map.data[tile_row][tile_col].exit_map_pos ); /* Clone array */
+		selected_texture.can_walk = new Array();
+		$.extend( true, selected_texture.can_walk, selected_map.data[tile_row][tile_col].can_walk ); /* Clone array */
+	}
 
 	/* Update texture list */
 	load_texture_list(); /* note this function resets the flip state */
 
 	/* Copy tile flip states */
-	selected_texture.texture_reverse_x = selected_map.data[tile_row][tile_col].texture_reverse_x;
-	selected_texture.texture_reverse_y = selected_map.data[tile_row][tile_col].texture_reverse_y;
+	if( current_layer_fg ) {
+		
+		selected_texture.texture_reverse_x = selected_map.data[tile_row][tile_col].texture_reverse_x;
+		selected_texture.texture_reverse_y = selected_map.data[tile_row][tile_col].texture_reverse_y;
+	} else {
+
+		selected_texture.texture_reverse_x = selected_map.data[tile_row][tile_col].bg_texture_reverse_x;
+		selected_texture.texture_reverse_y = selected_map.data[tile_row][tile_col].bg_texture_reverse_y;
+	}
 
 	/* Update preview and tile settings panel */
 	load_texture_preview();

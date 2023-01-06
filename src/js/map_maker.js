@@ -86,8 +86,8 @@ $( function() {
 		/* Update cached images */
 		update_cached_images();
 
-		selected_map = project.maps.find( obj => obj.id == 1 );
-		load_map_editing_view();
+		//selected_map = project.maps.find( obj => obj.id == 1 );
+		//load_map_editing_view();
 		
 		//selected_texture.group = project.textures.find( obj => obj.gid == 2 );
 		//selected_texture.texture = selected_texture.group.textures.find( obj => obj.id == 0 );
@@ -103,6 +103,17 @@ function sanitise_input( input_text ) {
 
 	/* Function takes user input and remove any special characters that might cause issues */
 	return input_text.replace(/[^a-zA-Z0-9\ _]/g, '_');
+}
+
+function output_num( num ) {
+
+	if( ( num == undefined ) || ( num == null ) ) {
+
+		return Number( 0 );
+	} else {
+
+		return Number( num );
+	}
 }
 
 var notify_timeout;

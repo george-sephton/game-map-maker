@@ -450,29 +450,49 @@ function export_data_gba() {
 
 				output += "{ ";
 				/* Get the selected texture and map as we need to print the order not the ID */
-				if( cell.texture_gid != undefined ) {
+				
 
-					/* Get cell */
+				/* Get cell */
+				var cell_output_map = project.maps.find( obj => obj.id == cell.exit_map_id );
+
+				var cell_output_texture_gid = -1;
+				var cell_output_texture_id = 0;
+
+				if( cell.texture_gid != undefined ) {
+					
 					var cell_output_texture_group = export_textures.find( obj => obj.gid == cell.texture_gid );
 					var cell_output_texture = cell_output_texture_group.textures.find( obj => obj.id == cell.texture_id );
-					var cell_output_map = project.maps.find( obj => obj.id == cell.exit_map_id );
 
-					/* Add in the data for each cell */
-					output += Number(cell.top_layer) + ", ";
-					output += Number(cell.can_walk[0]) + ", " + Number(cell.can_walk[1]) + ", " + Number(cell.can_walk[2]) + ", " + Number(cell.can_walk[3]) + ", ";
-					output += Number(cell_output_texture_group.gorder + 1) + ", " + Number(cell_output_texture.order) + ", ";
-					output += Number(cell.texture_reverse_x) + ", " + Number(cell.texture_reverse_y) + ", ";
-					output += Number(cell.interact_en) + ", " + Number(cell.interact_id) + ", ";
-					output += Number(cell.npc_en) + ", " + Number(cell.npc_id) + ", ";
-					output += Number(cell.exit_tile) + ", " + Number(cell_output_map.order) + ", {";
-					output += cell.exit_map_dir[0] + ", " + cell.exit_map_dir[1] + "}, {";
-					output += cell.exit_map_pos[0] + ", " + cell.exit_map_pos[1] + "} ";
-				} else {
-
-					/* Empty cell */
-					output += "0, 1, 1, 1, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, {0, 0}, {0, 0} ";
+					cell_output_texture_gid = cell_output_texture_group.gorder + 1;
+					cell_output_texture_id = cell_output_texture.order;
 				}
-				output += "}, ";		
+
+				var cell_output_bg_texture_gid = -1;
+				var cell_output_bg_texture_id = 0;
+
+				if( cell.bg_texture_gid != undefined ) {
+
+					var cell_output_bg_texture_group = export_textures.find( obj => obj.gid == cell.bg_texture_gid );
+					var cell_output_bg_texture = cell_output_bg_texture_group.textures.find( obj => obj.id == cell.bg_texture_id );
+
+					cell_output_bg_texture_gid = cell_output_bg_texture_group.gorder + 1;
+					cell_output_bg_texture_id = cell_output_bg_texture.order;
+				}
+
+				/* Add in the data for each cell */
+				output += output_num(cell.top_layer) + ", ";
+				output += output_num(cell.can_walk[0]) + ", " + output_num(cell.can_walk[1]) + ", " + output_num(cell.can_walk[2]) + ", " + output_num(cell.can_walk[3]) + ", ";
+				output += output_num(cell_output_texture_gid) + ", " + output_num(cell_output_texture_id) + ", ";
+				output += output_num(cell.texture_reverse_x) + ", " + output_num(cell.texture_reverse_y) + ", ";
+				output += output_num(cell_output_bg_texture_gid) + ", " + output_num(cell_output_bg_texture_id) + ", ";
+				output += output_num(cell.bg_texture_reverse_x) + ", " + output_num(cell.bg_texture_reverse_y) + ", ";
+				output += output_num(cell.interact_en) + ", " + output_num(cell.interact_id) + ", ";
+				output += output_num(cell.npc_en) + ", " + output_num(cell.npc_id) + ", ";
+				output += output_num(cell.exit_tile) + ", " + output_num(cell_output_map.order) + ", {";
+				output += cell.exit_map_dir[0] + ", " + cell.exit_map_dir[1] + "}, {";
+				output += cell.exit_map_pos[0] + ", " + cell.exit_map_pos[1] + "} ";
+				
+				output += "}, ";
 			} );
 
 			output += "},\n";
@@ -480,17 +500,7 @@ function export_data_gba() {
 
 		output += "};\n";
 
-		if( map.bg_texture.gid != undefined ) {
-
-			/* Get the background texture */
-			var map_output_bg_texture_gid = export_textures.find( obj => obj.gid == map.bg_texture.gid );
-			var map_output_bg_texture_id = map_output_bg_texture_gid.textures.find( obj => obj.id == map.bg_texture.id );
-		} else {
-			var map_output_bg_texture_gid = -1;
-			var map_output_bg_texture_id = -1
-		}
-
-  		output += "const struct map " + map_name_conv + " = { " + Number(map.id) + ", *_" + map_name_conv + ", " + Number(map.height) + ", " + Number(map.width) + ", " + Number(map_output_bg_texture_gid.gorder + 1) + ", " + Number(map_output_bg_texture_id.order) + ", " + Number(map_count) + " };\n"
+  		output += "const struct map " + map_name_conv + " = { " + output_num(map.id) + ", *_" + map_name_conv + ", " + output_num(map.height) + ", " + output_num(map.width) + ", " + output_num(map_count) + " };\n"
   		map_count++;
 
   		/* Add the map settings */
@@ -522,7 +532,7 @@ function export_data_gba() {
 			switch( option.type ) {
 
 				case "string":  output += "\"" + show_value + "\""; break;
-				case "int":     output += Number(show_value); break;
+				case "int":     output += output_num(show_value); break;
 				case "bool":    output += show_value; break;
 			}
 

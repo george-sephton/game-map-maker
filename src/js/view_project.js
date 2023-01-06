@@ -277,20 +277,30 @@ function project_toolbar_event_listeners() {
 
 										/* Give it a blank canvas */
 										var blank_tile = new Object();
-										blank_tile.can_walk = [true, true, true, true];
+
 										blank_tile.texture_gid = undefined;
 										blank_tile.texture_id = undefined;
 										blank_tile.texture_reverse_x = false;
 										blank_tile.texture_reverse_y = false;
+
+										blank_tile.bg_texture_gid = undefined;
+										blank_tile.bg_texture_id = undefined;
+										blank_tile.bg_texture_reverse_x = false;
+										blank_tile.bg_texture_reverse_y = false;
+
+										blank_tile.can_walk = [true, true, true, true];
+										blank_tile.top_layer = false;
+
 										blank_tile.exit_tile = false;
 										blank_tile.exit_map_id = false;
-										blank_tile.interact_en = false;
-										blank_tile.interact_id = false;
-										blank_tile.npc_en = false;
-										blank_tile.npc_id = false;
-										blank_tile.top_layer = false;
 										blank_tile.exit_map_dir = [0, 0];
 										blank_tile.exit_map_pos = [0, 0];
+
+										blank_tile.interact_en = false;
+										blank_tile.interact_id = false;
+
+										blank_tile.npc_en = false;
+										blank_tile.npc_id = false;
 
 										new_map.width = 8;
 										new_map.height = 8;
