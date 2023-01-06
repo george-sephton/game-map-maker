@@ -157,7 +157,6 @@ function set_map_cell( selector, tile_info ) {
 	else tile_info.texture_id = selected_map.data[tile_info.row][tile_info.col].texture_id;
 
 	var texture_obj = undefined;
-	var bg_texture = false;
 
 	/* Get the texture
 		- if the tile is empty, the texture gid and id is undefined
@@ -223,68 +222,65 @@ function set_map_cell( selector, tile_info ) {
 			d = new Date();
 			selector.find( "img" ).attr( "src", img_src + "?" + d.getTime() );
 
-			if( !bg_texture ) {
+			if( selected_map.data[tile_info.row][tile_info.col].exit_tile ) {
 
-				if( selected_map.data[tile_info.row][tile_info.col].exit_tile ) {
-
-					/* Update CSS for exit tiles */
-					switch( selected_map.data[tile_info.row][tile_info.col].exit_map_dir.join() ) {
-						case "0,0":  /* Exit any direction */
-							selector.css( "border-top", map_border_size + "px solid #ff0" );
-							selector.css( "border-right", map_border_size + "px solid #ff0" );
-							selector.css( "border-bottom", map_border_size + "px solid #ff0" );
-							selector.css( "border-left", map_border_size + "px solid #ff0" );
-							break;
-						case "0,1": /* Exit when walking north */
-							selector.css( "border-top", map_border_size + "px solid #ff0" );
-							break;
-						case "1,0": /* Exit when walking east */
-							selector.css( "border-right", map_border_size + "px solid #ff0" );
-							break;
-						case "0,-1": /* Exit when walking south */
-							selector.css( "border-bottom", map_border_size + "px solid #ff0" );
-							break;
-						case "-1,0": /* Exit when walking west */
-							selector.css( "border-left", map_border_size + "px solid #ff0" );
-							break;
-					}
-				} else if( selected_map.data[tile_info.row][tile_info.col].interact_en ) {
-
-					/* Update CSS based on interact_en */
-					selector.css( "border-top", map_border_size + "px solid #0ff" );
-					selector.css( "border-right", map_border_size + "px solid #0ff" );
-					selector.css( "border-bottom", map_border_size + "px solid #0ff" );
-					selector.css( "border-left", map_border_size + "px solid #0ff" );
-
-				} else if( selected_map.data[tile_info.row][tile_info.col].npc_en ) {
-
-					/* Update CSS based on npc_en */
-					selector.css( "border-top", map_border_size + "px solid #f0f" );
-					selector.css( "border-right", map_border_size + "px solid #f0f" );
-					selector.css( "border-bottom", map_border_size + "px solid #f0f" );
-					selector.css( "border-left", map_border_size + "px solid #f0f" );
-
-
-				} else if( selected_map.data[tile_info.row][tile_info.col].top_layer ) {
-
-					/* Update CSS based on top_layer */
-					selector.css( "border-top", map_border_size + "px solid #0f0" );
-					selector.css( "border-right", map_border_size + "px solid #0f0" );
-					selector.css( "border-bottom", map_border_size + "px solid #0f0" );
-					selector.css( "border-left", map_border_size + "px solid #0f0" );
-
-					if( !selected_map.data[tile_info.row][tile_info.col].can_walk[0] ) selector.css( "border-top", map_border_size + "px solid #fc8805" );
-					if( !selected_map.data[tile_info.row][tile_info.col].can_walk[1] ) selector.css( "border-right", map_border_size + "px solid #fc8805" );
-					if( !selected_map.data[tile_info.row][tile_info.col].can_walk[2] ) selector.css( "border-bottom", map_border_size + "px solid #fc8805" );
-					if( !selected_map.data[tile_info.row][tile_info.col].can_walk[3] ) selector.css( "border-left", map_border_size + "px solid #fc8805" );
-				} else {
-
-					/* Update CSS based on can_walk */
-					if( !selected_map.data[tile_info.row][tile_info.col].can_walk[0] ) selector.css( "border-top", map_border_size + "px solid #f00" );
-					if( !selected_map.data[tile_info.row][tile_info.col].can_walk[1] ) selector.css( "border-right", map_border_size + "px solid #f00" );
-					if( !selected_map.data[tile_info.row][tile_info.col].can_walk[2] ) selector.css( "border-bottom", map_border_size + "px solid #f00" );
-					if( !selected_map.data[tile_info.row][tile_info.col].can_walk[3] ) selector.css( "border-left", map_border_size + "px solid #f00" );
+				/* Update CSS for exit tiles */
+				switch( selected_map.data[tile_info.row][tile_info.col].exit_map_dir.join() ) {
+					case "0,0":  /* Exit any direction */
+						selector.css( "border-top", map_border_size + "px solid #ff0" );
+						selector.css( "border-right", map_border_size + "px solid #ff0" );
+						selector.css( "border-bottom", map_border_size + "px solid #ff0" );
+						selector.css( "border-left", map_border_size + "px solid #ff0" );
+						break;
+					case "0,1": /* Exit when walking north */
+						selector.css( "border-top", map_border_size + "px solid #ff0" );
+						break;
+					case "1,0": /* Exit when walking east */
+						selector.css( "border-right", map_border_size + "px solid #ff0" );
+						break;
+					case "0,-1": /* Exit when walking south */
+						selector.css( "border-bottom", map_border_size + "px solid #ff0" );
+						break;
+					case "-1,0": /* Exit when walking west */
+						selector.css( "border-left", map_border_size + "px solid #ff0" );
+						break;
 				}
+			} else if( selected_map.data[tile_info.row][tile_info.col].interact_en ) {
+
+				/* Update CSS based on interact_en */
+				selector.css( "border-top", map_border_size + "px solid #0ff" );
+				selector.css( "border-right", map_border_size + "px solid #0ff" );
+				selector.css( "border-bottom", map_border_size + "px solid #0ff" );
+				selector.css( "border-left", map_border_size + "px solid #0ff" );
+
+			} else if( selected_map.data[tile_info.row][tile_info.col].npc_en ) {
+
+				/* Update CSS based on npc_en */
+				selector.css( "border-top", map_border_size + "px solid #f0f" );
+				selector.css( "border-right", map_border_size + "px solid #f0f" );
+				selector.css( "border-bottom", map_border_size + "px solid #f0f" );
+				selector.css( "border-left", map_border_size + "px solid #f0f" );
+
+
+			} else if( selected_map.data[tile_info.row][tile_info.col].top_layer ) {
+
+				/* Update CSS based on top_layer */
+				selector.css( "border-top", map_border_size + "px solid #0f0" );
+				selector.css( "border-right", map_border_size + "px solid #0f0" );
+				selector.css( "border-bottom", map_border_size + "px solid #0f0" );
+				selector.css( "border-left", map_border_size + "px solid #0f0" );
+
+				if( !selected_map.data[tile_info.row][tile_info.col].can_walk[0] ) selector.css( "border-top", map_border_size + "px solid #fc8805" );
+				if( !selected_map.data[tile_info.row][tile_info.col].can_walk[1] ) selector.css( "border-right", map_border_size + "px solid #fc8805" );
+				if( !selected_map.data[tile_info.row][tile_info.col].can_walk[2] ) selector.css( "border-bottom", map_border_size + "px solid #fc8805" );
+				if( !selected_map.data[tile_info.row][tile_info.col].can_walk[3] ) selector.css( "border-left", map_border_size + "px solid #fc8805" );
+			} else {
+
+				/* Update CSS based on can_walk */
+				if( !selected_map.data[tile_info.row][tile_info.col].can_walk[0] ) selector.css( "border-top", map_border_size + "px solid #f00" );
+				if( !selected_map.data[tile_info.row][tile_info.col].can_walk[1] ) selector.css( "border-right", map_border_size + "px solid #f00" );
+				if( !selected_map.data[tile_info.row][tile_info.col].can_walk[2] ) selector.css( "border-bottom", map_border_size + "px solid #f00" );
+				if( !selected_map.data[tile_info.row][tile_info.col].can_walk[3] ) selector.css( "border-left", map_border_size + "px solid #f00" );
 			}
 		}
 	} else if( texture_obj == -1 ) {
@@ -630,21 +626,6 @@ function map_toolbar_event_listeners() {
 
 						$( "#container #toolbar #settings #map_confirm" ).css( "display", "none" );
 					});
-					break;
-				case "set-bg-texture":
-
-					/* Set the selected texture as the background texture */
-					selected_map.bg_texture.gid = selected_texture.group.gid;
-					selected_map.bg_texture.id = selected_texture.texture.id;
-
-					/* Log changes */
-					log_change();
-					
-					/* Re-load texture list */
-					load_texture_list();
-					
-					/* Reload the map editor */
-					load_map_editor();
 					break;
 				case "paint":
 				case "erase":
@@ -1499,9 +1480,20 @@ function map_editor_event_listeners() {
 					
 					if( selected_texture.texture.order < ( selected_texture.group.textures.length - 1 ) ) {
 
+						/* Store the texture flipped state */
+						var store_texture_reverse_x = selected_texture.texture_reverse_x;
+						var store_texture_reverse_y = selected_texture.texture_reverse_y;
+
 						/* Switch to the next texture */
 						selected_texture.texture = selected_texture.group.textures.find( obj => obj.order == ( selected_texture.texture.order + 1 ) );
-						load_texture_list();
+						load_texture_list( true );
+
+						/* Revert the flipped states since we're auto incrementing */
+						selected_texture.texture_reverse_x = store_texture_reverse_x;
+						selected_texture.texture_reverse_y = store_texture_reverse_y;
+
+						/* Reload texture preview */
+						load_texture_preview();
 					}
 				}
 
@@ -1665,6 +1657,86 @@ function map_editor_event_listeners() {
 				/* Cancel browser `right click` */
 				return false;
 			}
+		} else if( drawing_functions == 8 ) { /* Duplicate tiles stamp */
+
+			/* When pasting from the clipboard, reset the clipboard on right click */
+			drawing_functions = 7;
+
+			/* Reset the hover css */
+			$( "#container #content #map_editor_container #map_editor .map_editor_row .map_editor_cell" ).removeClass( "dup_selected dupl_hover" );
+
+			/* Add in selector functions for the map */
+			$( "#container #content #map_editor_container #map_editor" ).selectable( {
+				filter: ".map_editor_cell",
+				stop: function( event, ui ) {
+
+					/* Selection has ended, time to switch to stamp mode, find out which tiles were selected */
+					$( "#container #content #map_editor_container #map_editor .ui-selected" ).each( function( i, cell ) {
+						
+						/* Stop the top left coordinate */
+						if( i == 0 ) {
+
+							dupl_start_pos.x = Number( $( this ).attr( "col_id" ) );
+							dupl_start_pos.y = Number( $( this ).parent().attr( "row_id" ) );
+						}
+						
+						/* Stop the bottom right coordinate */
+						dupl_end_pos.x = Number( $( this ).attr( "col_id" ) );
+						dupl_end_pos.y = Number( $( this ).parent().attr( "row_id" ) );
+
+						/* Add selected class as the jquery class will be removed in a moment */
+						$( this ).addClass( "dup_selected" );
+
+					} );
+
+					dupl_selection_size.width = dupl_end_pos.x - dupl_start_pos.x + 1;
+					dupl_selection_size.height = dupl_end_pos.y - dupl_start_pos.y + 1;
+
+					/* Remove selectable function */
+					$( "#container #content #map_editor_container #map_editor" ).selectable( "destroy" );
+
+					/* Create copy array */
+					dupl_tiles = new Array();
+					dupl_tiles = Array.from( { length: dupl_selection_size.height }, () => Array.from( { length: dupl_selection_size.width }, () => Object.assign( {}, undefined ) ) );
+
+					/* Copy the cells */
+					for( var _row = 0; _row < dupl_selection_size.height; _row++ ) {
+
+						for( var _col = 0; _col < dupl_selection_size.width; _col++ ) {
+
+							/* Get the coordinates of the cells */
+							var _dupl_cell = new Object();
+							_dupl_cell.row = dupl_start_pos.y + _row;
+							_dupl_cell.col = dupl_start_pos.x + _col;
+
+							/* Update the local array */
+							dupl_tiles[ _row ][ _col ].texture_gid = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].texture_gid;
+							dupl_tiles[ _row ][ _col ].texture_id = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].texture_id;
+
+							dupl_tiles[ _row ][ _col ].texture_reverse_x = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].texture_reverse_x;
+							dupl_tiles[ _row ][ _col ].texture_reverse_y = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].texture_reverse_y;
+
+							dupl_tiles[ _row ][ _col ].exit_tile = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].exit_tile;
+							dupl_tiles[ _row ][ _col ].exit_map_id = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].exit_map_id;
+							dupl_tiles[ _row ][ _col ].top_layer = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].top_layer;
+							dupl_tiles[ _row ][ _col ].interact_en = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].interact_en;
+							dupl_tiles[ _row ][ _col ].interact_id = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].interact_id;
+							dupl_tiles[ _row ][ _col ].npc_en = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].npc_en;
+							dupl_tiles[ _row ][ _col ].npc_id = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].npc_id;
+
+							dupl_tiles[ _row ][ _col ].can_walk = new Array();
+							$.extend( true, dupl_tiles[ _row ][ _col ].can_walk, selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].can_walk ); /* Clone array */
+							dupl_tiles[ _row ][ _col ].exit_map_dir = new Array();
+							$.extend( true, dupl_tiles[ _row ][ _col ].exit_map_dir, selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].exit_map_dir ); /* Clone array */
+							dupl_tiles[ _row ][ _col ].exit_map_pos = new Array();
+							$.extend( true, dupl_tiles[ _row ][ _col ].exit_map_pos, selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].exit_map_pos ); /* Clone array */
+						}
+					}
+
+					/* Switch to stamp function */
+					drawing_functions = 8;
+				}
+			} );
 		}
 	} );
 }

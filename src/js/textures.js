@@ -49,10 +49,7 @@ function load_texture_list() {
 
 		$.each( selected_texture.group.textures, function( key, value ) {
 			
-			if( ( selected_map.bg_texture.gid == selected_texture.group.gid ) && ( selected_map.bg_texture.id == value.id ) )
-				$( "#texture_list .sortable" ).append( '<li class="ui-state-default ui-bg-texture" texture_id="' + value.id + '">' + value.name + '</li>' );
-			else 
-				$( "#texture_list .sortable" ).append( '<li class="ui-state-default ui-texture" texture_id="' + value.id + '">' + value.name + '</li>' );
+			$( "#texture_list .sortable" ).append( '<li class="ui-state-default ui-texture" texture_id="' + value.id + '">' + value.name + '</li>' );
 		} );
 
 		if( selected_texture.texture == false ) {
@@ -133,11 +130,15 @@ function texture_list_event_listeners() {
 				} else {
 
 					if( $( this ).attr( "texture_id" ) != undefined) {
+						
 						/* Set selected texture */
 						selected_texture.texture = selected_texture.group.textures.find( obj => obj.id == $( this ).attr( "texture_id" ) );
 					} else {	
+						
 						/* Clear selected texture */
 						selected_texture.texture = false;
+						
+						load_texture_preview( true );
 					}
 
 					/* Reload texture list */
@@ -158,28 +159,32 @@ function clear_texture_paint_preview() {
 	$( "#container #toolbar #map_paint_preview" ).css( "display", "none" );
 }
 
-function load_texture_preview( bg_texture = false ) {
+function load_texture_preview( hide_preview = false ) {
 
-	/* Setup the texture paint preview */
-	$( "#container #toolbar #map_paint_preview" ).css( "display", "block" );
-	$( "#container #toolbar #map_paint_preview" ).html( "<table></table>" );
-	
-	/* Add 8 rows */
-	for(i=0; i<8; i++)
-		$( "#map_paint_preview table" ).append( '<tr row_id="' + i + '"></tr>' );
+	/* Hide the preview box, updated code from when a bg texture was available */
+	if( hide_preview) {
 
-	/* Add 8 cells for each row and set background color */
-	$( "#map_paint_preview table" ).children().each( function() {
+		$( "#container #toolbar #map_paint_preview" ).css( "display", "none" );
+	} else {
 
-		for(i=0; i<8; i++) {
+		/* Setup the texture paint preview */
+		$( "#container #toolbar #map_paint_preview" ).css( "display", "block" );
+		$( "#container #toolbar #map_paint_preview" ).html( "<table></table>" );
+		
+		/* Add 8 rows */
+		for(i=0; i<8; i++)
+			$( "#map_paint_preview table" ).append( '<tr row_id="' + i + '"></tr>' );
 
-			/* Deal with it being flipped */
-			var row_sel = $( this ).attr( "row_id" );
-			var col_sel = i;
+		/* Add 8 cells for each row and set background color */
+		$( "#map_paint_preview table" ).children().each( function() {
 
-			/* Only deal with flipping if we're not showing the background texture */
-			if( !bg_texture) {
-			
+			for(i=0; i<8; i++) {
+
+				/* Deal with it being flipped */
+				var row_sel = $( this ).attr( "row_id" );
+				var col_sel = i;
+
+				/* Deal with flipping */
 				if( selected_texture.texture_reverse_y == true ) {
 					/* Flip vertically */
 					row_sel = 7 - ( $( this ).attr( "row_id" ) );
@@ -188,27 +193,14 @@ function load_texture_preview( bg_texture = false ) {
 					/* Flip horizontally */
 					col_sel = 7 - i;
 				}
-			}
-
-			/* Are we showing the current texture or the map's background texture? */
-			if( bg_texture ) {
-
-				if( ( selected_map.bg_texture.gid != undefined ) && ( selected_map.bg_texture.id != undefined ) ) {
-
-					var _bg_texture_group = project.textures.find( obj => obj.gid == selected_map.bg_texture.gid );
-					var _bg_texture = _bg_texture_group.textures.find( obj => obj.id == selected_map.bg_texture.id );
-
-					$( '<td col_id="'+i+'"></td>' ).appendTo( $(this) ).css( "background", "#" + _bg_texture.data[col_sel][row_sel]);
-				}
-			} else {
 
 				$( '<td col_id="'+i+'"></td>' ).appendTo( $(this) ).css( "background", "#" + selected_texture.texture.data[col_sel][row_sel]);
 			}
-		}
-	} );
+		} );
 
-	/* Add styling if painting */
-	if( ( drawing_functions == 1 ) || ( drawing_functions == 3 ) ) set_map_tile_settings_styles();
+		/* Add styling if painting */
+		if( ( drawing_functions == 1 ) || ( drawing_functions == 3 ) ) set_map_tile_settings_styles();
+	}
 }
 
 function update_image_cache( single = false ) {
