@@ -931,6 +931,9 @@ function texture_toolbar_event_listeners() {
 								/* Clear the selected group */
 								selected_texture.group = false;
 
+								/* Reload preview window */
+								load_texture_preview();
+
 							} else {
 
 								/* Reorder the textures in local array */

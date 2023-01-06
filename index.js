@@ -119,7 +119,7 @@ const createWindow = () => {
 	];
 
     const menu = Menu.buildFromTemplate( menuTemplate );
-    Menu.setApplicationMenu( menu );
+    //Menu.setApplicationMenu( menu );
 
 	//console.log('size:', mainWindow.getSize());
 }
