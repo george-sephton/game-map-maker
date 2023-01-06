@@ -36,6 +36,10 @@ package-lock.json
 node_modules*/
 **/node_modules
 
+# Don't upload projects
+projects*/
+**/projects
+
 build*/
 **/build
 .vscode
