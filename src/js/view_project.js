@@ -287,9 +287,11 @@ function project_toolbar_event_listeners() {
 										blank_tile.bg_texture_id = undefined;
 										blank_tile.bg_texture_reverse_x = false;
 										blank_tile.bg_texture_reverse_y = false;
+										blank_tile.bg_animate_en = false;
 
 										blank_tile.can_walk = [true, true, true, true];
 										blank_tile.top_layer = false;
+										blank_tile.animate_en = false;
 
 										blank_tile.exit_tile = false;
 										blank_tile.exit_map_id = false;
@@ -556,9 +558,6 @@ function project_toolbar_event_listeners() {
 								if( $( this ).attr( "id" ) == "map_export_gba" ) {
 
 									var filter = { name: "GBA Header File", extensions: [ "h" ] };
-								} else if( $( this ).attr( "id" ) == "map_export_ps" ) {
-
-									var filter = { name: "PicoSystem Header File", extensions: [ "hpp" ] };
 								} else if( $( this ).attr( "id" ) == "map_export_json" ) {
 
 									var filter = { name: "JSON", extensions: [ "json" ] };
@@ -575,10 +574,6 @@ function project_toolbar_event_listeners() {
 
 											var export_data = export_data_gba();
 											var alert_msg = "Project exported for Game Boy Advance at ";
-										} else if( $( this ).attr( "id" ) == "map_export_ps" ) {
-
-											var export_data = export_data_ps();
-											var alert_msg = "Project exported for PicoSystem at ";
 										} else if( $( this ).attr( "id" ) == "map_export_json" ) {
 
 											var export_data =  JSON.stringify( project );

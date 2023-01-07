@@ -1084,8 +1084,8 @@ function texture_toolbar_event_listeners() {
 						$( "#container #sidebar #texture_list_toolbar" ).css( "display", "none" );
 						$( "#container #sidebar #texture_list_toolbar_rename" ).css( "display", "flex" );
 
-						/* Focus on input, add placeholder text and add event listeners */
-						$( "#container #sidebar #texture_list_toolbar_rename #texture_rename" ).focus();
+						/* Focus on input - add a lil delay to let node catch up */
+						setTimeout( function() { $( "#container #sidebar #texture_list_toolbar_rename #texture_rename" ).focus(); }, 200 );
 
 						/* Set the placeholder if we're renaming the selected texture */
 						$( "#container #sidebar #texture_list_toolbar_rename #texture_rename" ).attr( "placeholder", "New group name" );
