@@ -256,15 +256,18 @@ function enable_controls() {
 	
 	if( selected_texture.texture != false )
 		$( "#container #toolbar #map_paint_preview" ).css( "display", "block" );
+	else
+		$( "#container #toolbar #map_paint_preview" ).css( "display", "none" );
 
 	if( ( selected_texture.group == false ) && ( selected_map != false ) ) {
 		
 		$( "#container #toolbar #map_settings" ).css( "display", "flex" );
-		$( "#container #toolbar #map_paint_preview" ).css( "display", "block" );
 
 		/* Re-enable the map settings panel */
 		map_settings_panel_enable();
 	}
+
+	set_layer();
 
 	/* Hide auto increment option */
 	$( "#container #toolbar #settings #name_input_container #paint_auto_inc_en" ).css( "display", "none" );
