@@ -480,7 +480,7 @@ function export_data_gba() {
 				}
 
 				/* Add in the data for each cell */
-				output += output_num(cell.top_layer) + ", " + output_num(cell.animate_en) + ", ";
+				output += output_num(cell.top_layer) + ", " + output_num(cell.animate_en) + ", " + output_num(cell.bg_animate_en) + ", ";
 				output += output_num(cell.can_walk[0]) + ", " + output_num(cell.can_walk[1]) + ", " + output_num(cell.can_walk[2]) + ", " + output_num(cell.can_walk[3]) + ", ";
 				output += output_num(cell_output_texture_gid) + ", " + output_num(cell_output_texture_id) + ", ";
 				output += output_num(cell.texture_reverse_x) + ", " + output_num(cell.texture_reverse_y) + ", ";

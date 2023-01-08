@@ -361,6 +361,15 @@ function set_map_cell( selector, tile_info ) {
 			d = new Date();
 			selector.find( "img" ).attr( "src", img_src + "?" + d.getTime() );
 		}
+
+		if( selected_map.data[tile_info.row][tile_info.col].bg_animate_en ) {
+
+			/* Update CSS based on bg_animate_en */
+			selector.css( "border-top", map_border_size + "px solid #fc8dd7" );
+			selector.css( "border-right", map_border_size + "px solid #fc8dd7" );
+			selector.css( "border-bottom", map_border_size + "px solid #fc8dd7" );
+			selector.css( "border-left", map_border_size + "px solid #fc8dd7" );
+		}
 	}
 
 	/* Keep zoom consistent */
@@ -854,6 +863,7 @@ function map_toolbar_event_listeners() {
 
 											dupl_tiles[ _row ][ _col ].bg_texture_reverse_x = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].bg_texture_reverse_x;
 											dupl_tiles[ _row ][ _col ].bg_texture_reverse_y = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].bg_texture_reverse_y;
+											dupl_tiles[ _row ][ _col ].bg_animate_en = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].bg_animate_en;
 										}
 									}
 								}
@@ -895,9 +905,12 @@ function map_toolbar_event_listeners() {
 						selected_texture.exit_map_dir = [0, 0];
 						selected_texture.exit_map_pos = [0, 0];
 
-						/* Only show the paint settings if we're drawing on the foreground layer */
-						if( current_layer_fg )
-							$( "#container #toolbar #map_paint_settings" ).css( "display", "flex" );
+						/* Show the paint settings */
+						$( "#container #toolbar #map_paint_settings" ).css( "display", "flex" );
+
+						/* Update the paint settings */
+						//set_map_tile_settings_styles();
+
 						load_texture_preview();
 
 						/* Disable groups in texture list */
@@ -1008,7 +1021,7 @@ function map_toolbar_event_listeners() {
 											map_tile.bg_texture_reverse_y = selected_texture.texture_reverse_y;
 										}
 										
-										map_tile.bg_animate_en = undefined;
+										map_tile.bg_animate_en = false;
 									}
 								} );
 							} );
@@ -1138,7 +1151,7 @@ function map_toolbar_event_listeners() {
 							/* Columns change */
 							var set_cols = parseInt( $( "#container #toolbar #map_size_settings #cols #map_cols" ).val() );
 
-							if( ( set_cols >= 3 ) && ( set_cols <= 99 ) ) {
+							if( ( set_cols >= 3 ) && ( set_cols <= 140 ) ) {
 								map_resizing.new_width = set_cols;
 								load_map_editor();
 							}
@@ -1148,7 +1161,7 @@ function map_toolbar_event_listeners() {
 							/* Rows change */
 							var set_rows = parseInt( $( "#container #toolbar #map_size_settings #rows #map_rows" ).val() );
 							
-							if( ( set_rows >= 3 ) && ( set_rows <= 99 ) ) {
+							if( ( set_rows >= 3 ) && ( set_rows <= 140 ) ) {
 								map_resizing.new_height = set_rows;
 								load_map_editor();
 							}
@@ -1716,6 +1729,7 @@ function map_editor_event_listeners() {
 
 					selected_map.data[ tile_info.row ][ tile_info.col ].bg_texture_reverse_x = selected_texture.texture_reverse_x;
 					selected_map.data[ tile_info.row ][ tile_info.col ].bg_texture_reverse_y = selected_texture.texture_reverse_y;
+					selected_map.data[ tile_info.row ][ tile_info.col ].bg_animate_en = selected_texture.animate_en;
 				}
 
 
@@ -1798,10 +1812,7 @@ function map_editor_event_listeners() {
 					/* Display auto increment option */
 					$( "#container #toolbar #settings #name_input_container #paint_auto_inc_en" ).css( "display", "block" );
 					$( "#container #toolbar #settings #name_input_container label[for='paint_auto_inc_en']" ).css( "display", "block" );
-
-					/* Only show the paint settings if we're drawing on the foreground layer */
-					if( current_layer_fg )
-						$( "#container #toolbar #map_paint_settings" ).css( "display", "flex" );
+					$( "#container #toolbar #map_paint_settings" ).css( "display", "flex" );
 
 					load_texture_preview();
 
@@ -1858,6 +1869,7 @@ function map_editor_event_listeners() {
 
 								selected_map.data[ _loop_cell.row ][ _loop_cell.col ].bg_texture_reverse_x = dupl_tiles[ _row ][ _col ].bg_texture_reverse_x;
 								selected_map.data[ _loop_cell.row ][ _loop_cell.col ].bg_texture_reverse_y = dupl_tiles[ _row ][ _col ].bg_texture_reverse_y;
+								selected_map.data[ _loop_cell.row ][ _loop_cell.col ].bg_animate_en = dupl_tiles[ _row ][ _col ].bg_animate_en;
 							}
 
 							/* Update the cell */
@@ -2033,6 +2045,7 @@ function map_editor_event_listeners() {
 
 								dupl_tiles[ _row ][ _col ].bg_texture_reverse_x = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].bg_texture_reverse_x;
 								dupl_tiles[ _row ][ _col ].bg_texture_reverse_y = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].bg_texture_reverse_y;
+								dupl_tiles[ _row ][ _col ].bg_animate_en = selected_map.data[ _dupl_cell.row ][ _dupl_cell.col ].bg_animate_en;
 							}
 						}
 					}
@@ -2248,41 +2261,72 @@ function set_map_tile_settings_styles( direct_update = false ) {
 	
 	} else {
 
-		/* Interact tile disabled, hide the rest of the settings */
+		/* Nothing selected */
 		$( "#exit_tile_en" ).prop( "checked", false );
 		$( "#npc_tile_en" ).prop( "checked", false );
 		$( "#interact_tile_en" ).prop( "checked", false );
 		$( "#animate_tile_en" ).prop( "checked", false );
 
-		$( "#container #toolbar #map_paint_settings input:not(.exit_ignore_hide):not(.interact_ignore_hide)" ).css( "display", "none" );
-		$( "#container #toolbar #map_paint_settings label:not(.exit_ignore_hide):not(.interact_ignore_hide)" ).css( "display", "none" );
-		$( "#container #toolbar #map_paint_settings select" ).css( "display", "none" );
+		/* Hide all options except animate if not drawing on the foreground layer */
+		if( !current_layer_fg ) {
 
-		$( "#container #toolbar #map_paint_settings #interact_tile_id" ).css( "display", "none" );
-		$( "#container #toolbar #map_paint_settings label[for='interact_tile_id']" ).css( "display", "none" );
-		$( "#container #toolbar #map_paint_settings #npc_tile_id" ).css( "display", "none" );
-		$( "#container #toolbar #map_paint_settings label[for='npc_tile_id']" ).css( "display", "none" );
+			/* Disable the "can walk" and "top layer" checkboxes */
+			$( ".dir_en_checkbox" ).prop( "checked", true );
+			$( ".dir_en_checkbox" ).prop( "disabled", true );
+			$( "#top_layer_en" ).prop( "checked", false );
+			$( "#top_layer_en" ).prop( "disabled", true );
 
-		/* Show Exit tile settings */
-		$( "#container #toolbar #map_paint_settings #exit_tile_en" ).css( "display", "block" );
-		$( "#container #toolbar #map_paint_settings label[for='exit_tile_en']" ).css( "display", "block" );
+			$( "#container #toolbar #map_paint_settings input:not(.animate_ignore_hide)" ).css( "display", "none" );
+			$( "#container #toolbar #map_paint_settings label:not(.animate_ignore_hide)" ).css( "display", "none" );
+			$( "#container #toolbar #map_paint_settings select" ).css( "display", "none" );
 
-		/* Show Interact tile settings */
-		$( "#container #toolbar #map_paint_settings #interact_tile_en" ).css( "display", "block" );
-		$( "#container #toolbar #map_paint_settings label[for='interact_tile_en']" ).css( "display", "block" );
+			/* Hide Interact tile settings */
+			$( "#container #toolbar #map_paint_settings #interact_tile_en" ).css( "display", "none" );
+			$( "#container #toolbar #map_paint_settings label[for='interact_tile_en']" ).css( "display", "none" );
+			$( "#container #toolbar #map_paint_settings #interact_tile_id" ).css( "display", "none" );
+			$( "#container #toolbar #map_paint_settings label[for='interact_tile_id']" ).css( "display", "none" );
 
-		/* Show NPC tile settings */
-		$( "#container #toolbar #map_paint_settings #npc_tile_en" ).css( "display", "block" );
-		$( "#container #toolbar #map_paint_settings label[for='npc_tile_en']" ).css( "display", "block" );
+			/* Hide Exit tile settings */
+			$( "#container #toolbar #map_paint_settings #exit_tile_en" ).css( "display", "none" );
+			$( "#container #toolbar #map_paint_settings label[for='exit_tile_en']" ).css( "display", "none" );
 
-		/* Show Animate tile settings */
-		$( "#container #toolbar #map_paint_settings #animate_tile_en" ).css( "display", "block" );
-		$( "#container #toolbar #map_paint_settings label[for='animate_tile_en']" ).css( "display", "block" );
+			/* Hide NPC tile settings */
+			$( "#container #toolbar #map_paint_settings #npc_tile_en" ).css( "display", "none" );
+			$( "#container #toolbar #map_paint_settings label[for='npc_tile_en']" ).css( "display", "none" );
+			$( "#container #toolbar #map_paint_settings #npc_tile_id" ).css( "display", "none" );
+			$( "#container #toolbar #map_paint_settings label[for='npc_tile_id']" ).css( "display", "none" );
+		} else {
 
-		/* Enable all the checkboxes */
-		$( ".dir_en_checkbox" ).prop( "checked", false );
-		$( ".dir_en_checkbox" ).prop( "disabled", false );
-		$( "#top_layer_en" ).prop( "disabled", false );
+			$( "#container #toolbar #map_paint_settings input:not(.exit_ignore_hide):not(.interact_ignore_hide)" ).css( "display", "none" );
+			$( "#container #toolbar #map_paint_settings label:not(.exit_ignore_hide):not(.interact_ignore_hide)" ).css( "display", "none" );
+			$( "#container #toolbar #map_paint_settings select" ).css( "display", "none" );
+
+			$( "#container #toolbar #map_paint_settings #interact_tile_id" ).css( "display", "none" );
+			$( "#container #toolbar #map_paint_settings label[for='interact_tile_id']" ).css( "display", "none" );
+			$( "#container #toolbar #map_paint_settings #npc_tile_id" ).css( "display", "none" );
+			$( "#container #toolbar #map_paint_settings label[for='npc_tile_id']" ).css( "display", "none" );
+
+			/* Show Exit tile settings */
+			$( "#container #toolbar #map_paint_settings #exit_tile_en" ).css( "display", "block" );
+			$( "#container #toolbar #map_paint_settings label[for='exit_tile_en']" ).css( "display", "block" );
+
+			/* Show Interact tile settings */
+			$( "#container #toolbar #map_paint_settings #interact_tile_en" ).css( "display", "block" );
+			$( "#container #toolbar #map_paint_settings label[for='interact_tile_en']" ).css( "display", "block" );
+
+			/* Show NPC tile settings */
+			$( "#container #toolbar #map_paint_settings #npc_tile_en" ).css( "display", "block" );
+			$( "#container #toolbar #map_paint_settings label[for='npc_tile_en']" ).css( "display", "block" );
+
+			/* Show Animate tile settings */
+			$( "#container #toolbar #map_paint_settings .animate_ignore_hide" ).css( "display", "block" );
+
+			/* Enable all the checkboxes */
+			$( ".dir_en_checkbox" ).prop( "checked", false );
+			$( ".dir_en_checkbox" ).prop( "disabled", false );
+			$( "#top_layer_en" ).prop( "disabled", false );
+		}
+
 		$( "#exit_tile_en" ).prop( "disabled", false );
 		$( "#interact_tile_en" ).prop( "disabled", false );
 		$( "#npc_tile_en" ).prop( "disabled", false );
@@ -2387,8 +2431,7 @@ function display_tile_info( tile_row, tile_col ) {
 		selected_texture.npc_id = selected_map.data[tile_row][tile_col].npc_id;
 
 		selected_texture.top_layer = selected_map.data[tile_row][tile_col].top_layer;
-		selected_texture.animate_en = selected_map.data[tile_row][tile_col].animate_en;
-
+		
 		selected_texture.exit_map_dir = new Array();
 		$.extend( true, selected_texture.exit_map_dir, selected_map.data[tile_row][tile_col].exit_map_dir ); /* Clone array */
 		selected_texture.exit_map_pos = new Array();
@@ -2396,8 +2439,6 @@ function display_tile_info( tile_row, tile_col ) {
 		selected_texture.can_walk = new Array();
 		$.extend( true, selected_texture.can_walk, selected_map.data[tile_row][tile_col].can_walk ); /* Clone array */
 	}
-
-	selected_texture.animate_en = selected_map.data[tile_row][tile_col].animate_en;
 
 	/* Update texture list */
 	load_texture_list(); /* note this function resets the flip state */
@@ -2407,10 +2448,12 @@ function display_tile_info( tile_row, tile_col ) {
 		
 		selected_texture.texture_reverse_x = selected_map.data[tile_row][tile_col].texture_reverse_x;
 		selected_texture.texture_reverse_y = selected_map.data[tile_row][tile_col].texture_reverse_y;
+		selected_texture.animate_en = selected_map.data[tile_row][tile_col].animate_en;
 	} else {
 
 		selected_texture.texture_reverse_x = selected_map.data[tile_row][tile_col].bg_texture_reverse_x;
 		selected_texture.texture_reverse_y = selected_map.data[tile_row][tile_col].bg_texture_reverse_y;
+		selected_texture.animate_en = selected_map.data[tile_row][tile_col].bg_animate_en
 	}
 
 	/* Update preview and tile settings panel */

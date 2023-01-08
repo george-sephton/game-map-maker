@@ -87,12 +87,12 @@ $( function() {
 		/* Update cached images */
 		update_cached_images();
 
-		selected_map = project.maps.find( obj => obj.id == 0 );
-		load_map_editing_view();
+		//selected_map = project.maps.find( obj => obj.id == 0 );
+		//load_map_editing_view();
 		
-		selected_texture.group = project.textures.find( obj => obj.gid == 0 );
-		selected_texture.texture = selected_texture.group.textures.find( obj => obj.id == 0 );
-		load_texture_list();
+		//selected_texture.group = project.textures.find( obj => obj.gid == 0 );
+		//selected_texture.texture = selected_texture.group.textures.find( obj => obj.id == 0 );
+		//load_texture_list();
 		
 		//selected_sprite.group = project.sprites.find( obj => obj.gid == 0 );
 		//selected_sprite.sprite = selected_sprite.group.sprites.find( obj => obj.id == 0 );
